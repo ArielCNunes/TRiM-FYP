@@ -65,11 +65,13 @@ This system solves these problems by providing a modern, automated booking platf
 - **SSL:** Let's Encrypt
 
 ## Project Structure
+```
 barber-booking-system/
 ├── backend/           # Spring Boot application
 ├── frontend/          # React application
 ├── docker-compose.yml # Container orchestration
 └── README.md         # This file
+```
 
 ## Development Methodology
 
