@@ -1,4 +1,4 @@
-package com.barbershop.v7bookingapi;
+package com.barbershop.v7bookingapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
