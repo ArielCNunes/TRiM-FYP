@@ -1,4 +1,4 @@
-# Barber Shop Booking System
+# TRiM - A Comprehensive Software Solution For Barber Shops
 
 **Final Year Project - BSc (Hons) Computing in Software Development**  
 **Student:** Ariel Nunes (G00418763)  
@@ -64,15 +64,6 @@ This system solves these problems by providing a modern, automated booking platf
 - **Reverse Proxy:** Nginx
 - **SSL:** Let's Encrypt
 
-## Project Structure
-```
-barber-booking-system/
-├── backend/           # Spring Boot application
-├── frontend/          # React application
-├── docker-compose.yml # Container orchestration
-└── README.md         # This file
-```
-
 ## Development Methodology
 
 This project follows **Agile Scrum** methodology with:
@@ -88,13 +79,13 @@ This project follows **Agile Scrum** methodology with:
 
 ## Documentation
 
-- Project Proposal: [Link to proposal when uploaded]
-- Dissertation: [Link when complete]
+- Project Proposal: [N/A]
+- Dissertation: [N/A]
 - User Guide: [Coming soon]
 
 ## Supervisor
 
-*To be assigned*
+Andrew Beatty - Lecturer in Software at ATU
 
 ## License
 
