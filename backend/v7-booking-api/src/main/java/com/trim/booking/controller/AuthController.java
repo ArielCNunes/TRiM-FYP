@@ -14,7 +14,6 @@ public class AuthController {
     private final UserService userService;
 
     public AuthController(UserService userService) {
-        // Inject the UserService
         this.userService = userService;
     }
 
