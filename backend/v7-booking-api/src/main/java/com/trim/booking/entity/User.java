@@ -1,4 +1,4 @@
-package com.barbershop.v7bookingapi.entity;
+package com.trim.booking.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

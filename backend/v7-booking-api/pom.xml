@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.barbershop</groupId>
-    <artifactId>v7-booking-api</artifactId>
+    <artifactId>trim-booking-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>v7-booking-api</name>
     <description>v7-booking-api</description>

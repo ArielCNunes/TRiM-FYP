@@ -1,4 +1,4 @@
-package com.barbershop.v7bookingapi;
+package com.trim.booking;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
