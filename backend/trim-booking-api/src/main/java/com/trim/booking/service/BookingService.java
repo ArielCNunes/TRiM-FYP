@@ -4,6 +4,7 @@ import com.trim.booking.entity.*;
 import com.trim.booking.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -30,17 +31,12 @@ public class BookingService {
     }
 
     /**
-     * Create a new booking.
+     * Create a new booking with race condition protection.
      * <p>
-     * Steps:
-     * 1. Validate customer, barber, and service exist
-     * 2. Calculate end time based on service duration
-     * 3. Check if the time slot is still available
-     * 4. Create and save the booking
-     *
-     * @Transactional ensures atomicity - either all operations succeed or none do
+     * Uses pessimistic locking to prevent two customers from booking the same slot simultaneously.
+     * Transaction isolation ensures atomicity.
      */
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Booking createBooking(Long customerId, Long barberId, Long serviceId,
                                  LocalDate bookingDate, LocalTime startTime) {
 
@@ -57,16 +53,28 @@ public class BookingService {
         // Step 2: Calculate end time
         LocalTime endTime = startTime.plusMinutes(service.getDurationMinutes());
 
-        // Step 3: Check if slot is available
-        // Get all available slots for this date/service/barber
-        List<LocalTime> availableSlots = availabilityService.getAvailableSlots(
-                barberId, bookingDate, serviceId);
+        // Step 3: Get existing bookings with pessimistic lock
+        // This prevents other transactions from reading these bookings until we're done
+        List<Booking> existingBookings = bookingRepository
+                .findByBarberIdAndBookingDateWithLock(barberId, bookingDate);
 
-        if (!availableSlots.contains(startTime)) {
-            throw new RuntimeException("Selected time slot is not available");
+        // Step 4: Check for conflicts manually
+        for (Booking existing : existingBookings) {
+            // Skip cancelled bookings
+            if (existing.getStatus() == Booking.BookingStatus.CANCELLED) {
+                continue;
+            }
+
+            // Check for time overlap
+            boolean hasOverlap = startTime.isBefore(existing.getEndTime()) &&
+                    endTime.isAfter(existing.getStartTime());
+
+            if (hasOverlap) {
+                throw new RuntimeException("This time slot is no longer available");
+            }
         }
 
-        // Step 4: Create the booking
+        // Step 5: Create the booking
         Booking booking = new Booking();
         booking.setCustomer(customer);
         booking.setBarber(barber);
@@ -77,8 +85,12 @@ public class BookingService {
         booking.setStatus(Booking.BookingStatus.PENDING);
         booking.setPaymentStatus(Booking.PaymentStatus.PENDING);
 
-        // Save to database
-        return bookingRepository.save(booking);
+        // Save to database - unique constraint will catch any duplicates that slipped through
+        try {
+            return bookingRepository.save(booking);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create booking - slot may have been taken");
+        }
     }
 
     /**
