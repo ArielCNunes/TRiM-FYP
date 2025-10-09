@@ -20,8 +20,5 @@ GET http://localhost:8080/api/bookings/barber/1
 ### Get Booking by ID
 GET http://localhost:8080/api/bookings/1
 
-### This should fail - double booking same slot
-GET http://localhost:8080/api/availability?barberId=1&date=2025-10-13&serviceId=1
-
 ### Cancel Booking
 PATCH http://localhost:8080/api/bookings/1/cancel
