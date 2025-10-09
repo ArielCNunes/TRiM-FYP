@@ -1,0 +1,50 @@
+### Set Barber Availability - Monday
+POST http://localhost:8080/api/barber-availability
+Content-Type: application/json
+
+{
+  "barberId": 1,
+  "dayOfWeek": "MONDAY",
+  "startTime": "09:00",
+  "endTime": "17:00",
+  "isAvailable": true
+}
+
+### Set Barber Availability - Tuesday
+POST http://localhost:8080/api/barber-availability
+Content-Type: application/json
+
+{
+  "barberId": 1,
+  "dayOfWeek": "TUESDAY",
+  "startTime": "10:00",
+  "endTime": "18:00",
+  "isAvailable": true
+}
+
+### Set Barber Availability - Wednesday
+POST http://localhost:8080/api/barber-availability
+Content-Type: application/json
+
+{
+  "barberId": 1,
+  "dayOfWeek": "WEDNESDAY",
+  "startTime": "09:00",
+  "endTime": "17:00",
+  "isAvailable": true
+}
+
+### Get All Availability for Barber 1
+GET http://localhost:8080/api/barber-availability/barber/1
+
+### Get All Availability
+GET http://localhost:8080/api/barber-availability
+
+### Get Available Slots for Barber 1 on a Monday (Service 1)
+GET http://localhost:8080/api/availability?barberId=1&date=2025-10-13&serviceId=1
+
+### Get Available Slots for Barber 1 on a Tuesday (Service 1)
+GET http://localhost:8080/api/availability?barberId=1&date=2025-10-14&serviceId=1
+
+### Delete Availability
+DELETE http://localhost:8080/api/barber-availability/1
