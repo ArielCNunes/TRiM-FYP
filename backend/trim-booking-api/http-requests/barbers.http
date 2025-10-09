@@ -1,0 +1,37 @@
+### Create Barber
+POST http://localhost:8080/api/barbers
+Content-Type: application/json
+
+{
+  "firstName": "Mike",
+  "lastName": "Smith",
+  "email": "mike@barbershop.com",
+  "phone": "0871234568",
+  "password": "password123",
+  "bio": "10 years experience in fades and beard styling",
+  "profileImageUrl": "https://example.com/photos/mike.jpg"
+}
+
+### Get All Barbers
+GET http://localhost:8080/api/barbers
+
+### Get Active Barbers
+GET http://localhost:8080/api/barbers/active
+
+### Get Barber by ID
+GET http://localhost:8080/api/barbers/1
+
+### Update Barber
+PUT http://localhost:8080/api/barbers/1
+Content-Type: application/json
+
+{
+  "bio": "15 years experience specializing in modern fades",
+  "profileImageUrl": "https://example.com/photos/mike-updated.jpg"
+}
+
+### Deactivate Barber
+PATCH http://localhost:8080/api/barbers/1/deactivate
+
+### Delete Barber
+DELETE http://localhost:8080/api/barbers/1

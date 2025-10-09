@@ -1,0 +1,38 @@
+### Create Service
+POST http://localhost:8080/api/services
+Content-Type: application/json
+
+{
+  "name": "Mens Haircut",
+  "description": "Standard mens haircut with wash",
+  "durationMinutes": 30,
+  "price": 25.00,
+  "active": true
+}
+
+### Get All Services
+GET http://localhost:8080/api/services
+
+### Get Active Services
+GET http://localhost:8080/api/services/active
+
+### Get Service by ID
+GET http://localhost:8080/api/services/1
+
+### Update Service
+PUT http://localhost:8080/api/services/1
+Content-Type: application/json
+
+{
+  "name": "Premium Mens Haircut",
+  "description": "Premium haircut with hot towel treatment",
+  "durationMinutes": 45,
+  "price": 35.00,
+  "active": true
+}
+
+### Deactivate Service
+PATCH http://localhost:8080/api/services/1/deactivate
+
+### Delete Service
+DELETE http://localhost:8080/api/services/1
