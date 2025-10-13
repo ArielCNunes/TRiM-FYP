@@ -8,7 +8,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiO
   "barberId": 1,
   "serviceId": 1,
   "bookingDate": "2025-10-13",
-  "startTime": "13:00",
+  "startTime": "14:00",
   "notes": "First haircut appointment"
 }
 

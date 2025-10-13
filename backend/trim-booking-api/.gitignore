@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Password and environment variable files ###
+.env
+*.env
