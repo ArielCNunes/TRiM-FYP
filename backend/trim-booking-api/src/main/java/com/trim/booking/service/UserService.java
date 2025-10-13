@@ -16,6 +16,34 @@ public class UserService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+    /**
+     * Authenticate user and return user details.
+     *
+     * @param email    User's email
+     * @param password Plain text password
+     * @return User if credentials valid
+     * @throws RuntimeException if credentials invalid
+     */
+    public User login(String email, String password) {
+        // Find user by email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        // Check password
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        return user;
+    }
+
+    /**
+     * Register a new customer.
+     *
+     * @param request Registration request containing user details
+     * @return Registered User
+     * @throws RuntimeException if email already exists
+     */
     public User registerCustomer(RegisterRequest request) {
         // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
