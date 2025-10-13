@@ -36,3 +36,29 @@ PATCH http://localhost:8080/api/services/1/deactivate
 
 ### Delete Service
 DELETE http://localhost:8080/api/services/1
+
+### Create Service as CUSTOMER (should fail with 403)
+POST http://localhost:8080/api/services
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjEsInN1YiI6ImpvaG5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjAzNDM1NjEsImV4cCI6MTc2MDQyOTk2MX0.GUwcT6yGuQ1A4Mumd2Rf01mzxycVpEQUb-Yu_dD82Qc
+
+{
+  "name": "Beard Trim",
+  "description": "Professional beard trim",
+  "durationMinutes": 15,
+  "price": 15.00,
+  "active": true
+}
+
+### Create Service as ADMIN (should succeed with 201)
+POST http://localhost:8080/api/services
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwMzQ0MDcxLCJleHAiOjE3NjA0MzA0NzF9.qkxizU8FqDbabaPbBB7CQIUUHVt7CNcIL4MWx4ntVgM
+
+{
+  "name": "Beard Trim",
+  "description": "Professional beard trim",
+  "durationMinutes": 15,
+  "price": 15.00,
+  "active": true
+}

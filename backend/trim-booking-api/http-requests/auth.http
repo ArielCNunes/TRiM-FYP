@@ -25,3 +25,24 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiO
 
 ### Get All Services (No token - should fail)
 GET http://localhost:8080/api/services
+
+### Register Admin
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Admin",
+  "lastName": "User",
+  "email": "admin@barbershop.com",
+  "password": "admin123",
+  "phone": "0871234569"
+}
+
+### Login as Admin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@barbershop.com",
+  "password": "admin123"
+}

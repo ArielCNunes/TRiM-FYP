@@ -8,19 +8,20 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/barbers")
 public class BarberController {
-
     private final BarberService barberService;
 
     public BarberController(BarberService barberService) {
         this.barberService = barberService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createBarber(@Valid @RequestBody CreateBarberRequest request) {
         try {
@@ -39,6 +40,7 @@ public class BarberController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBarber(
             @PathVariable Long id,
@@ -72,6 +74,7 @@ public class BarberController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivateBarber(@PathVariable Long id) {
         try {
@@ -82,6 +85,7 @@ public class BarberController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBarber(@PathVariable Long id) {
         barberService.deleteBarber(id);

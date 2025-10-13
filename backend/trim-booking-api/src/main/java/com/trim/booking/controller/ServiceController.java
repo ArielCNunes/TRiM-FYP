@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class ServiceController {
         this.servicesOfferedService = servicesOfferedService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ServiceOffered> createService(@Valid @RequestBody ServiceOffered service) {
         ServiceOffered created = servicesOfferedService.createService(service);
@@ -41,6 +43,7 @@ public class ServiceController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ServiceOffered> updateService(
             @PathVariable Long id,
@@ -53,12 +56,14 @@ public class ServiceController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteService(@PathVariable Long id) {
         servicesOfferedService.deleteService(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivateService(@PathVariable Long id) {
         try {

@@ -7,6 +7,7 @@ import com.trim.booking.repository.BarberRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -31,6 +32,7 @@ public class BarberAvailabilityController {
      * Example: POST /api/barber-availability
      * Body: { "barberId": 1, "dayOfWeek": "MONDAY", "startTime": "09:00", "endTime": "17:00", "isAvailable": true }
      */
+    @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @PostMapping
     public ResponseEntity<?> setAvailability(@RequestBody Map<String, Object> request) {
         try {
@@ -79,6 +81,7 @@ public class BarberAvailabilityController {
     /**
      * Delete availability record.
      */
+    @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAvailability(@PathVariable Long id) {
         barberAvailabilityRepository.deleteById(id);
