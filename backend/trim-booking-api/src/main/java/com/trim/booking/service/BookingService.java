@@ -18,18 +18,20 @@ public class BookingService {
     private final ServiceRepository serviceRepository;
     private final AvailabilityService availabilityService;
     private final EmailService emailService;
+    private final SmsService smsService;
 
     public BookingService(BookingRepository bookingRepository,
                           UserRepository userRepository,
                           BarberRepository barberRepository,
                           ServiceRepository serviceRepository,
-                          AvailabilityService availabilityService, EmailService emailService) {
+                          AvailabilityService availabilityService, EmailService emailService, SmsService smsService) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.barberRepository = barberRepository;
         this.serviceRepository = serviceRepository;
         this.availabilityService = availabilityService;
         this.emailService = emailService;
+        this.smsService = smsService;
     }
 
     /**
@@ -93,6 +95,9 @@ public class BookingService {
 
             // Send confirmation email asynchronously
             emailService.sendBookingConfirmation(savedBooking);
+
+            // Send SMS notification asynchronously
+            smsService.sendBookingConfirmation(savedBooking);
             return savedBooking;
         } catch (Exception e) {
             throw new RuntimeException("Failed to create booking - slot may have been taken");
