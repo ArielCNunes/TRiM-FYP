@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -47,7 +49,17 @@ public class BookingController {
      * GET /api/bookings/customer/{customerId}
      */
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<Booking>> getCustomerBookings(@PathVariable Long customerId) {
+    public ResponseEntity<?> getCustomerBookings(@PathVariable Long customerId) {
+        // Get authenticated user's ID from SecurityContext
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user is trying to access their own bookings
+        if (!authenticatedUserId.equals(customerId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You can only view your own bookings");
+        }
+
         return ResponseEntity.ok(bookingService.getCustomerBookings(customerId));
     }
 

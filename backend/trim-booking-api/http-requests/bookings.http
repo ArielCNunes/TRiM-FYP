@@ -22,3 +22,11 @@ GET http://localhost:8080/api/bookings/1
 
 ### Cancel Booking
 PATCH http://localhost:8080/api/bookings/1/cancel
+
+### Get Customer 1 Bookings as Customer 1 (should work)
+GET http://localhost:8080/api/bookings/customer/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjEsInN1YiI6ImpvaG5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjAzNDUyMjYsImV4cCI6MTc2MDQzMTYyNn0.UrozYVZWiKNHW3d0Lx-wj8fZLLbqi5HtR7vYbuG-4Rs
+
+### Get Customer 1 Bookings as Different Customer (should fail with 403)
+GET http://localhost:8080/api/bookings/customer/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwMzQ1MjczLCJleHAiOjE3NjA0MzE2NzN9.zEOCwnBz6ubAKJgl5nop2igTBeNBKeMQh7nTeIW_9pI
