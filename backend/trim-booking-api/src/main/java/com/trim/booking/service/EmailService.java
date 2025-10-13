@@ -42,7 +42,7 @@ public class EmailService {
             message.setText(emailBody);
 
             // Sender
-            message.setFrom("no-reply@trimbooking.com");
+            message.setFrom("noreply.trim.bookings@gmail.com");
 
             // Send email
             mailSender.send(message);
