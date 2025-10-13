@@ -18,3 +18,10 @@ Content-Type: application/json
   "email": "john@example.com",
   "password": "password123"
 }
+
+### Get All Services (Protected - needs token)
+GET http://localhost:8080/api/services
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjEsInN1YiI6ImpvaG5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjAzNDM1NjEsImV4cCI6MTc2MDQyOTk2MX0.GUwcT6yGuQ1A4Mumd2Rf01mzxycVpEQUb-Yu_dD82Qc
+
+### Get All Services (No token - should fail)
+GET http://localhost:8080/api/services
