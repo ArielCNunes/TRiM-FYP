@@ -90,9 +90,3 @@ Andrew Beatty - Lecturer in Software at ATU
 ## License
 
 This project is developed as part of academic requirements at ATU.
-
----
-
-**Status:** 🚧 In Development  
-**Current Sprint:** Sprint 0 - Project Setup  
-**Last Updated:** October 2024
