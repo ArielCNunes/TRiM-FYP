@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import com.trim.booking.dto.LoginRequest;
 import com.trim.booking.dto.LoginResponse;
 import com.trim.booking.config.JwtUtil;
-import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/auth")
