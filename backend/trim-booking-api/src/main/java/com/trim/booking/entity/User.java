@@ -3,6 +3,7 @@ package com.trim.booking.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -84,6 +85,7 @@ public class User {
         this.email = email;
     }
 
+    @JsonIgnore // never include passwordHash in JSON responses
     public String getPasswordHash() {
         return passwordHash;
     }
