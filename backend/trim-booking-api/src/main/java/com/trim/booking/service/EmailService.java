@@ -91,4 +91,68 @@ public class EmailService {
                 booking.getStatus()
         );
     }
+
+    /**
+     * Send appointment reminder email (24 hours before).
+     */
+    @Async
+    public void sendReminderEmail(Booking booking) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+
+            message.setTo(booking.getCustomer().getEmail());
+            message.setSubject("Reminder: Tomorrow's Appointment - " + booking.getService().getName());
+
+            String emailBody = buildReminderEmail(booking);
+            message.setText(emailBody);
+            message.setFrom("noreply.trim.bookings@gmail.com");
+
+            mailSender.send(message);
+
+            // Log success
+            System.out.println("Reminder email sent to: " + booking.getCustomer().getEmail());
+
+        } catch (Exception e) {
+            System.err.println("Failed to send reminder email: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Build reminder email body.
+     */
+    private String buildReminderEmail(Booking booking) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
+
+        return String.format("""
+                        Hi %s,
+                        
+                        This is a friendly reminder about your appointment tomorrow!
+                        
+                        Appointment Details:
+                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                        Service: %s
+                        Barber: %s %s
+                        Date: %s
+                        Time: %s - %s
+                        Price: €%.2f
+                        
+                        Please arrive 5 minutes early.
+                        
+                        If you need to cancel, please do so at least 24 hours in advance.
+                        
+                        See you tomorrow!
+                        
+                        Best regards!
+                        """,
+                booking.getCustomer().getFirstName(),
+                booking.getService().getName(),
+                booking.getBarber().getUser().getFirstName(),
+                booking.getBarber().getUser().getLastName(),
+                booking.getBookingDate().format(dateFormatter),
+                booking.getStartTime().format(timeFormatter),
+                booking.getEndTime().format(timeFormatter),
+                booking.getService().getPrice()
+        );
+    }
 }

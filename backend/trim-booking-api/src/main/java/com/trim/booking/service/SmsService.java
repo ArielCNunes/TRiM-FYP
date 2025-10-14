@@ -62,4 +62,42 @@ public class SmsService {
                 booking.getStartTime().format(timeFormatter)
         );
     }
+
+    /**
+     * Send appointment reminder SMS (24 hours before).
+     */
+    @Async
+    public void sendReminderSms(Booking booking) {
+        try {
+            String messageBody = buildReminderSms(booking);
+
+            Message message = Message.creator(
+                    new PhoneNumber(booking.getCustomer().getPhone()),
+                    new PhoneNumber(twilioConfig.getPhoneNumber()),
+                    messageBody
+            ).create();
+
+            System.out.println("SMS reminder sent to: " + booking.getCustomer().getPhone() +
+                    " (SID: " + message.getSid() + ")");
+
+        } catch (Exception e) {
+            System.err.println("Failed to send reminder SMS: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Build reminder SMS body.
+     */
+    private String buildReminderSms(Booking booking) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM dd");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
+
+        return String.format(
+                "Reminder: Your appointment is tomorrow!\n%s with %s\n%s at %s\nPlease arrive 5 min early.",
+                booking.getService().getName(),
+                booking.getBarber().getUser().getFirstName(),
+                booking.getBookingDate().format(dateFormatter),
+                booking.getStartTime().format(timeFormatter)
+        );
+    }
 }
