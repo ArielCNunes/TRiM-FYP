@@ -1,9 +1,9 @@
 # Client Meeting Log
 
-**Project:** TRiM Booking System
+**Project:** TRiM Booking System 
 **Developer:** Ariel Nunes (G00418763)  
-**Client:** Jean, owner of V7 Barbers
-**Academic Year:** 2025/2026
+**Client:** Jean, owner of V7 Barbers 
+**Academic Year:** 2025/2026 
 
 ---
 
