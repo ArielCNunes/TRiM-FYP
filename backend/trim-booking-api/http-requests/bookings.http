@@ -52,3 +52,22 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiO
 {
   "bookingId": 6
 }
+
+### Create Booking with Pay In Shop
+POST http://localhost:8080/api/bookings
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjQsInN1YiI6ImFyaWVsY2Fzc2lhbm8zMjFAZ21haWwuY29tIiwiaWF0IjoxNzYwNDU2MzM0LCJleHAiOjE3NjA1NDI3MzR9.v3XEf2i78OBB6z3cRelmjB7oVm-FBRHn7RhV_MvPEpc
+
+{
+  "customerId": 4,
+  "barberId": 1,
+  "serviceId": 1,
+  "bookingDate": "2025-10-16",
+  "startTime": "10:00",
+  "paymentMethod": "pay_in_shop"
+}
+
+### Mark Pay-In-Shop Booking as Paid (Barber)
+PUT http://localhost:8080/api/bookings/7/mark-paid
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyLCJzdWIiOiJtaWtlQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNDU4NzMwLCJleHAiOjE3NjA1NDUxMzB9.IQdoAZSM66q1wwIjjZZDs_4X5y8RqutxEFRbGiID7ts
+

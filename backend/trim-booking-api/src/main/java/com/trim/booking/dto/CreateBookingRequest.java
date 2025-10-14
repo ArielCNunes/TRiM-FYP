@@ -22,12 +22,21 @@ public class CreateBookingRequest {
     private LocalTime startTime;
 
     private String notes;
+    private String paymentMethod;
 
     // Constructors
     public CreateBookingRequest() {
     }
 
     // Getters and Setters
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
     public Long getCustomerId() {
         return customerId;
     }

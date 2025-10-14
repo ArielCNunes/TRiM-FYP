@@ -1,5 +1,7 @@
 package com.trim.booking.controller;
 
+import com.trim.booking.repository.BookingRepository;
+
 import com.trim.booking.dto.CreateBookingRequest;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.service.BookingService;
@@ -20,9 +22,11 @@ import java.util.List;
 @RequestMapping("/api/bookings")
 public class BookingController {
     private final BookingService bookingService;
+    private final BookingRepository bookingRepository;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingService bookingService, BookingRepository bookingRepository) {
         this.bookingService = bookingService;
+        this.bookingRepository = bookingRepository;
     }
 
     /**
@@ -39,9 +43,34 @@ public class BookingController {
                     request.getBarberId(),
                     request.getServiceId(),
                     request.getBookingDate(),
-                    request.getStartTime()
+                    request.getStartTime(),
+                    request.getPaymentMethod() != null ? request.getPaymentMethod() : "pay_online"
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(booking);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Mark booking as paid (for pay_in_shop bookings).
+     * <p>
+     * PUT /api/bookings/{id}/mark-paid
+     */
+    @PutMapping("/{id}/mark-paid")
+    @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
+    public ResponseEntity<?> markAsPaid(@PathVariable Long id) {
+        try {
+            Booking booking = bookingService.getBookingById(id);
+
+            if (booking.getPaymentStatus() != Booking.PaymentStatus.PAY_IN_SHOP) {
+                return ResponseEntity.badRequest().body("Only pay-in-shop bookings can be marked as paid manually");
+            }
+
+            booking.setPaymentStatus(Booking.PaymentStatus.PAID);
+            bookingRepository.save(booking);
+
+            return ResponseEntity.ok(booking);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

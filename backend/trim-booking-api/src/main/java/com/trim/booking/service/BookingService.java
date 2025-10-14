@@ -41,8 +41,7 @@ public class BookingService {
      * Transaction isolation ensures atomicity.
      */
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public Booking createBooking(Long customerId, Long barberId, Long serviceId,
-                                 LocalDate bookingDate, LocalTime startTime) {
+    public Booking createBooking(Long customerId, Long barberId, Long serviceId, LocalDate bookingDate, LocalTime startTime, String paymentMethod) {
 
         // Step 1: Validate entities exist
         User customer = userRepository.findById(customerId)
@@ -88,6 +87,16 @@ public class BookingService {
         booking.setEndTime(endTime);
         booking.setStatus(Booking.BookingStatus.PENDING);
         booking.setPaymentStatus(Booking.PaymentStatus.PENDING);
+
+        // Set payment status based on payment method
+        if ("pay_in_shop".equalsIgnoreCase(paymentMethod)) {
+            booking.setPaymentStatus(Booking.PaymentStatus.PAY_IN_SHOP);
+            booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        } else {
+            // Online payment - will be handled by payment service
+            booking.setPaymentStatus(Booking.PaymentStatus.PENDING);
+            booking.setStatus(Booking.BookingStatus.PENDING);
+        }
 
         // Save to database - unique constraint will catch any duplicates that slipped through
         try {
