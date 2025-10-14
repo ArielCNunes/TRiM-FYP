@@ -129,10 +129,13 @@ public class BookingController {
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<?> cancelBooking(@PathVariable Long id) {
         try {
-            Booking booking = bookingService.cancelBooking(id);
+            bookingService.cancelBooking(id);
+
+            // Fetch the updated booking to return it
+            Booking booking = bookingService.getBookingById(id);
             return ResponseEntity.ok(booking);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

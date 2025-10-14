@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Isolation;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BookingService {
@@ -19,12 +20,14 @@ public class BookingService {
     private final AvailabilityService availabilityService;
     private final EmailService emailService;
     private final SmsService smsService;
+    private final PaymentService paymentService;
+    private final PaymentRepository paymentRepository;
 
     public BookingService(BookingRepository bookingRepository,
                           UserRepository userRepository,
                           BarberRepository barberRepository,
                           ServiceRepository serviceRepository,
-                          AvailabilityService availabilityService, EmailService emailService, SmsService smsService) {
+                          AvailabilityService availabilityService, EmailService emailService, SmsService smsService, PaymentService paymentService, PaymentRepository paymentRepository) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.barberRepository = barberRepository;
@@ -32,6 +35,8 @@ public class BookingService {
         this.availabilityService = availabilityService;
         this.emailService = emailService;
         this.smsService = smsService;
+        this.paymentService = paymentService;
+        this.paymentRepository = paymentRepository;
     }
 
     /**
@@ -169,9 +174,41 @@ public class BookingService {
      * Cancel a booking.
      */
     @Transactional
-    public Booking cancelBooking(Long bookingId) {
-        Booking booking = getBookingById(bookingId);
+    public void cancelBooking(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        // Check if booking is already cancelled
+        if (booking.getStatus() == Booking.BookingStatus.CANCELLED) {
+            throw new RuntimeException("Booking is already cancelled");
+        }
+
+        // Update booking status
         booking.setStatus(Booking.BookingStatus.CANCELLED);
-        return bookingRepository.save(booking);
+
+        // If booking was paid online (via Stripe), process refund
+        if (booking.getPaymentStatus() == Booking.PaymentStatus.PAID) {
+            try {
+                // Check if payment exists (only for online payments)
+                Optional<Payment> paymentOpt = paymentRepository.findByBookingId(bookingId);
+                if (paymentOpt.isPresent()) {
+                    // Online payment - process Stripe refund
+                    paymentService.processRefund(bookingId);
+                    System.out.println("Refund processed for booking: " + bookingId);
+                } else {
+                    // Pay-in-shop marked as paid - just update status, no refund
+                    bookingRepository.save(booking);
+                    System.out.println("Booking cancelled (pay-in-shop, no refund): " + bookingId);
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to process refund: " + e.getMessage());
+                throw new RuntimeException("Failed to process refund: " + e.getMessage());
+            }
+        } else {
+            // No refund needed for unpaid bookings
+            bookingRepository.save(booking);
+        }
+
+        System.out.println("Booking cancelled: " + bookingId);
     }
 }
