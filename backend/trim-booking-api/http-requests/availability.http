@@ -48,3 +48,14 @@ GET http://localhost:8080/api/availability?barberId=1&date=2025-10-14&serviceId=
 
 ### Delete Availability
 DELETE http://localhost:8080/api/barber-availability/1
+
+### Update Barber Availability
+PUT http://localhost:8080/api/barber-availability/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyLCJzdWIiOiJtaWtlQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNDM0NjAwLCJleHAiOjE3NjA1MjEwMDB9.hBF-_3p-i5q1lz1JfPN-cgscGQXUvLPYvYg2kiVKQBc
+
+{
+  "startTime": "08:00",
+  "endTime": "16:00",
+  "isAvailable": true
+}

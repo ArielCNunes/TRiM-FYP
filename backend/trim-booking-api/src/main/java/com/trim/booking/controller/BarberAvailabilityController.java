@@ -62,6 +62,39 @@ public class BarberAvailabilityController {
     }
 
     /**
+     * Update barber availability.
+     * <p>
+     * PUT /api/barber-availability/{id}
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateAvailability(@PathVariable Long id, @RequestBody Map<String, Object> request) {
+        try {
+            BarberAvailability availability = barberAvailabilityRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Availability not found"));
+
+            // Update fields if provided
+            if (request.containsKey("dayOfWeek")) {
+                availability.setDayOfWeek(DayOfWeek.valueOf(request.get("dayOfWeek").toString()));
+            }
+            if (request.containsKey("startTime")) {
+                availability.setStartTime(LocalTime.parse(request.get("startTime").toString()));
+            }
+            if (request.containsKey("endTime")) {
+                availability.setEndTime(LocalTime.parse(request.get("endTime").toString()));
+            }
+            if (request.containsKey("isAvailable")) {
+                availability.setIsAvailable(Boolean.valueOf(request.get("isAvailable").toString()));
+            }
+
+            BarberAvailability updated = barberAvailabilityRepository.save(availability);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
      * Get all availability for a barber.
      */
     @GetMapping("/barber/{barberId}")
