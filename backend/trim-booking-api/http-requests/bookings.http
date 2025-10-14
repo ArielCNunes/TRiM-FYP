@@ -43,3 +43,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiO
 ### Get Customer 1 Bookings as Different Customer (should fail with 403)
 GET http://localhost:8080/api/bookings/customer/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwMzQ1MjczLCJleHAiOjE3NjA0MzE2NzN9.zEOCwnBz6ubAKJgl5nop2igTBeNBKeMQh7nTeIW_9pI
+
+### Create Payment Intent for Booking
+POST http://localhost:8080/api/payments/create-intent
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjQsInN1YiI6ImFyaWVsY2Fzc2lhbm8zMjFAZ21haWwuY29tIiwiaWF0IjoxNzYwNDU2MzM0LCJleHAiOjE3NjA1NDI3MzR9.v3XEf2i78OBB6z3cRelmjB7oVm-FBRHn7RhV_MvPEpc
+
+{
+  "bookingId": 6
+}

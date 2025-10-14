@@ -1,0 +1,17 @@
+### Simulate Stripe Webhook - Payment Success
+POST http://localhost:8080/api/payments/webhook
+Content-Type: application/json
+Stripe-Signature: test
+
+{
+  "id": "evt_test",
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "id": "pi_3SIAJqHDr0Jv0EQZ1mDGOL87",
+      "amount": 2500,
+      "currency": "eur",
+      "status": "succeeded"
+    }
+  }
+}

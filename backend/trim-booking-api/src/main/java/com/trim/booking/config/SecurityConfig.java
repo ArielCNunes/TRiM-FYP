@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()  // Register, Login
                         .requestMatchers("/api/services/active").permitAll()  // Browse services
                         .requestMatchers("/api/barbers/active").permitAll()  // Browse barbers
+                        .requestMatchers("/api/payments/webhook").permitAll() // Stripe webhook
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
