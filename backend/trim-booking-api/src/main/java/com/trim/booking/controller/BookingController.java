@@ -9,6 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -97,6 +101,50 @@ public class BookingController {
     public ResponseEntity<?> cancelBooking(@PathVariable Long id) {
         try {
             Booking booking = bookingService.cancelBooking(id);
+            return ResponseEntity.ok(booking);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Get barber's schedule for a specific date.
+     * <p>
+     * GET /api/bookings/barber/{barberId}/schedule?date=2025-10-20
+     */
+    @GetMapping("/barber/{barberId}/schedule")
+    @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
+    public ResponseEntity<List<Booking>> getBarberSchedule(@PathVariable Long barberId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<Booking> schedule = bookingService.getBarberScheduleForDate(barberId, date);
+        return ResponseEntity.ok(schedule);
+    }
+
+    /**
+     * Mark booking as completed.
+     * <p>
+     * PUT /api/bookings/{id}/complete
+     */
+    @PutMapping("/{id}/complete")
+    @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
+    public ResponseEntity<?> markAsCompleted(@PathVariable Long id) {
+        try {
+            Booking booking = bookingService.markAsCompleted(id);
+            return ResponseEntity.ok(booking);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Mark booking as no-show.
+     * <p>
+     * PUT /api/bookings/{id}/no-show
+     */
+    @PutMapping("/{id}/no-show")
+    @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
+    public ResponseEntity<?> markAsNoShow(@PathVariable Long id) {
+        try {
+            Booking booking = bookingService.markAsNoShow(id);
             return ResponseEntity.ok(booking);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

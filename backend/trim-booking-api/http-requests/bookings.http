@@ -12,6 +12,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiO
   "notes": "First haircut appointment"
 }
 
+### Get Barber Schedule for Specific Date (as Barber)
+GET http://localhost:8080/api/bookings/barber/1/schedule?date=2025-10-13
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyLCJzdWIiOiJtaWtlQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNDM0NjAwLCJleHAiOjE3NjA1MjEwMDB9.hBF-_3p-i5q1lz1JfPN-cgscGQXUvLPYvYg2kiVKQBc
+
+### Mark Booking as Completed
+PUT http://localhost:8080/api/bookings/1/complete
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyLCJzdWIiOiJtaWtlQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNDM0NjAwLCJleHAiOjE3NjA1MjEwMDB9.hBF-_3p-i5q1lz1JfPN-cgscGQXUvLPYvYg2kiVKQBc
+
+### Mark Booking as No-Show
+PUT http://localhost:8080/api/bookings/1/no-show
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyLCJzdWIiOiJtaWtlQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNDM0NjAwLCJleHAiOjE3NjA1MjEwMDB9.hBF-_3p-i5q1lz1JfPN-cgscGQXUvLPYvYg2kiVKQBc
+
 ### Get Customer Bookings
 GET http://localhost:8080/api/bookings/customer/1
 

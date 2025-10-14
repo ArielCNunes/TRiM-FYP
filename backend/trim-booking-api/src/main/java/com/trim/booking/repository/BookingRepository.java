@@ -19,6 +19,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByBarberId(Long barberId);
 
+    // This query locks the rows for the specified barber and date to prevent race conditions
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT b FROM Booking b WHERE b.barber.id = :barberId AND b.bookingDate = :bookingDate")
     List<Booking> findByBarberIdAndBookingDateWithLock(@Param("barberId") Long barberId,

@@ -10,12 +10,12 @@ Content-Type: application/json
   "phone": "0871234567"
 }
 
-### Login
+### Login as barber
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "arielcassiano321@gmail.com",
+  "email": "mike@barbershop.com",
   "password": "password123"
 }
 

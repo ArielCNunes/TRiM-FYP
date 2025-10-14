@@ -127,6 +127,36 @@ public class BookingService {
     }
 
     /**
+     * Get barber's bookings for a specific date.
+     */
+    public List<Booking> getBarberScheduleForDate(Long barberId, LocalDate date) {
+        List<Booking> allBookings = bookingRepository.findByBarberIdAndBookingDate(barberId, date);
+        return allBookings;
+    }
+
+    /**
+     * Mark booking as completed.
+     * Only the assigned barber or admin can do this.
+     */
+    @Transactional
+    public Booking markAsCompleted(Long bookingId) {
+        Booking booking = getBookingById(bookingId);
+        booking.setStatus(Booking.BookingStatus.COMPLETED);
+        return bookingRepository.save(booking);
+    }
+
+    /**
+     * Mark booking as no-show.
+     * Only the assigned barber or admin can do this.
+     */
+    @Transactional
+    public Booking markAsNoShow(Long bookingId) {
+        Booking booking = getBookingById(bookingId);
+        booking.setStatus(Booking.BookingStatus.NO_SHOW);
+        return bookingRepository.save(booking);
+    }
+
+    /**
      * Cancel a booking.
      */
     @Transactional
