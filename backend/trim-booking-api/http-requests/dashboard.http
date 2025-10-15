@@ -1,0 +1,4 @@
+### Get Admin Dashboard Stats
+GET http://localhost:8080/api/dashboard/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNTM5MzAzLCJleHAiOjE3NjA2MjU3MDN9.VDOjU6C5AoYcD9SoyvkU6OYgtNnAkx1G5faovvk41dc
+

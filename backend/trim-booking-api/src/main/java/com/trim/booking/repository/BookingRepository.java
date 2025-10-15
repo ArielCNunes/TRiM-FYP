@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,4 +31,19 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.barber.id = :barberId AND b.bookingDate = :bookingDate")
     List<Booking> findByBarberIdAndBookingDateWithLock(@Param("barberId") Long barberId,
                                                        @Param("bookingDate") LocalDate bookingDate);
+
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.bookingDate = CURRENT_DATE")
+    Long countTodaysBookings();
+
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.bookingDate >= CURRENT_DATE AND b.status != 'CANCELLED'")
+    Long countUpcomingBookings();
+
+    @Query("SELECT SUM(b.service.price) FROM Booking b WHERE b.paymentStatus = 'PAID'")
+    BigDecimal calculateTotalRevenue();
+
+    @Query("SELECT SUM(b.service.price) FROM Booking b WHERE b.paymentStatus = 'PAID' AND MONTH(b.bookingDate) = MONTH(CURRENT_DATE) AND YEAR(b.bookingDate) = YEAR(CURRENT_DATE)")
+    BigDecimal calculateThisMonthRevenue();
+
+    @Query("SELECT b.service.name as serviceName, COUNT(b) as count FROM Booking b WHERE b.status != 'CANCELLED' GROUP BY b.service.name ORDER BY count DESC")
+    List<Object[]> findPopularServices();
 }
