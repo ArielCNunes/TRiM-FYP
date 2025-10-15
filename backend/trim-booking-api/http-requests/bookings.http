@@ -74,3 +74,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyL
 ### Cancel Paid Booking (Should Trigger Refund)
 PATCH http://localhost:8080/api/bookings/7/cancel
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjQsInN1YiI6ImFyaWVsY2Fzc2lhbm8zMjFAZ21haWwuY29tIiwiaWF0IjoxNzYwNDY4MzEzLCJleHAiOjE3NjA1NTQ3MTN9.tahscVdJxnAfdtNhe98g4qxZhJ4LmoZ0mBPXeyqguvY
+
+### Get All Bookings (Admin)
+GET http://localhost:8080/api/bookings/all
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNTE0OTMxLCJleHAiOjE3NjA2MDEzMzF9.HYA7ExEvFjnazTZ56zXJU8dX44ZLSfJc4293BOerMhc
+
+### Get All Bookings for Specific Date
+GET http://localhost:8080/api/bookings/all?date=2025-10-15
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNTE0OTMxLCJleHAiOjE3NjA2MDEzMzF9.HYA7ExEvFjnazTZ56zXJU8dX44ZLSfJc4293BOerMhc
+
+### Get All Bookings by Status
+GET http://localhost:8080/api/bookings/all?status=CONFIRMED
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNTE0OTMxLCJleHAiOjE3NjA2MDEzMzF9.HYA7ExEvFjnazTZ56zXJU8dX44ZLSfJc4293BOerMhc
+
+### Get Bookings by Date and Status
+GET http://localhost:8080/api/bookings/all?date=2025-10-13&status=PENDING
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNTE0OTMxLCJleHAiOjE3NjA2MDEzMzF9.HYA7ExEvFjnazTZ56zXJU8dX44ZLSfJc4293BOerMhc

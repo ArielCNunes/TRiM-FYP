@@ -107,6 +107,36 @@ public class BookingController {
     }
 
     /**
+     * Get all bookings (admin only) with optional filters.
+     * <p>
+     * GET /api/bookings/all?status=PENDING&date=2025-10-15
+     */
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Booking>> getAllBookings(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        List<Booking> bookings;
+
+        if (date != null && status != null) {
+            // Filter by both date and status
+            bookings = bookingRepository.findByBookingDateAndStatus(date, Booking.BookingStatus.valueOf(status.toUpperCase()));
+        } else if (date != null) {
+            // Filter by date only
+            bookings = bookingRepository.findByBookingDate(date);
+        } else if (status != null) {
+            // Filter by status only
+            bookings = bookingRepository.findByStatus(Booking.BookingStatus.valueOf(status.toUpperCase()));
+        } else {
+            // No filters - return all bookings
+            bookings = bookingRepository.findAll();
+        }
+
+        return ResponseEntity.ok(bookings);
+    }
+
+    /**
      * Get a specific booking by ID.
      * <p>
      * GET /api/bookings/{id}
