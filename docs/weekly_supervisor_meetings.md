@@ -8,7 +8,6 @@
 ---
 
 ### Meeting 1 - Wednesday 8th of October
-**Sprint:** 0  
 **Duration:** 25 minutes  
 **Location:** Online through Teams
 
@@ -37,7 +36,6 @@
 ---
 
 ### Meeting 2 - Wednesday 15th of October
-**Sprint:** 0  
 **Duration:** 10 minutes  
 **Location:** Online through Teams
 
