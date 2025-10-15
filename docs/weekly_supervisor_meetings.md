@@ -1,6 +1,6 @@
 # Supervisor Meeting Log
 
-**Project:** V7 Barbers Booking System  
+**Project:** TRiM - A Comprehensive Software Solution For Barber Shops
 **Student:** Ariel Nunes (G00418763)  
 **Supervisor:** Andrew Beatty  
 **Academic Year:** 2025/2026
@@ -33,3 +33,33 @@
 
 #### Next Meeting Date
 **Scheduled:** Wednesday 15th of October at 10:10am.
+
+---
+
+### Meeting 2 - Wednesday 15th of October
+**Sprint:** 0  
+**Duration:** 10 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Discuss revised project proposal before submission.
+
+#### Progress Demonstrated
+- Project proposal signed off by supervisor.
+
+#### Technical Discussion
+- Second phase of the project will now focus on implementing and researching Multi-Tenant Architecture.
+
+#### Supervisor Feedback
+- Project proposal looks good.
+- Try to get a second client to get more user requirements.
+
+#### Decisions Made
+- Get MVP up and running as quickly as possible.
+
+#### Action Items for Next Meeting
+- [ ] Keep working on MVP.
+- [ ] Get a second client.
+
+#### Next Meeting Date
+**Scheduled:** Wednesday 22nd of October at 10:10am.
