@@ -1,16 +1,31 @@
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
+import AppRoutes from './routes/AppRoutes';
 
-// Main Application Component
+/**
+ * App Component
+ * 
+ * Root component of the application.
+ * Sets up the application structure with routing, navigation, and toast notifications.
+ * 
+ * Structure:
+ * - BrowserRouter: Enables client-side routing
+ * - Navbar: Persistent navigation bar across all pages
+ * - AppRoutes: Main routing configuration for all application pages
+ * - Toaster: Global toast notification system for user feedback
+ */
 function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50">
+        {/* Navigation bar - displayed on all pages */}
         <Navbar />
-        <div className="py-10">
-          <h1 className="text-3xl text-center">TRiM</h1>
-        </div>
+        
+        {/* Main application routes */}
+        <AppRoutes />
+        
+        {/* Toast notification container - positioned at top-right */}
         <Toaster position="top-right" />
       </div>
     </BrowserRouter>
