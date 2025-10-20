@@ -4,6 +4,7 @@ import type {
   LoginResponse,
   RegisterRequest,
   User,
+  Service
 } from '../types';
 
 /**
@@ -34,4 +35,10 @@ export const authApi = {
    */
   register: (userData: RegisterRequest) =>
     api.post<User>('/auth/register', userData),
+};
+
+// Services Endpoints
+export const servicesApi = {
+  getActive: () =>
+    api.get<Service[]>('/services/active'),
 };

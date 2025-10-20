@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Login from '../pages/login';
 import Register from '../pages/Register';
+import BookingFlow from '@/pages/BookingFlow';
 
 /**
  * Placeholder Home component
@@ -25,6 +26,9 @@ export default function AppRoutes() {
 
       {/* Register page route */}
       <Route path="/register" element={<Register />} />
+
+      {/* Booking Flow route */}
+      <Route path="/booking" element={<BookingFlow />} />
     </Routes>
   );
 }
