@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import Login from '../pages/login';
+import Register from '../pages/Register';
 
 /**
  * Placeholder Home component
@@ -21,6 +22,9 @@ export default function AppRoutes() {
       
       {/* Login page route */}
       <Route path="/login" element={<Login />} />
+
+      {/* Register page route */}
+      <Route path="/register" element={<Register />} />
     </Routes>
   );
 }
