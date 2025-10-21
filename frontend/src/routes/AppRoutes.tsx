@@ -2,11 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Login from '../pages/login';
 import Register from '../pages/Register';
 import BookingFlow from '@/pages/BookingFlow';
-
-/**
- * Placeholder Home component
- */
-const Home = () => <div className="p-8 text-center">Home Page - Coming Soon</div>;
+import Home from '@/pages/Home';
 
 /**
  * AppRoutes Component
@@ -29,6 +25,9 @@ export default function AppRoutes() {
 
       {/* Booking Flow route */}
       <Route path="/booking" element={<BookingFlow />} />
+
+      {/* Home page route */}
+      <Route path="/" element={<Home />} />
     </Routes>
   );
 }
