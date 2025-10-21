@@ -1,14 +1,14 @@
 ### Create Booking
 POST http://localhost:8080/api/bookings
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjQsInN1YiI6ImFyaWVsY2Fzc2lhbm8zMjFAZ21haWwuY29tIiwiaWF0IjoxNzYwMzQ4NDE3LCJleHAiOjE3NjA0MzQ4MTd9.ieRGs1SbaiJOn-B3-jnXJ4nLKxvPIMs2DOj9at91WY4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjQsInN1YiI6ImFyaWVsY2Fzc2lhbm8zMjFAZ21haWwuY29tIiwiaWF0IjoxNzYxMDYyODU1LCJleHAiOjE3NjExNDkyNTV9.ZbTu9-4XGU-vmOD8QkZdCo9PP4ddA0D_stzx4eTkWyA
 
 {
   "customerId": 4,
   "barberId": 1,
   "serviceId": 1,
-  "bookingDate": "2025-10-13",
-  "startTime": "14:30",
+  "bookingDate": "2025-10-22",
+  "startTime": "09:00",
   "notes": "First haircut appointment"
 }
 
