@@ -48,6 +48,8 @@ public class BookingController {
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(booking);
         } catch (RuntimeException e) {
+            System.out.println("Error creating booking: " + e.getMessage());
+            System.out.println("ID: " + request.getCustomerId());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

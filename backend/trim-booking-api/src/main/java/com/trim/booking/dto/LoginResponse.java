@@ -1,6 +1,7 @@
 package com.trim.booking.dto;
 
 public class LoginResponse {
+    private Long id;
     private String token;
     private String email;
     private String firstName;
@@ -11,7 +12,8 @@ public class LoginResponse {
     public LoginResponse() {
     }
 
-    public LoginResponse(String token, String email, String firstName, String lastName, String role) {
+    public LoginResponse(Long id, String token, String email, String firstName, String lastName, String role) {
+        this.id = id;
         this.token = token;
         this.email = email;
         this.firstName = firstName;
@@ -20,6 +22,13 @@ public class LoginResponse {
     }
 
     // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getToken() {
         return token;
     }

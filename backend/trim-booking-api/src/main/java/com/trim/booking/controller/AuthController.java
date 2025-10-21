@@ -48,6 +48,7 @@ public class AuthController {
 
             // Create response
             LoginResponse response = new LoginResponse(
+                    user.getId(),
                     token,
                     user.getEmail(),
                     user.getFirstName(),
