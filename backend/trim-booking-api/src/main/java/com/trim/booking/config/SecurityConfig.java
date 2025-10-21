@@ -2,6 +2,7 @@ package com.trim.booking.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,15 +28,14 @@ public class SecurityConfig {
 
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints (no authentication needed)
-                        .requestMatchers("/api/auth/**").permitAll()  // Register, Login
-                        .requestMatchers("/api/services/active").permitAll()  // Browse services
-                        .requestMatchers("/api/barbers/active").permitAll()  // Browse barbers
-                        .requestMatchers("/api/payments/webhook").permitAll() // Stripe webhook
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll() // Swagger
-                        .requestMatchers("/api/availability").permitAll()  // Get available slots
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()  // Allow preflight
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/services/active").permitAll()
+                        .requestMatchers("/api/barbers/active").permitAll()
+                        .requestMatchers("/api/availability").permitAll()
+                        .requestMatchers("/api/payments/webhook").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
-                        // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
 
