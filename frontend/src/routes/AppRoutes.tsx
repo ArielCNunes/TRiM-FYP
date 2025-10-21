@@ -1,8 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
-import Login from '../pages/login';
-import Register from '../pages/Register';
+import Login from '@/pages/login';
+import Register from '@/pages/Register';
 import BookingFlow from '@/pages/BookingFlow';
 import Home from '@/pages/Home';
+import Admin from '@/pages/Admin';
 
 /**
  * AppRoutes Component
@@ -28,6 +29,9 @@ export default function AppRoutes() {
 
       {/* Home page route */}
       <Route path="/" element={<Home />} />
+
+      {/* Admin page route */}
+      <Route path="/admin" element={<Admin />} />
     </Routes>
   );
 }

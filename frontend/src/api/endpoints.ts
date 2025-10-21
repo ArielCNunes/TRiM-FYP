@@ -55,6 +55,17 @@ export const servicesApi = {
    */
   getActive: () =>
     api.get<Service[]>('/services/active'),
+
+  /**
+   * Create a new service
+   * 
+   * Creates a new service offering with the specified details.
+   * 
+   * @param service - The service data including name, description, duration, and price
+   * @returns Promise resolving to the created Service object
+   */
+  create: (service: any) =>
+    api.post<Service>('/services', service),
 };
 
 /**
@@ -72,6 +83,17 @@ export const barbersApi = {
    */
   getActive: () =>
     api.get<Barber[]>('/barbers/active'),
+
+  /**
+   * Create a new barber
+   * 
+   * Creates a new barber account with the specified user credentials.
+   * 
+   * @param barber - The barber data including name, email, phone, and bio
+   * @returns Promise resolving to the created Barber object
+   */
+  create: (barber: any) =>
+    api.post<Barber>('/barbers', barber),
 };
 
 /**
