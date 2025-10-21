@@ -7,6 +7,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   email: string;
+  id: number;
   firstName: string;
   lastName: string;
   role: string;
@@ -38,4 +39,46 @@ export interface Service {
   durationMinutes: number;
   price: number;
   active: boolean;
+}
+
+// Barber Types
+export interface BarberUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+export interface Barber {
+  id: number;
+  user: BarberUser;
+  bio?: string;
+  profileImageUrl?: string;
+  active: boolean;
+}
+
+// Booking Types
+export interface BookingRequest {
+  customerId: number;
+  barberId: number;
+  serviceId: number;
+  bookingDate: string;
+  startTime: string;
+  paymentMethod: 'pay_online' | 'pay_in_shop';
+  notes?: string;
+}
+
+export interface BookingResponse {
+  id: number;
+  customer: User;
+  barber: Barber;
+  service: Service;
+  bookingDate: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  paymentStatus: string;
+  notes?: string;
+  createdAt: string;
 }

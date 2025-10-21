@@ -44,10 +44,10 @@ export default function Login() {
     try {
       // Call login API with email and password
       const response = await authApi.login(formData);
-      const { token, email, firstName, lastName, role } = response.data;
+      const { id, token, email, firstName, lastName, role } = response.data;
       
       // Store credentials in Redux store for global access
-      dispatch(setCredentials({ token, email, firstName, lastName, role }));
+      dispatch(setCredentials({ id, token, email, firstName, lastName, role }));
       toast.success('Login successful!');
       
       // Redirect based on user role

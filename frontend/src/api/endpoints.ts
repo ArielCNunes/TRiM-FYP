@@ -4,7 +4,10 @@ import type {
   LoginResponse,
   RegisterRequest,
   User,
-  Service
+  Service,
+  Barber,
+  BookingRequest,
+  BookingResponse
 } from '../types';
 
 /**
@@ -37,8 +40,76 @@ export const authApi = {
     api.post<User>('/auth/register', userData),
 };
 
-// Services Endpoints
+/**
+ * Services API Endpoints
+ * 
+ * Provides methods for retrieving service offerings.
+ */
 export const servicesApi = {
+  /**
+   * Get active services
+   * 
+   * Retrieves all currently active services available for booking.
+   * 
+   * @returns Promise resolving to an array of Service objects
+   */
   getActive: () =>
     api.get<Service[]>('/services/active'),
+};
+
+/**
+ * Barbers API Endpoints
+ * 
+ * Provides methods for retrieving barber information.
+ */
+export const barbersApi = {
+  /**
+   * Get active barbers
+   * 
+   * Retrieves all currently active barbers available for bookings.
+   * 
+   * @returns Promise resolving to an array of Barber objects
+   */
+  getActive: () =>
+    api.get<Barber[]>('/barbers/active'),
+};
+
+/**
+ * Availability API Endpoints
+ * 
+ * Provides methods for checking barber availability and time slots.
+ */
+export const availabilityApi = {
+  /**
+   * Get available time slots
+   * 
+   * Retrieves all available time slots for a specific barber on a given date
+   * for a particular service. Used in the booking flow to display available
+   * appointment times to customers.
+   * 
+   * @param barberId - The unique identifier of the barber
+   * @param date - The date to check availability
+   * @param serviceId - The unique identifier of the requested service
+   * @returns Promise resolving to an array of time slot strings
+   */
+  getSlots: (barberId: number, date: string, serviceId: number) =>
+    api.get<string[]>(`/availability?barberId=${barberId}&date=${date}&serviceId=${serviceId}`),
+};
+
+/**
+ * Bookings API Endpoints
+ * 
+ * Provides methods for creating and managing bookings.
+ */
+export const bookingsApi = {
+  /**
+   * Create a new booking
+   * 
+   * Creates a new appointment booking with the specified details.
+   * 
+   * @param booking - The booking request data including barber, service, date, and time
+   * @returns Promise resolving to BookingResponse with confirmation details
+   */
+  create: (booking: BookingRequest) =>
+    api.post<BookingResponse>('/bookings', booking),
 };

@@ -5,6 +5,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 interface AuthState {
   token: string | null;
   user: {
+    id: number;
     email: string;
     firstName: string;
     lastName: string;
@@ -42,17 +43,17 @@ const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ token: string; email: string; firstName: string; lastName: string; role: string }>
+      action: PayloadAction<{ id: number, token: string; email: string; firstName: string; lastName: string; role: string }>
     ) => {
       // Sync Redux auth state with the fresh credentials received from a successful login.
-      const { token, email, firstName, lastName, role } = action.payload;
+      const { token, email, firstName, lastName, role, id } = action.payload;
       state.token = token;
-      state.user = { email, firstName, lastName, role };
+      state.user = { id, email, firstName, lastName, role };
       state.isAuthenticated = true;
       
       // Persist to localStorage so the session can be restored on the next visit.
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify({ email, firstName, lastName, role }));
+      localStorage.setItem('user', JSON.stringify({ id, email, firstName, lastName, role }));
     },
     
     logout: (state) => {
