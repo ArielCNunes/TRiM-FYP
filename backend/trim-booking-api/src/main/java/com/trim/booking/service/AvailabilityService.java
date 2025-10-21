@@ -48,7 +48,7 @@ public class AvailabilityService {
      * @param serviceId The ID of the service being booked
      * @return List of available time slots
      */
-    public List<LocalTime> getAvailableSlots(Long barberId, LocalDate date, Long serviceId) {
+    public List<String> getAvailableSlots(Long barberId, LocalDate date, Long serviceId) {
         // Step 1: Get the service to know its duration
         ServiceOffered service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("Service not found"));
@@ -99,7 +99,10 @@ public class AvailabilityService {
             currentSlot = currentSlot.plusMinutes(SLOT_INTERVAL_MINUTES);
         }
 
-        return availableSlots;
+        return availableSlots.stream()
+                .map(LocalTime::toString)
+                .collect(java.util.stream.Collectors.toList());
+
     }
 
     /**
