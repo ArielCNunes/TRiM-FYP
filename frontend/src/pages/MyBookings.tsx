@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useAppSelector } from '../store/hooks';
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { bookingsApi } from '../api/endpoints';
-import type { BookingResponse } from '../types';
+import { useState, useEffect } from "react";
+import { useAppSelector } from "../store/hooks";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { bookingsApi } from "../api/endpoints";
+import type { BookingResponse } from "../types";
 
 /**
  * My Bookings Page
@@ -13,7 +13,7 @@ import type { BookingResponse } from '../types';
  */
 export default function MyBookings() {
   const navigate = useNavigate();
-  const user = useAppSelector(state => state.auth.user);
+  const user = useAppSelector((state) => state.auth.user);
 
   // Local state for bookings list, loading indicator, and in-flight cancellation
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
@@ -26,7 +26,7 @@ export default function MyBookings() {
       <div className="p-8 text-center">
         <p className="text-red-600">Please log in to view your bookings</p>
         <button
-          onClick={() => navigate('/login')}
+          onClick={() => navigate("/login")}
           className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md"
         >
           Go to Login
@@ -51,7 +51,7 @@ export default function MyBookings() {
       // Filter for upcoming bookings only (not completed, cancelled, or no-show)
       const upcomingBookings = response.data.filter(
         (booking) =>
-          booking.status === 'PENDING' || booking.status === 'CONFIRMED'
+          booking.status === "PENDING" || booking.status === "CONFIRMED"
       );
       // Sort by date ascending (nearest first)
       upcomingBookings.sort(
@@ -60,7 +60,7 @@ export default function MyBookings() {
       );
       setBookings(upcomingBookings);
     } catch (error) {
-      toast.error('Failed to load bookings');
+      toast.error("Failed to load bookings");
     } finally {
       setLoading(false);
     }
@@ -70,17 +70,19 @@ export default function MyBookings() {
    * Cancel the specified booking after user confirmation and refresh the list.
    */
   const handleCancel = async (bookingId: number) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) {
+    if (!window.confirm("Are you sure you want to cancel this booking?")) {
       return;
     }
 
     setCancelling(bookingId);
     try {
       await bookingsApi.cancelBooking(bookingId);
-      toast.success('Booking cancelled');
-      fetchBookings();
+      toast.success("Booking cancelled");
+      // Remove from local state immediately
+      setBookings(bookings.filter((b) => b.id !== bookingId));
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to cancel booking';
+      const message =
+        error.response?.data?.message || "Failed to cancel booking";
       toast.error(String(message));
     } finally {
       setCancelling(null);
@@ -102,7 +104,7 @@ export default function MyBookings() {
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-600 mb-4">You have no upcoming bookings</p>
           <button
-            onClick={() => navigate('/booking')}
+            onClick={() => navigate("/booking")}
             className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
           >
             Book Now
@@ -120,10 +122,13 @@ export default function MyBookings() {
                 {/* Service & Barber */}
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Service</p>
-                  <p className="text-lg font-semibold">{booking.service.name}</p>
+                  <p className="text-lg font-semibold">
+                    {booking.service.name}
+                  </p>
                   <p className="text-sm text-gray-600 mt-2">Barber</p>
                   <p className="text-base">
-                    {booking.barber.user.firstName} {booking.barber.user.lastName}
+                    {booking.barber.user.firstName}{" "}
+                    {booking.barber.user.lastName}
                   </p>
                 </div>
 
@@ -131,11 +136,13 @@ export default function MyBookings() {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Date & Time</p>
                   <p className="text-lg font-semibold">
-                    {new Date(booking.bookingDate).toLocaleDateString()} at{' '}
+                    {new Date(booking.bookingDate).toLocaleDateString()} at{" "}
                     {booking.startTime}
                   </p>
                   <p className="text-sm text-gray-600 mt-2">Duration</p>
-                  <p className="text-base">{booking.service.durationMinutes} minutes</p>
+                  <p className="text-base">
+                    {booking.service.durationMinutes} minutes
+                  </p>
                 </div>
 
                 {/* Price & Status */}
@@ -148,9 +155,9 @@ export default function MyBookings() {
                   <p className="text-base">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        booking.status === 'CONFIRMED'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
+                        booking.status === "CONFIRMED"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
                       {booking.status}
@@ -161,7 +168,9 @@ export default function MyBookings() {
 
               {/* Payment Status */}
               <div className="mb-4 pb-4 border-t">
-                <p className="text-sm text-gray-600">Payment: {booking.paymentStatus}</p>
+                <p className="text-sm text-gray-600">
+                  Payment: {booking.paymentStatus}
+                </p>
               </div>
 
               {/* Cancel Button */}
@@ -170,7 +179,7 @@ export default function MyBookings() {
                 disabled={cancelling === booking.id}
                 className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 disabled:bg-gray-400 transition"
               >
-                {cancelling === booking.id ? 'Cancelling...' : 'Cancel Booking'}
+                {cancelling === booking.id ? "Cancelling..." : "Cancel Booking"}
               </button>
             </div>
           ))}
