@@ -10,128 +10,57 @@ import type {
   BookingResponse
 } from '../types';
 
-/**
- * Authentication API Endpoints
- * 
- * Provides methods for user authentication and registration.
- * All endpoints return Axios promises with typed responses.
- */
+/** Auth endpoints for login and registration. */
 export const authApi = {
-  /**
-   * Login endpoint
-   * 
-   * Authenticates a user with email and password credentials.
-   * 
-   * @param credentials - User login credentials (email and password)
-   * @returns Promise resolving to LoginResponse containing token and user info
-   */
+  /** Authenticate with email/password. */
   login: (credentials: LoginRequest) =>
     api.post<LoginResponse>('/auth/login', credentials),
   
-  /**
-   * Register endpoint
-   * 
-   * Creates a new user account with provided registration details.
-   * 
-   * @param userData - User registration data (email, password, firstName, lastName, etc.)
-   * @returns Promise resolving to User object with created user details
-   */
+  /** Create a new user account. */
   register: (userData: RegisterRequest) =>
     api.post<User>('/auth/register', userData),
 };
 
-/**
- * Services API Endpoints
- * 
- * Provides methods for retrieving service offerings.
- */
+/** Service catalogue endpoints. */
 export const servicesApi = {
-  /**
-   * Get active services
-   * 
-   * Retrieves all currently active services available for booking.
-   * 
-   * @returns Promise resolving to an array of Service objects
-   */
+  /** Fetch all active services. */
   getActive: () =>
     api.get<Service[]>('/services/active'),
 
-  /**
-   * Create a new service
-   * 
-   * Creates a new service offering with the specified details.
-   * 
-   * @param service - The service data including name, description, duration, and price
-   * @returns Promise resolving to the created Service object
-   */
+  /** Create a new service entry. */
   create: (service: any) =>
     api.post<Service>('/services', service),
 };
 
-/**
- * Barbers API Endpoints
- * 
- * Provides methods for retrieving barber information.
- */
+/** Barber management endpoints. */
 export const barbersApi = {
-  /**
-   * Get active barbers
-   * 
-   * Retrieves all currently active barbers available for bookings.
-   * 
-   * @returns Promise resolving to an array of Barber objects
-   */
+  /** Fetch all active barbers. */
   getActive: () =>
     api.get<Barber[]>('/barbers/active'),
 
-  /**
-   * Create a new barber
-   * 
-   * Creates a new barber account with the specified user credentials.
-   * 
-   * @param barber - The barber data including name, email, phone, and bio
-   * @returns Promise resolving to the created Barber object
-   */
+  /** Create a new barber profile. */
   create: (barber: any) =>
     api.post<Barber>('/barbers', barber),
 };
 
-/**
- * Availability API Endpoints
- * 
- * Provides methods for checking barber availability and time slots.
- */
+/** Availability lookup endpoints. */
 export const availabilityApi = {
-  /**
-   * Get available time slots
-   * 
-   * Retrieves all available time slots for a specific barber on a given date
-   * for a particular service. Used in the booking flow to display available
-   * appointment times to customers.
-   * 
-   * @param barberId - The unique identifier of the barber
-   * @param date - The date to check availability
-   * @param serviceId - The unique identifier of the requested service
-   * @returns Promise resolving to an array of time slot strings
-   */
+  /** Get available time slots for a barber/service/date. */
   getSlots: (barberId: number, date: string, serviceId: number) =>
     api.get<string[]>(`/availability?barberId=${barberId}&date=${date}&serviceId=${serviceId}`),
 };
 
-/**
- * Bookings API Endpoints
- * 
- * Provides methods for creating and managing bookings.
- */
+/** Booking flow endpoints. */
 export const bookingsApi = {
-  /**
-   * Create a new booking
-   * 
-   * Creates a new appointment booking with the specified details.
-   * 
-   * @param booking - The booking request data including barber, service, date, and time
-   * @returns Promise resolving to BookingResponse with confirmation details
-   */
+  /** Create a new booking. */
   create: (booking: BookingRequest) =>
     api.post<BookingResponse>('/bookings', booking),
+
+  /** Fetch bookings for the authenticated customer. */
+  getCustomerBookings: (customerId: number) =>
+    api.get<BookingResponse[]>(`/bookings/customer/${customerId}`),
+  
+  /** Cancel a booking by ID. */
+  cancelBooking: (bookingId: number) =>
+    api.patch<BookingResponse>(`/bookings/${bookingId}/cancel`),
 };

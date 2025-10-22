@@ -4,6 +4,7 @@ import Register from '@/pages/Register';
 import BookingFlow from '@/pages/BookingFlow';
 import Home from '@/pages/Home';
 import Admin from '@/pages/Admin';
+import MyBookings from '@/pages/MyBookings';
 
 /**
  * AppRoutes Component
@@ -32,6 +33,9 @@ export default function AppRoutes() {
 
       {/* Admin page route */}
       <Route path="/admin" element={<Admin />} />
+
+      {/* My Bookings page route */}
+      <Route path="/my-bookings" element={<MyBookings />} />
     </Routes>
   );
 }
