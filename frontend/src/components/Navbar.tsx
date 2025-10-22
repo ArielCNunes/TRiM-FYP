@@ -39,12 +39,12 @@ export default function Navbar() {
             
             {/* Conditional navigation links based on authentication and user role */}
             {isAuthenticated && (
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              <div className="ml-6 flex space-x-8">
                 {/* Customer navigation links */}
                 {user?.role === 'CUSTOMER' && (
                   <>
                     <Link
-                      to="/"
+                      to="/booking"
                       className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
                     >
                       Book Appointment
