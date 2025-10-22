@@ -28,11 +28,13 @@ public class SecurityConfig {
 
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()  // Allow preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/bookings/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/services/active").permitAll()
                         .requestMatchers("/api/barbers/active").permitAll()
                         .requestMatchers("/api/availability").permitAll()
+                        .requestMatchers("/api/bookings").permitAll()
                         .requestMatchers("/api/payments/webhook").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 

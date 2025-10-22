@@ -8,9 +8,7 @@ import java.time.LocalTime;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "bookings", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"barber_id", "booking_date", "start_time"})
-})
+@Table(name = "bookings")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
