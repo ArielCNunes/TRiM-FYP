@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAppSelector } from '../store/hooks';
 import { servicesApi, barbersApi, availabilityApi, bookingsApi } from '../api/endpoints';
 import type { Service, Barber, BookingRequest } from '../types';
-import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 // Type definition for the booking wizard steps
@@ -43,6 +42,7 @@ export default function BookingFlow() {
   // Step 4: Payment method
   const [paymentMethod, setPaymentMethod] = useState<'pay_online' | 'pay_in_shop'>('pay_online');
   const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   /** Fetch services on component mount */
   useEffect(() => {
@@ -61,8 +61,9 @@ export default function BookingFlow() {
     try {
       const response = await servicesApi.getActive();
       setServices(response.data);
+      setStatus(null);
     } catch (error) {
-      toast.error('Failed to load services');
+      setStatus({ type: 'error', message: 'Failed to load services' });
     } finally {
       setLoadingServices(false);
     }
@@ -74,8 +75,9 @@ export default function BookingFlow() {
     try {
       const response = await barbersApi.getActive();
       setBarbers(response.data);
+      setStatus(null);
     } catch (error) {
-      toast.error('Failed to load barbers');
+      setStatus({ type: 'error', message: 'Failed to load barbers' });
     } finally {
       setLoadingBarbers(false);
     }
@@ -95,8 +97,9 @@ export default function BookingFlow() {
     );
       setAvailableSlots(response.data);
       setSelectedTime(''); // Reset selected time when date changes
+      setStatus(null);
     } catch (error) {
-      toast.error('Failed to load available slots');
+      setStatus({ type: 'error', message: 'Failed to load available slots' });
       setAvailableSlots([]);
     } finally {
       setLoadingSlots(false);
@@ -106,14 +109,16 @@ export default function BookingFlow() {
   /** Handle service selection in step 1 */
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);
+    setStatus(null);
   };
 
   /** Proceed to barber selection step */
   const handleProceedToBarber = () => {
     if (!selectedService) {
-      toast.error('Please select a service');
+      setStatus({ type: 'error', message: 'Please select a service' });
       return;
     }
+    setStatus(null);
     fetchBarbers();
     setCurrentStep('barber');
   };
@@ -121,34 +126,37 @@ export default function BookingFlow() {
   /** Handle barber selection in step 2 */
   const handleBarberSelect = (barber: Barber) => {
     setSelectedBarber(barber);
+    setStatus(null);
   };
 
   /** Proceed to date/time selection step */
   const handleProceedToDateTime = () => {
     if (!selectedBarber) {
-      toast.error('Please select a barber');
+      setStatus({ type: 'error', message: 'Please select a barber' });
       return;
     }
+    setStatus(null);
     setCurrentStep('datetime');
   };
 
   /** Proceed to confirmation step */
   const handleProceedToConfirmation = () => {
     if (!selectedDate) {
-      toast.error('Please select a date');
+      setStatus({ type: 'error', message: 'Please select a date' });
       return;
     }
     if (!selectedTime) {
-      toast.error('Please select a time');
+      setStatus({ type: 'error', message: 'Please select a time' });
       return;
     }
+    setStatus(null);
     setCurrentStep('confirmation');
   };
 
   /** Create and submit the booking to the API */
   const handleCreateBooking = async () => {
     if (!user || !selectedService || !selectedBarber) {
-      toast.error('Missing booking details');
+      setStatus({ type: 'error', message: 'Missing booking details' });
       return;
     }
 
@@ -164,11 +172,11 @@ export default function BookingFlow() {
       };
 
       await bookingsApi.create(bookingRequest);
-      toast.success('Booking created successfully!');
+      setStatus(null);
       navigate('/');
     } catch (error: any) {
       const message = error.response?.data?.message || 'Failed to create booking';
-      toast.error(String(message));
+      setStatus({ type: 'error', message: String(message) });
     } finally {
       setSubmitting(false);
     }
@@ -183,12 +191,26 @@ export default function BookingFlow() {
     } else if (currentStep === 'confirmation') {
       setCurrentStep('datetime');
     }
+    setStatus(null);
   };
 
   // Calculate minimum selectable date (tomorrow)
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split('T')[0];
+
+  const statusBanner =
+    status && (
+      <div
+        className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
+          status.type === 'success'
+            ? 'border-green-200 bg-green-50 text-green-700'
+            : 'border-red-200 bg-red-50 text-red-700'
+        }`}
+      >
+        {status.message}
+      </div>
+    );
 
   // ============================================
   // STEP 1: SERVICE SELECTION
@@ -201,6 +223,7 @@ export default function BookingFlow() {
     return (
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-8">Select a Service</h1>
+        {statusBanner}
 
         {services.length === 0 ? (
           <p className="text-center text-gray-500">No services available</p>
@@ -256,6 +279,7 @@ export default function BookingFlow() {
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-2">Select a Barber</h1>
         <p className="text-gray-600 mb-8">Service: <strong>{selectedService?.name}</strong></p>
+        {statusBanner}
 
         {barbers.length === 0 ? (
           <p className="text-center text-gray-500">No barbers available</p>
@@ -318,6 +342,7 @@ export default function BookingFlow() {
         <p className="text-gray-600 mb-8">
           Barber: <strong>{selectedBarber?.user.firstName} {selectedBarber?.user.lastName}</strong>
         </p>
+        {statusBanner}
 
         <div className="space-y-6">
           {/* Date Picker */}
@@ -388,6 +413,7 @@ export default function BookingFlow() {
     return (
       <div className="max-w-2xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-8">Confirm Your Booking</h1>
+        {statusBanner}
 
         <div className="border border-gray-200 rounded-lg p-6 mb-6 space-y-4">
           <div className="pb-4 border-b">

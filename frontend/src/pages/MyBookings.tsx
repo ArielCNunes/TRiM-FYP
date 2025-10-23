@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAppSelector } from "../store/hooks";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
 import { bookingsApi } from "../api/endpoints";
 import type { BookingResponse } from "../types";
 
@@ -19,6 +18,7 @@ export default function MyBookings() {
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState<number | null>(null);
+  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   // Redirect if not authenticated
   if (!user) {
@@ -59,8 +59,9 @@ export default function MyBookings() {
           new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime()
       );
       setBookings(upcomingBookings);
+      setStatus(null);
     } catch (error) {
-      toast.error("Failed to load bookings");
+      setStatus({ type: "error", message: "Failed to load bookings" });
     } finally {
       setLoading(false);
     }
@@ -77,13 +78,12 @@ export default function MyBookings() {
     setCancelling(bookingId);
     try {
       await bookingsApi.cancelBooking(bookingId);
-      toast.success("Booking cancelled");
-      // Remove from local state immediately
       setBookings(bookings.filter((b) => b.id !== bookingId));
+      setStatus({ type: "success", message: "Booking cancelled" });
     } catch (error: any) {
       const message =
         error.response?.data?.message || "Failed to cancel booking";
-      toast.error(String(message));
+      setStatus({ type: "error", message: String(message) });
     } finally {
       setCancelling(null);
     }
@@ -93,6 +93,18 @@ export default function MyBookings() {
     <div className="max-w-4xl mx-auto p-6">
       {/* Page header */}
       <h1 className="text-4xl font-bold mb-8">My Bookings</h1>
+
+      {status && (
+        <div
+          className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
+            status.type === "success"
+              ? "border-green-200 bg-green-50 text-green-700"
+              : "border-red-200 bg-red-50 text-red-700"
+          }`}
+        >
+          {status.message}
+        </div>
+      )}
 
       {loading ? (
         /* Loading state */

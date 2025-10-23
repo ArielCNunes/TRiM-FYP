@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAppSelector } from '../store/hooks';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { servicesApi, barbersApi } from '../api/endpoints';
 import type { Service, Barber } from '../types';
 
@@ -92,6 +91,7 @@ function ServicesSection() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   
   // Form data for creating new services
   const [formData, setFormData] = useState({
@@ -113,8 +113,9 @@ function ServicesSection() {
     try {
       const response = await servicesApi.getActive();
       setServices(response.data);
+      setStatus(null);
     } catch (error) {
-      toast.error('Failed to load services');
+      setStatus({ type: 'error', message: 'Failed to load services' });
     }
   };
 
@@ -135,16 +136,15 @@ function ServicesSection() {
         price: parseFloat(String(formData.price)),
         active: true,
       } as any);
-
-      toast.success('Service created successfully!');
       
       // Reset form and refresh services list
       setFormData({ name: '', description: '', durationMinutes: 30, price: 0 });
       setShowForm(false);
+      setStatus({ type: 'success', message: 'Service created successfully' });
       fetchServices();
     } catch (error: any) {
       const message = error.response?.data?.message || 'Failed to create service';
-      toast.error(String(message));
+      setStatus({ type: 'error', message: String(message) });
     } finally {
       setLoading(false);
     }
@@ -230,6 +230,19 @@ function ServicesSection() {
       )}
 
       {/* Services List - Grid layout for service cards */}
+      {status && (
+        <div
+          className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
+            status.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-700'
+              : 'border-red-200 bg-red-50 text-red-700'
+          }`}
+        >
+          {status.message}
+        </div>
+      )}
+
+      {/* Services List - Grid layout for service cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {services.map((service) => (
           <div key={service.id} className="p-4 bg-white rounded-lg shadow">
@@ -264,6 +277,7 @@ function BarbersSection() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   
   // Form data for creating new barbers
   const [formData, setFormData] = useState({
@@ -287,8 +301,9 @@ function BarbersSection() {
     try {
       const response = await barbersApi.getActive();
       setBarbers(response.data);
+      setStatus(null);
     } catch (error) {
-      toast.error('Failed to load barbers');
+      setStatus({ type: 'error', message: 'Failed to load barbers' });
     }
   };
 
@@ -304,8 +319,6 @@ function BarbersSection() {
     try {
       // Create new barber with user account
       await barbersApi.create(formData as any);
-
-      toast.success('Barber created successfully!');
       
       // Reset form and refresh barbers list
       setFormData({
@@ -317,10 +330,11 @@ function BarbersSection() {
         bio: '',
       });
       setShowForm(false);
+      setStatus({ type: 'success', message: 'Barber created successfully' });
       fetchBarbers();
     } catch (error: any) {
       const message = error.response?.data?.message || 'Failed to create barber';
-      toast.error(String(message));
+      setStatus({ type: 'error', message: String(message) });
     } finally {
       setLoading(false);
     }
@@ -420,6 +434,19 @@ function BarbersSection() {
               {loading ? 'Creating...' : 'Create Barber'}
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Barbers List - Grid layout for barber cards */}
+      {status && (
+        <div
+          className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
+            status.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-700'
+              : 'border-red-200 bg-red-50 text-red-700'
+          }`}
+        >
+          {status.message}
         </div>
       )}
 
