@@ -23,13 +23,13 @@ export default function Home() {
         ) : (
           <div className="flex gap-4 justify-center">
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/auth')}
               className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
             >
               Sign In
             </button>
             <button
-              onClick={() => navigate('/register')}
+              onClick={() => navigate('/auth')}
               className="bg-gray-200 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
             >
               Sign Up

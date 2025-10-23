@@ -1,11 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { logout } from '../features/auth/authSlice';
-import toast from 'react-hot-toast';
+import { Link, useNavigate } from "react-router-dom";
+import { useAppSelector, useAppDispatch } from "../store/hooks";
+import { logout } from "../features/auth/authSlice";
 
 /**
  * Navbar Component
- * 
+ *
  * Displays the navigation bar with role-based navigation links and authentication controls.
  * Shows different navigation options based on user role (CUSTOMER, BARBER, ADMIN).
  * Handles user logout and displays user information when authenticated.
@@ -18,12 +17,11 @@ export default function Navbar() {
 
   /**
    * Handles user logout
-   * Dispatches logout action to clear auth state, shows success toast, and redirects to login page
+   * Dispatches logout action to clear auth state and redirects to login page
    */
   const handleLogout = () => {
     dispatch(logout());
-    toast.success('Logged out successfully');
-    navigate('/login');
+    navigate("/auth");
   };
 
   return (
@@ -36,12 +34,12 @@ export default function Navbar() {
             <Link to="/" className="flex-shrink-0 flex items-center">
               <span className="text-2xl font-bold text-primary-600">Trim</span>
             </Link>
-            
+
             {/* Conditional navigation links based on authentication and user role */}
             {isAuthenticated && (
               <div className="ml-6 flex space-x-8">
                 {/* Customer navigation links */}
-                {user?.role === 'CUSTOMER' && (
+                {user?.role === "CUSTOMER" && (
                   <>
                     <Link
                       to="/booking"
@@ -57,9 +55,9 @@ export default function Navbar() {
                     </Link>
                   </>
                 )}
-                
+
                 {/* Barber navigation link */}
-                {user?.role === 'BARBER' && (
+                {user?.role === "BARBER" && (
                   <Link
                     to="/barber"
                     className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
@@ -67,9 +65,9 @@ export default function Navbar() {
                     Dashboard
                   </Link>
                 )}
-                
+
                 {/* Admin navigation link */}
-                {user?.role === 'ADMIN' && (
+                {user?.role === "ADMIN" && (
                   <Link
                     to="/admin"
                     className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
@@ -92,7 +90,7 @@ export default function Navbar() {
                 {/* Logout button */}
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
                 >
                   Logout
                 </button>
@@ -101,14 +99,14 @@ export default function Navbar() {
               <div className="flex space-x-4">
                 {/* Sign in link for unauthenticated users */}
                 <Link
-                  to="/login"
+                  to="/auth"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-600 bg-white hover:bg-gray-50"
                 >
                   Sign in
                 </Link>
                 {/* Sign up link for new users */}
                 <Link
-                  to="/register"
+                  to="/auth"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
                 >
                   Sign up
