@@ -32,7 +32,7 @@ export default function Navbar() {
           <div className="flex">
             {/* Logo */}
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-bold text-primary-600">Trim</span>
+              <span className="text-2xl font-bold text-primary-600">TRiM</span>
             </Link>
 
             {/* Conditional navigation links based on authentication and user role */}
@@ -84,7 +84,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 {/* Display user's full name */}
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-gray-700 font-bold">
                   {user?.firstName} {user?.lastName}
                 </span>
                 {/* Logout button */}
@@ -107,7 +107,7 @@ export default function Navbar() {
                 {/* Sign up link for new users */}
                 <Link
                   to="/auth"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-600 bg-white hover:bg-gray-50"
                 >
                   Sign up
                 </Link>

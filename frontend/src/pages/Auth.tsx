@@ -15,9 +15,9 @@ export default function Auth() {
       <div className="max-w-md mx-auto px-4 py-12">
         {/* Logo and heading */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">TRIM</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">TRiM</h1>
           <p className="text-gray-600">
-            Your premium barbering experience awaits
+            Book your haircut with us!
           </p>
         </div>
 
