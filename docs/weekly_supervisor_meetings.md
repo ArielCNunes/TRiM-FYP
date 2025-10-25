@@ -61,3 +61,30 @@
 
 #### Next Meeting Date
 **Scheduled:** Wednesday 22nd of October at 10:10am.
+
+---
+
+### Meeting 3 - Wednesday 22nd of October
+**Duration:** 10 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Discuss MVP proposal.
+
+#### Progress Demonstrated
+- N/A
+
+#### Technical Discussion
+- Advised project supervisor of Reasearch Methods assignment which will directly affect FYP.
+
+#### Supervisor Feedback
+- N/A
+
+#### Decisions Made
+- Have something to show at next meeting.
+
+#### Action Items for Next Meeting
+- [ ] Demo progress during next meeting.
+
+#### Next Meeting Date
+**Scheduled:** Wednesday 5th of November at 10:10am.
