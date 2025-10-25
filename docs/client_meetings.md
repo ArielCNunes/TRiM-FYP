@@ -28,3 +28,26 @@
 
 #### Next Meeting Date
 **Scheduled:** Some time next week.
+
+---
+
+### Meeting 2 - Thursday 23rd of October
+**Location:** Online through WhatsApp
+
+#### Agenda
+- Update client on MVP progress.
+
+#### Progress Demonstrated
+- Advised client that a demo will be available at next meeting.
+
+#### Client Feedback
+- N/A
+
+#### Decisions Made
+- Design mvp (by Christmas) with requirements we already have and then build up on it (agreed with client).
+
+#### Action Items for Next Meeting
+- [ ] Demo progress.
+
+#### Next Meeting Date
+**Scheduled:** Some time next week.
