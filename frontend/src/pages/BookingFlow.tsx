@@ -1,10 +1,10 @@
 import { useAppSelector } from '../store/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useBookingFlow } from '../hooks/useBookingFlow';
-import { ServiceSelectionStep } from '../components/steps/ServiceSelectionStep';
-import { BarberSelectionStep } from '../components/steps/BarberSelectionStep';
-import { DateTimeSelectionStep } from '../components/steps/DateTimeSelectionStep';
-import { ConfirmationStep } from '../components/steps/ConfirmationStep';
+import { ServiceSelectionStep } from '../components/bookingSteps/ServiceSelectionStep';
+import { BarberSelectionStep } from '../components/bookingSteps/BarberSelectionStep';
+import { DateTimeSelectionStep } from '../components/bookingSteps/DateTimeSelectionStep';
+import { ConfirmationStep } from '../components/bookingSteps/ConfirmationStep';
 
 /**
  * BookingFlow Page
