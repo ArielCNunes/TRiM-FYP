@@ -1,7 +1,9 @@
 package com.trim.booking.controller;
 
 import com.trim.booking.dto.RegisterRequest;
+import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.User;
+import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -16,8 +18,10 @@ import com.trim.booking.config.JwtUtil;
 public class AuthController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final BarberRepository barberRepository;
 
-    public AuthController(UserService userService, JwtUtil jwtUtil) {
+    public AuthController(UserService userService, JwtUtil jwtUtil, BarberRepository barberRepository) {
+        this.barberRepository = barberRepository;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }
@@ -46,6 +50,14 @@ public class AuthController {
                     user.getId()
             );
 
+            // Get barberId if user is a barber
+            Long barberId = null;
+            if (user.getRole().name().equals("BARBER")) {
+                barberId = barberRepository.findByUserId(user.getId())
+                        .map(Barber::getId)
+                        .orElse(null);
+            }
+
             // Create response
             LoginResponse response = new LoginResponse(
                     user.getId(),
@@ -53,7 +65,8 @@ public class AuthController {
                     user.getEmail(),
                     user.getFirstName(),
                     user.getLastName(),
-                    user.getRole().name()
+                    user.getRole().name(),
+                    barberId
             );
 
             return ResponseEntity.ok(response);
