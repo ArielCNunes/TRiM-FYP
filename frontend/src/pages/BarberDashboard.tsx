@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAppSelector } from "../store/hooks";
-import { barbersApi } from "../api/endpoints";
+import { barbersApi, bookingsApi } from "../api/endpoints";
 
 /**
  * Barber Dashboard - Main dashboard for barbers to manage their availability and bookings
@@ -8,7 +8,6 @@ import { barbersApi } from "../api/endpoints";
 export default function BarberDashboard() {
   const user = useAppSelector((state) => state.auth.user);
 
-  // Guard: Require authentication
   if (!user) {
     return (
       <div className="p-8 text-center">
@@ -17,7 +16,6 @@ export default function BarberDashboard() {
     );
   }
 
-  // Guard: Require BARBER role
   if (user.role !== "BARBER") {
     return (
       <div className="p-8 text-center">
@@ -32,7 +30,7 @@ export default function BarberDashboard() {
         <h1 className="text-4xl font-bold mb-2 text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mb-8">Welcome, {user.firstName} {user.lastName}</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               My Availability
@@ -45,9 +43,9 @@ export default function BarberDashboard() {
 
           <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Upcoming Bookings
+              Your Upcoming Bookings
             </h2>
-            <p className="text-gray-600">Coming soon...</p>
+            <UpcomingBookings barberId={user.barberId} />
           </div>
         </div>
       </div>
@@ -214,6 +212,85 @@ function AvailabilitySection({ barberId }: { barberId?: number }) {
       >
         {loading ? "Saving..." : "Save Availability"}
       </button>
+    </div>
+  );
+}
+
+function UpcomingBookings({ barberId }: { barberId?: number }) {
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!barberId) return;
+    loadBookings();
+  }, [barberId]);
+
+  const loadBookings = async () => {
+    try {
+      const response = await bookingsApi.getBarberBookings(barberId!);
+      // Filter for upcoming bookings only
+      const upcoming = response.data.filter(
+        (b: any) => b.status === "PENDING" || b.status === "CONFIRMED"
+      );
+      // Sort by date ascending
+      upcoming.sort(
+        (a: any, b: any) =>
+          new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime()
+      );
+      setBookings(upcoming);
+    } catch (error) {
+      console.error("Failed to load bookings", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <p className="text-gray-600">Loading bookings...</p>;
+  }
+
+  if (bookings.length === 0) {
+    return <p className="text-gray-600">No upcoming bookings</p>;
+  }
+
+  return (
+    <div className="space-y-4">
+      {bookings.map((booking) => (
+        <div
+          key={booking.id}
+          className="p-4 border border-gray-200 rounded-lg bg-gray-50"
+        >
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <p className="font-semibold text-gray-900">
+                {booking.service.name}
+              </p>
+              <p className="text-sm text-gray-600">
+                with {booking.customer.firstName} {booking.customer.lastName}
+              </p>
+            </div>
+            <span
+              className={`px-2 py-1 rounded text-xs font-semibold ${
+                booking.status === "CONFIRMED"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              {booking.status}
+            </span>
+          </div>
+          <p className="text-sm text-gray-600">
+            {new Date(booking.bookingDate).toLocaleDateString()} at{" "}
+            {booking.startTime}
+          </p>
+          <p className="text-sm text-gray-600">
+            Duration: {booking.service.durationMinutes} min
+          </p>
+          <p className="text-sm text-gray-600">
+            Price: €{booking.service.price}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }

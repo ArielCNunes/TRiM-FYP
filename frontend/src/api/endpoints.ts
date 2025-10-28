@@ -78,4 +78,8 @@ export const bookingsApi = {
   /** Cancel a booking by ID. */
   cancelBooking: (bookingId: number) =>
     api.patch<BookingResponse>(`/bookings/${bookingId}/cancel`),
+
+  /** Fetch bookings for a specific barber. */
+  getBarberBookings: (barberId: number) =>
+    api.get(`/bookings/barber/${barberId}`),
 };
