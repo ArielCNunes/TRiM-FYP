@@ -1,16 +1,17 @@
-import { Routes, Route } from 'react-router-dom';
-import BookingFlow from '@/pages/BookingFlow';
-import Home from '@/pages/Home';
-import Admin from '@/pages/Admin';
-import MyBookings from '@/pages/MyBookings';
-import Auth from '@/pages/Auth';
+import { Routes, Route } from "react-router-dom";
+import BookingFlow from "@/pages/BookingFlow";
+import Home from "@/pages/Home";
+import Admin from "@/pages/Admin";
+import MyBookings from "@/pages/MyBookings";
+import Auth from "@/pages/Auth";
+import BarberDashboard from "@/pages/BarberDashboard";
 
 /**
  * AppRoutes Component
- * 
+ *
  * Defines the main application routing configuration using React Router.
  * Currently includes basic routes for home and login pages.
- * 
+ *
  */
 export default function AppRoutes() {
   return (
@@ -29,6 +30,9 @@ export default function AppRoutes() {
 
       {/* Auth page route */}
       <Route path="/auth" element={<Auth />} />
+
+      {/* Barber Dashboard route */}
+      <Route path="/barber" element={<BarberDashboard />} />
     </Routes>
   );
 }

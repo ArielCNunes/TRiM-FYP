@@ -11,6 +11,7 @@ export interface LoginResponse {
   firstName: string;
   lastName: string;
   role: string;
+  barberId?: number; // Present for BARBER role users
 }
 
 export interface RegisterRequest {

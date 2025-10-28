@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 // Represents the authenticated user state that the rest of the app can query.
 interface AuthState {
@@ -10,15 +10,16 @@ interface AuthState {
     firstName: string;
     lastName: string;
     role: string;
+    barberId?: number;
   } | null;
   isAuthenticated: boolean;
 }
 
 // Restore the persisted auth session, if any, so a page refresh does not log users out.
 const loadAuthState = (): AuthState => {
-  const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
-  
+  const token = localStorage.getItem("token");
+  const userStr = localStorage.getItem("user");
+
   if (token && userStr) {
     return {
       token,
@@ -26,7 +27,7 @@ const loadAuthState = (): AuthState => {
       isAuthenticated: true,
     };
   }
-  
+
   return {
     token: null,
     user: null,
@@ -38,33 +39,40 @@ const initialState: AuthState = loadAuthState();
 
 // The auth slice manages login state and user info, and persists it to localStorage.
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ id: number, token: string; email: string; firstName: string; lastName: string; role: string }>
+      action: PayloadAction<{
+        id: number;
+        token: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        role: string;
+        barberId?: number;
+      }>
     ) => {
-      // Sync Redux auth state with the fresh credentials received from a successful login.
-      const { token, email, firstName, lastName, role, id } = action.payload;
+      const { token, email, firstName, lastName, role, id, barberId } =
+        action.payload;
       state.token = token;
-      state.user = { id, email, firstName, lastName, role };
+      state.user = { id, email, firstName, lastName, role, barberId };
       state.isAuthenticated = true;
-      
-      // Persist to localStorage so the session can be restored on the next visit.
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify({ id, email, firstName, lastName, role }));
+
+      localStorage.setItem("token", token);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ id, email, firstName, lastName, role, barberId })
+      );
     },
-    
+
     logout: (state) => {
-      // Drop all auth state, effectively logging out the current user.
       state.token = null;
       state.user = null;
       state.isAuthenticated = false;
-      
-      // Remove persisted credentials to avoid restoring an invalid session.
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
   },
 });

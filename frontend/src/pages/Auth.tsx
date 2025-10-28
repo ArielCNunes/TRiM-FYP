@@ -102,6 +102,7 @@ function LoginForm() {
         firstName,
         lastName,
         role,
+        barberId,
       } = response.data;
 
       dispatch(
@@ -112,6 +113,7 @@ function LoginForm() {
           firstName,
           lastName,
           role,
+          barberId,
         })
       );
 
@@ -275,6 +277,7 @@ function SignupForm() {
         firstName: loginFirstName,
         lastName: loginLastName,
         role,
+        barberId,
       } = loginResponse.data;
 
       dispatch(
@@ -285,6 +288,7 @@ function SignupForm() {
           firstName: loginFirstName,
           lastName: loginLastName,
           role,
+          barberId,
         })
       );
 
