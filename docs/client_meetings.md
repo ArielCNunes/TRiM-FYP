@@ -51,3 +51,36 @@
 
 #### Next Meeting Date
 **Scheduled:** Some time next week.
+
+---
+
+### Meeting 3 - Wednesday 29th of October
+**Location:** In-person at the barber shop
+
+#### Agenda
+- Demo progress and update requirements.
+
+#### Progress Demonstrated
+- Barber dashboard with availability setting functional.
+- My Bookings page working for customers.
+- Basic booking flow implemented.
+- Auth system with role-based access (customer, barber, admin).
+
+#### Client Feedback
+- Happy with initial progress.
+- Suggested mandatory deposit system for all services.
+- Confirmed that some barbers are independent contractors who keep full payment (minus commission).
+- Highlighted importance of no-show reduction via customer blacklisting.
+
+#### Decisions Made
+- Three new user stories added to project board: Deposit Payments, Barber Payment Split, Customer Blacklist.
+- Prioritize payment integration and admin dashboard for next sprint.
+
+#### Action Items for Next Meeting
+- [ ] Add new user stories
+- [ ] Implement deposit payment flow with Stripe
+- [ ] Set up barber employment type and payment routing logic
+- [ ] Create customer blacklisting admin interface
+
+#### Next Meeting Date
+**Scheduled:** Next week
