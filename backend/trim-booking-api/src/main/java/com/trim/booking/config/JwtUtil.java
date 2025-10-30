@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -14,8 +15,8 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    // Secret key for signing JWT tokens (I'll store in environment variable later)
-    private static final String SECRET_KEY = "TRiMBookingSecretKeyForJWTTokenGenerationMustBe256BitsLong12345";
+    @Value("${jwt.secret:}")
+    private String secretKey;
 
     // Token expirees in 24 hours
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
@@ -96,6 +97,6 @@ public class JwtUtil {
      * Get signing key from secret.
      */
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 }

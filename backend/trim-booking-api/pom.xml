@@ -103,6 +103,12 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
+        <!-- DotEnv for loading .env files -->
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.0.0</version>
+        </dependency>
         <!-- Swagger/OpenAPI Documentation -->
         <dependency>
             <groupId>org.springdoc</groupId>
