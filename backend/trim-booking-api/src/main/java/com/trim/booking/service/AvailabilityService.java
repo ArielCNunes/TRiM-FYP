@@ -3,6 +3,7 @@ package com.trim.booking.service;
 import com.trim.booking.entity.BarberAvailability;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.ServiceOffered;
+import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberAvailabilityRepository;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.ServiceRepository;
@@ -51,7 +52,7 @@ public class AvailabilityService {
     public List<String> getAvailableSlots(Long barberId, LocalDate date, Long serviceId) {
         // Step 1: Get the service to know its duration
         ServiceOffered service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + serviceId));
 
         // Step 2: Get barber's working hours for this day of week
         DayOfWeek dayOfWeek = date.getDayOfWeek();

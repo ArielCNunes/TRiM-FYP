@@ -1,6 +1,8 @@
 package com.trim.booking.service;
 
 import com.trim.booking.entity.*;
+import com.trim.booking.exception.ResourceNotFoundException;
+import com.trim.booking.exception.ConflictException;
 import com.trim.booking.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,13 +52,13 @@ public class BookingService {
 
         // Step 1: Validate entities exist
         User customer = userRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
 
         Barber barber = barberRepository.findById(barberId)
-                .orElseThrow(() -> new RuntimeException("Barber not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found with ID: " + barberId));
 
         ServiceOffered service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + serviceId));
 
         // Step 2: Calculate end time
         LocalTime endTime = startTime.plusMinutes(service.getDurationMinutes());
@@ -78,7 +80,7 @@ public class BookingService {
                     endTime.isAfter(existing.getStartTime());
 
             if (hasOverlap) {
-                throw new RuntimeException("This time slot is no longer available");
+                throw new ConflictException("This time slot is no longer available");
             }
         }
 

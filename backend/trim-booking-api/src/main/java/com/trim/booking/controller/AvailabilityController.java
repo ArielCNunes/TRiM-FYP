@@ -33,12 +33,7 @@ public class AvailabilityController {
             @RequestParam Long barberId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam Long serviceId) {
-
-        try {
-            List<String> slots = availabilityService.getAvailableSlots(barberId, date, serviceId);
-            return ResponseEntity.ok(slots);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        List<String> slots = availabilityService.getAvailableSlots(barberId, date, serviceId);
+        return ResponseEntity.ok(slots);
     }
 }
