@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { servicesApi, barbersApi, availabilityApi, bookingsApi } from '../api/endpoints';
+import { servicesApi, barbersApi, availabilityApi, bookingsApi, paymentsApi } from '../api/endpoints';
 import type { Service, Barber, BookingRequest } from '../types';
 
-/** Booking wizard steps: service → barber → datetime → confirmation */
-type Step = 'service' | 'barber' | 'datetime' | 'confirmation';
+/** Booking wizard steps: service → barber → datetime → confirmation → payment */
+type Step = 'service' | 'barber' | 'datetime' | 'confirmation' | 'payment';
 
 /**
  * Custom hook managing all booking wizard state and API logic
@@ -25,6 +25,14 @@ export function useBookingFlow() {
   const [paymentMethod, setPaymentMethod] = useState<'pay_online' | 'pay_in_shop'>('pay_online');
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Payment state
+  const [depositAmount, setDepositAmount] = useState<number | null>(null);
+  const [outstandingBalance, setOutstandingBalance] = useState<number | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+  const [createdBookingId, setCreatedBookingId] = useState<number | null>(null);
 
   // Fetch services on mount, fetch slots when date changes
   useEffect(() => {
@@ -90,7 +98,7 @@ export function useBookingFlow() {
   const createBooking = async (userId: number) => {
     if (!selectedService || !selectedBarber) {
       setStatus({ type: 'error', message: 'Missing booking details' });
-      return false;
+      return null;
     }
 
     setSubmitting(true);
@@ -104,16 +112,43 @@ export function useBookingFlow() {
         paymentMethod: paymentMethod,
       };
 
-      await bookingsApi.create(bookingRequest);
+      const response = await bookingsApi.create(bookingRequest);
       setStatus(null);
-      return true;
+      setCreatedBookingId(response.data.id);
+      return response.data.id;
     } catch (error: any) {
       const message = error.response?.data?.message || 'Failed to create booking';
       setStatus({ type: 'error', message: String(message) });
-      return false;
+      return null;
     } finally {
       setSubmitting(false);
     }
+  };
+
+  /** Initiate payment intent for deposit */
+  const initiateDepositPayment = async (bookingId: number) => {
+    setIsPaymentProcessing(true);
+    try {
+      const response = await paymentsApi.createIntent(bookingId);
+      setClientSecret(response.data.clientSecret);
+      setPaymentIntentId(response.data.paymentIntentId);
+      setDepositAmount(response.data.depositAmount);
+      setOutstandingBalance(response.data.outstandingBalance);
+      setStatus(null);
+      return true;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to initiate payment';
+      setStatus({ type: 'error', message: String(message) });
+      return false;
+    } finally {
+      setIsPaymentProcessing(false);
+    }
+  };
+
+  /** Handle successful payment */
+  const handlePaymentSuccess = (paymentIntentId: string) => {
+    setPaymentIntentId(paymentIntentId);
+    setStatus({ type: 'success', message: 'Payment successful! Your booking is confirmed.' });
   };
 
   // Return all state and handlers organized by step
@@ -147,6 +182,15 @@ export function useBookingFlow() {
     setPaymentMethod,
     submitting,
 
+    // Payment state
+    depositAmount,
+    outstandingBalance,
+    clientSecret,
+    paymentIntentId,
+    isPaymentProcessing,
+    setIsPaymentProcessing,
+    createdBookingId,
+
     // Status & error handling
     status,
     setStatus,
@@ -154,5 +198,7 @@ export function useBookingFlow() {
     // API handlers
     fetchBarbers,
     createBooking,
+    initiateDepositPayment,
+    handlePaymentSuccess,
   };
 }

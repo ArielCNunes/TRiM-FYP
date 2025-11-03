@@ -5,6 +5,11 @@ import { ServiceSelectionStep } from '../components/bookingSteps/ServiceSelectio
 import { BarberSelectionStep } from '../components/bookingSteps/BarberSelectionStep';
 import { DateTimeSelectionStep } from '../components/bookingSteps/DateTimeSelectionStep';
 import { ConfirmationStep } from '../components/bookingSteps/ConfirmationStep';
+import { PaymentForm } from '../components/bookingSteps/PaymentForm';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 /**
  * BookingFlow Page
@@ -68,16 +73,36 @@ export default function BookingFlow() {
     bookingFlow.setCurrentStep('confirmation');
   };
 
-  const handleCreateBooking = async () => {
+  const handleConfirmBooking = async () => {
     if (!user) {
       bookingFlow.setStatus({ type: 'error', message: 'User not authenticated' });
       return;
     }
 
-    const success = await bookingFlow.createBooking(user.id);
-    if (success) {
-      navigate('/');
+    // Create booking first
+    const bookingId = await bookingFlow.createBooking(user.id);
+    if (!bookingId) {
+      return; // Error already set by createBooking
     }
+
+    // Initiate payment intent
+    const success = await bookingFlow.initiateDepositPayment(bookingId);
+    if (success) {
+      bookingFlow.setCurrentStep('payment');
+    }
+  };
+
+  const handlePaymentSuccess = (paymentIntentId: string) => {
+    bookingFlow.handlePaymentSuccess(paymentIntentId);
+    
+    // Redirect after short delay to show success message
+    setTimeout(() => {
+      navigate('/my-bookings');
+    }, 2000);
+  };
+
+  const handlePaymentError = (error: string) => {
+    bookingFlow.setStatus({ type: 'error', message: error });
   };
 
   // ============================================
@@ -149,9 +174,28 @@ export default function BookingFlow() {
         status={bookingFlow.status}
         submitting={bookingFlow.submitting}
         onPaymentMethodChange={bookingFlow.setPaymentMethod}
-        onConfirm={handleCreateBooking}
+        onConfirm={handleConfirmBooking}
         onBack={handleGoBack}
       />
+    );
+  }
+
+  // ============================================
+  // STEP 5: PAYMENT
+  // ============================================
+  if (bookingFlow.currentStep === 'payment' && bookingFlow.clientSecret) {
+    return (
+      <Elements stripe={stripePromise} options={{ clientSecret: bookingFlow.clientSecret }}>
+        <PaymentForm
+          clientSecret={bookingFlow.clientSecret}
+          bookingId={bookingFlow.createdBookingId || 0}
+          depositAmount={bookingFlow.depositAmount || 0}
+          onPaymentSuccess={handlePaymentSuccess}
+          onPaymentError={handlePaymentError}
+          isProcessing={bookingFlow.isPaymentProcessing}
+          setIsProcessing={bookingFlow.setIsPaymentProcessing}
+        />
+      </Elements>
     );
   }
 

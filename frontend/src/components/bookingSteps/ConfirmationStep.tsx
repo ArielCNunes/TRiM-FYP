@@ -1,5 +1,5 @@
-import type { Service, Barber } from '../../types';
-import { StatusBanner } from '../BookingComponents';
+import type { Service, Barber } from "../../types";
+import { StatusBanner } from "../BookingComponents";
 
 /**
  * ConfirmationStep Component
@@ -22,10 +22,10 @@ export function ConfirmationStep({
   selectedBarber: Barber | null;
   selectedDate: string;
   selectedTime: string;
-  paymentMethod: 'pay_online' | 'pay_in_shop';
-  status: { type: 'success' | 'error'; message: string } | null;
+  paymentMethod: "pay_online" | "pay_in_shop";
+  status: { type: "success" | "error"; message: string } | null;
   submitting: boolean;
-  onPaymentMethodChange: (method: 'pay_online' | 'pay_in_shop') => void;
+  onPaymentMethodChange: (method: "pay_online" | "pay_in_shop") => void;
   onConfirm: () => void;
   onBack: () => void;
 }) {
@@ -39,7 +39,9 @@ export function ConfirmationStep({
         <div className="pb-4 border-b">
           <p className="text-gray-600">Service</p>
           <p className="text-2xl font-bold">{selectedService?.name}</p>
-          <p className="text-gray-500">Duration: {selectedService?.durationMinutes} minutes</p>
+          <p className="text-gray-500">
+            Duration: {selectedService?.durationMinutes} minutes
+          </p>
         </div>
 
         <div className="pb-4 border-b">
@@ -58,45 +60,17 @@ export function ConfirmationStep({
 
         <div>
           <p className="text-gray-600">Price</p>
-          <p className="text-2xl font-bold text-blue-600">€{selectedService?.price.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-blue-600">
+            €{selectedService?.price.toFixed(2)}
+          </p>
         </div>
       </div>
 
-      {/* Payment Method */}
-      <div className="mb-6">
-        <label className="block text-lg font-semibold mb-4">Payment Method</label>
-        {/* Radio buttons: pay online (card) or pay in shop (cash) */}
-        <div className="space-y-3">
-          <label className="flex items-center border rounded-lg p-4 cursor-pointer hover:bg-gray-50">
-            <input
-              type="radio"
-              name="payment"
-              value="pay_online"
-              checked={paymentMethod === 'pay_online'}
-              onChange={(e) => onPaymentMethodChange(e.target.value as 'pay_online' | 'pay_in_shop')}
-              className="mr-3"
-            />
-            <div>
-              <p className="font-semibold">Pay Online</p>
-              <p className="text-sm text-gray-500">Pay now with card</p>
-            </div>
-          </label>
-
-          <label className="flex items-center border rounded-lg p-4 cursor-pointer hover:bg-gray-50">
-            <input
-              type="radio"
-              name="payment"
-              value="pay_in_shop"
-              checked={paymentMethod === 'pay_in_shop'}
-              onChange={(e) => onPaymentMethodChange(e.target.value as 'pay_online' | 'pay_in_shop')}
-              className="mr-3"
-            />
-            <div>
-              <p className="font-semibold">Pay in Shop</p>
-              <p className="text-sm text-gray-500">Pay when you arrive</p>
-            </div>
-          </label>
-        </div>
+      {/* Payment Information */}
+      <div className="border border-gray-200 bg-gray-50 rounded-lg p-4 mb-6">
+        <p className="text-sm text-gray-600 text-center">
+          You'll be asked to pay a deposit before your booking is confirmed.
+        </p>
       </div>
 
       {/* Back button and confirm button with loading state */}
@@ -112,7 +86,7 @@ export function ConfirmationStep({
           disabled={submitting}
           className="flex-1 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
         >
-          {submitting ? 'Creating Booking...' : 'Confirm Booking'}
+          {submitting ? "Creating Booking..." : "Confirm Booking"}
         </button>
       </div>
     </div>

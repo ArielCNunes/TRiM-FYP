@@ -83,3 +83,16 @@ export const bookingsApi = {
   getBarberBookings: (barberId: number) =>
     api.get(`/bookings/barber/${barberId}`),
 };
+
+/** Payment endpoints for Stripe integration. */
+export const paymentsApi = {
+  /** Create a payment intent for a booking deposit. */
+  createIntent: (bookingId: number) =>
+    api.post<{
+      clientSecret: string;
+      paymentIntentId: string;
+      depositAmount: number;
+      outstandingBalance: number;
+      bookingId: number;
+    }>("/payments/create-intent", { bookingId }),
+};
