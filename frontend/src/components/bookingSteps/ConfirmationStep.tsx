@@ -11,10 +11,8 @@ export function ConfirmationStep({
   selectedBarber,
   selectedDate,
   selectedTime,
-  paymentMethod,
   status,
   submitting,
-  onPaymentMethodChange,
   onConfirm,
   onBack,
 }: {

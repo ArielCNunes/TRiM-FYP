@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react';
-import { servicesApi, barbersApi, availabilityApi, bookingsApi, paymentsApi } from '../api/endpoints';
-import type { Service, Barber, BookingRequest } from '../types';
+import { useState, useEffect } from "react";
+import {
+  servicesApi,
+  barbersApi,
+  availabilityApi,
+  bookingsApi,
+  paymentsApi,
+} from "../api/endpoints";
+import type { Service, Barber, BookingRequest } from "../types";
 
 /** Booking wizard steps: service → barber → datetime → confirmation → payment */
-type Step = 'service' | 'barber' | 'datetime' | 'confirmation' | 'payment';
+type Step = "service" | "barber" | "datetime" | "confirmation" | "payment";
 
 /**
  * Custom hook managing all booking wizard state and API logic
@@ -11,24 +17,35 @@ type Step = 'service' | 'barber' | 'datetime' | 'confirmation' | 'payment';
  */
 export function useBookingFlow() {
   // Current step and all step data
-  const [currentStep, setCurrentStep] = useState<Step>('service');
+  const [currentStep, setCurrentStep] = useState<Step>("service");
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [loadingServices, setLoadingServices] = useState(true);
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [loadingBarbers, setLoadingBarbers] = useState(false);
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split("T")[0];
+  });
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
-  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedTime, setSelectedTime] = useState("");
   const [loadingSlots, setLoadingSlots] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'pay_online' | 'pay_in_shop'>('pay_online');
+  const [paymentMethod, setPaymentMethod] = useState<
+    "pay_online" | "pay_in_shop"
+  >("pay_online");
   const [submitting, setSubmitting] = useState(false);
-  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   // Payment state
   const [depositAmount, setDepositAmount] = useState<number | null>(null);
-  const [outstandingBalance, setOutstandingBalance] = useState<number | null>(null);
+  const [outstandingBalance, setOutstandingBalance] = useState<number | null>(
+    null
+  );
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
@@ -43,7 +60,7 @@ export function useBookingFlow() {
     if (selectedDate && selectedBarber && selectedService) {
       fetchAvailableSlots();
     }
-  }, [selectedDate]);
+  }, [selectedDate, selectedBarber, selectedService]);
 
   /** Fetch all active services */
   const fetchServices = async () => {
@@ -52,7 +69,7 @@ export function useBookingFlow() {
       setServices(response.data);
       setStatus(null);
     } catch (error) {
-      setStatus({ type: 'error', message: 'Failed to load services' });
+      setStatus({ type: "error", message: "Failed to load services" });
     } finally {
       setLoadingServices(false);
     }
@@ -66,7 +83,7 @@ export function useBookingFlow() {
       setBarbers(response.data);
       setStatus(null);
     } catch (error) {
-      setStatus({ type: 'error', message: 'Failed to load barbers' });
+      setStatus({ type: "error", message: "Failed to load barbers" });
     } finally {
       setLoadingBarbers(false);
     }
@@ -84,10 +101,10 @@ export function useBookingFlow() {
         selectedService.id
       );
       setAvailableSlots(response.data);
-      setSelectedTime(''); // Reset selected time when date changes
+      setSelectedTime(""); // Reset selected time when date changes
       setStatus(null);
     } catch (error) {
-      setStatus({ type: 'error', message: 'Failed to load available slots' });
+      setStatus({ type: "error", message: "Failed to load available slots" });
       setAvailableSlots([]);
     } finally {
       setLoadingSlots(false);
@@ -97,7 +114,7 @@ export function useBookingFlow() {
   /** Submit booking to backend API */
   const createBooking = async (userId: number) => {
     if (!selectedService || !selectedBarber) {
-      setStatus({ type: 'error', message: 'Missing booking details' });
+      setStatus({ type: "error", message: "Missing booking details" });
       return null;
     }
 
@@ -117,8 +134,9 @@ export function useBookingFlow() {
       setCreatedBookingId(response.data.id);
       return response.data.id;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to create booking';
-      setStatus({ type: 'error', message: String(message) });
+      const message =
+        error.response?.data?.message || "Failed to create booking";
+      setStatus({ type: "error", message: String(message) });
       return null;
     } finally {
       setSubmitting(false);
@@ -137,8 +155,9 @@ export function useBookingFlow() {
       setStatus(null);
       return true;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to initiate payment';
-      setStatus({ type: 'error', message: String(message) });
+      const message =
+        error.response?.data?.message || "Failed to initiate payment";
+      setStatus({ type: "error", message: String(message) });
       return false;
     } finally {
       setIsPaymentProcessing(false);
@@ -148,7 +167,10 @@ export function useBookingFlow() {
   /** Handle successful payment */
   const handlePaymentSuccess = (paymentIntentId: string) => {
     setPaymentIntentId(paymentIntentId);
-    setStatus({ type: 'success', message: 'Payment successful! Your booking is confirmed.' });
+    setStatus({
+      type: "success",
+      message: "Payment successful! Your booking is confirmed.",
+    });
   };
 
   // Return all state and handlers organized by step
