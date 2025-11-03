@@ -18,7 +18,10 @@ export default function MyBookings() {
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState<number | null>(null);
-  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   // Redirect if not authenticated
   if (!user) {
@@ -90,9 +93,12 @@ export default function MyBookings() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6">
       {/* Page header */}
-      <h1 className="text-4xl font-bold mb-8">My Bookings</h1>
+      <h1 className="text-4xl font-bold mb-2">My Bookings</h1>
+      <p className="text-gray-600 mb-8">
+        Your upcoming appointments, sorted by date
+      </p>
 
       {status && (
         <div
@@ -123,76 +129,110 @@ export default function MyBookings() {
           </button>
         </div>
       ) : (
-        /* Bookings list */
+        /* Bookings list - optimized horizontal card layout */
         <div className="space-y-4">
           {bookings.map((booking) => (
             <div
               key={booking.id}
-              className="p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-md transition"
+              className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
             >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-                {/* Service & Barber */}
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Service</p>
-                  <p className="text-lg font-semibold">
-                    {booking.service.name}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">Barber</p>
-                  <p className="text-base">
-                    {booking.barber.user.firstName}{" "}
-                    {booking.barber.user.lastName}
-                  </p>
-                </div>
-
-                {/* Date & Time */}
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Date & Time</p>
-                  <p className="text-lg font-semibold">
-                    {new Date(booking.bookingDate).toLocaleDateString()} at{" "}
-                    {booking.startTime}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">Duration</p>
-                  <p className="text-base">
-                    {booking.service.durationMinutes} minutes
-                  </p>
-                </div>
-
-                {/* Price & Status */}
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Price</p>
-                  <p className="text-lg font-semibold text-blue-600">
-                    €{booking.service.price.toFixed(2)}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">Status</p>
-                  <p className="text-base">
+              {/* Header section with date - most important info */}
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-600 font-medium mb-1">
+                      Appointment Date
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {new Date(booking.bookingDate).toLocaleDateString(
+                        "en-US",
+                        {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        }
+                      )}
+                    </p>
+                    <p className="text-lg font-semibold text-gray-700 mt-1">
+                      {booking.startTime.substring(0, 5)}
+                    </p>
+                  </div>
+                  <div className="text-right">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      className={`px-4 py-2 rounded-full text-sm font-semibold ${
                         booking.status === "CONFIRMED"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
+                          ? "bg-green-100 text-green-800 border border-green-200"
+                          : "bg-yellow-100 text-yellow-800 border border-yellow-200"
                       }`}
                     >
-                      {booking.status}
+                      {booking.status} {/* DEBUGGING */}
                     </span>
-                  </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Payment Status */}
-              <div className="mb-4 pb-4 border-t">
-                <p className="text-sm text-gray-600">
-                  Payment: {booking.paymentStatus}
-                </p>
+              {/* Main content with service, barber, and pricing info */}
+              <div className="px-6 py-5">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  {/* Service */}
+                  <div>
+                    <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                      Service
+                    </p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {booking.service.name}
+                    </p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {booking.service.durationMinutes} minutes
+                    </p>
+                  </div>
+
+                  {/* Barber */}
+                  <div>
+                    <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                      Barber
+                    </p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {booking.barber.user.firstName}{" "}
+                      {booking.barber.user.lastName}
+                    </p>
+                  </div>
+
+                  {/* Price */}
+                  <div>
+                    <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                      Price
+                    </p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      €{booking.service.price.toFixed(2)}
+                    </p>
+                  </div>
+
+                  {/* Payment Status */}
+                  <div>
+                    <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                      Payment
+                    </p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {booking.paymentStatus}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Cancel Button */}
-              <button
-                onClick={() => handleCancel(booking.id)}
-                disabled={cancelling === booking.id}
-                className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 disabled:bg-gray-400 transition"
-              >
-                {cancelling === booking.id ? "Cancelling..." : "Cancel Booking"}
-              </button>
+              {/* Action footer */}
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                <button
+                  onClick={() => handleCancel(booking.id)}
+                  disabled={cancelling === booking.id}
+                  className="px-6 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 disabled:bg-gray-400 transition"
+                >
+                  {cancelling === booking.id
+                    ? "Cancelling..."
+                    : "Cancel Booking"}
+                </button>
+              </div>
             </div>
           ))}
         </div>
