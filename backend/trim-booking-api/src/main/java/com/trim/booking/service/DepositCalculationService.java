@@ -6,62 +6,64 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Service for calculating deposit amounts with proper rounding.
+ * Service for calculating deposit amounts.
  * <p>
- * Rounds to nearest €5:
- * €25.50 → €25
+ * Balance (in-shop cash payment) is ALWAYS a multiple of €5.
+ * Deposit is whatever remains to reach the total.
  */
 @Service
 public class DepositCalculationService {
 
     /**
-     * Calculate deposit amount from total price and deposit percentage.
-     * Rounds to nearest €5.
+     * Calculate deposit amount.
+     * Balance is rounded UP to nearest €5, deposit is the remainder.
      *
-     * @param totalPrice        Total service price
-     * @param depositPercentage Deposit percentage (e.g., 30 for 30%)
-     * @return Deposit amount rounded to nearest €5
+     * @param totalPrice Total service price
+     * @return Deposit amount (totalPrice - balanceAmount)
      */
-    public BigDecimal calculateDeposit(BigDecimal totalPrice, Integer depositPercentage) {
-        if (totalPrice == null || depositPercentage == null) {
-            throw new IllegalArgumentException("Price and percentage cannot be null");
+    public BigDecimal calculateDeposit(BigDecimal totalPrice) {
+        if (totalPrice == null) {
+            throw new IllegalArgumentException("Price cannot be null");
         }
 
-        if (depositPercentage < 1 || depositPercentage > 100) {
-            throw new IllegalArgumentException("Deposit percentage must be between 1 and 100");
-        }
+        // Calculate target balance (50% of total, ideally)
+        BigDecimal targetBalance = totalPrice.divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
 
-        // Calculate raw deposit: totalPrice * (depositPercentage / 100)
-        BigDecimal depositAmount = totalPrice
-                .multiply(BigDecimal.valueOf(depositPercentage))
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        // Round balance UP to nearest €5
+        BigDecimal balanceAmount = roundUpToNearestFive(targetBalance);
 
-        // Round to nearest €5
-        return roundToNearestFive(depositAmount);
+        // Deposit is whatever remains
+        return totalPrice.subtract(balanceAmount);
     }
 
     /**
      * Calculate outstanding balance.
+     * Balance is rounded up to nearest €5.
      *
-     * @param totalPrice    Total service price
-     * @param depositAmount Deposit already calculated
-     * @return Outstanding balance (totalPrice - depositAmount)
+     * @param totalPrice Total service price
+     * @return Outstanding balance (multiple of €5)
      */
-    public BigDecimal calculateOutstandingBalance(BigDecimal totalPrice, BigDecimal depositAmount) {
-        return totalPrice.subtract(depositAmount);
+    public BigDecimal calculateOutstandingBalance(BigDecimal totalPrice) {
+        // Calculate target balance (50% of total)
+        BigDecimal targetBalance = totalPrice.divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+
+        // Round balance UP to nearest €5
+        return roundUpToNearestFive(targetBalance);
     }
 
     /**
-     * Round amount to nearest €5
+     * Round amount UP to nearest €5.
+     * €12.50 → €15.00
      */
-    private BigDecimal roundToNearestFive(BigDecimal amount) {
+    private BigDecimal roundUpToNearestFive(BigDecimal amount) {
         // Convert to cents (multiply by 100)
         long centsValue = amount.multiply(BigDecimal.valueOf(100)).longValue();
 
-        // Round to nearest €5 (500 cents)
-        long roundedCents = Math.round(centsValue / 500.0) * 500;
+        // Round UP to nearest €5 (500 cents)
+        // Using ceiling division: (value + 499) / 500
+        long roundedCents = ((centsValue + 499) / 500) * 500;
 
         // Convert back to euros
-        return BigDecimal.valueOf(roundedCents).divide(BigDecimal.valueOf(100));
+        return BigDecimal.valueOf(roundedCents).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 }

@@ -2,10 +2,7 @@ package com.trim.booking.service;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
-import com.trim.booking.service.DepositCalculationService;
-import com.stripe.model.Refund;
 import com.stripe.param.PaymentIntentCreateParams;
-import com.stripe.param.RefundCreateParams;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.Payment;
 import com.trim.booking.repository.BookingRepository;
@@ -14,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,14 +50,12 @@ public class PaymentService {
 
         // Calculate deposit amount
         BigDecimal depositAmount = depositCalculationService.calculateDeposit(
-                booking.getService().getPrice(),
-                booking.getService().getDepositPercentage()
+                booking.getService().getPrice()
         );
 
         // Calculate outstanding balance
         BigDecimal outstandingBalance = depositCalculationService.calculateOutstandingBalance(
-                booking.getService().getPrice(),
-                depositAmount
+                booking.getService().getPrice()
         );
 
         // Store amounts on booking
