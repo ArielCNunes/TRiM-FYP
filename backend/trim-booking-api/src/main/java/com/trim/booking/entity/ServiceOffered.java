@@ -31,6 +31,10 @@ public class ServiceOffered {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @NotNull(message = "Deposit percentage is required")
+    @Column(nullable = false)
+    private Integer depositPercentage;
+
     @Column(nullable = false)
     private Boolean active = true;
 
@@ -85,5 +89,13 @@ public class ServiceOffered {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Integer getDepositPercentage() {
+        return depositPercentage;
+    }
+
+    public void setDepositPercentage(Integer depositPercentage) {
+        this.depositPercentage = depositPercentage;
     }
 }

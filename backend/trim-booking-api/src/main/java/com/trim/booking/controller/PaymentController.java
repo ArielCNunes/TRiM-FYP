@@ -35,11 +35,17 @@ public class PaymentController {
     public ResponseEntity<?> createPaymentIntent(@RequestBody Map<String, Long> request) {
         try {
             Long bookingId = request.get("bookingId");
-            Map<String, String> response = paymentService.createPaymentIntent(bookingId);
+            if (bookingId == null) {
+                return ResponseEntity.badRequest().body("bookingId is required");
+            }
+
+            Map<String, Object> response = paymentService.createDepositPaymentIntent(bookingId);
             return ResponseEntity.ok(response);
         } catch (StripeException e) {
+            System.err.println("Stripe error: " + e.getMessage());
             return ResponseEntity.badRequest().body("Payment creation failed: " + e.getMessage());
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            System.err.println("Error: " + e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -75,25 +81,23 @@ public class PaymentController {
             }
         }
 
-        // Handle payment_intent.succeeded event
+        // Handle payment success
         if ("payment_intent.succeeded".equals(event.getType())) {
             try {
-                // Extract payment intent ID from event
                 com.google.gson.JsonObject eventJson = new Gson().fromJson(payload, com.google.gson.JsonObject.class);
                 com.google.gson.JsonObject dataObject = eventJson.getAsJsonObject("data").getAsJsonObject("object");
                 String paymentIntentId = dataObject.get("id").getAsString();
 
                 System.out.println("Processing payment success for: " + paymentIntentId);
                 paymentService.handlePaymentSuccess(paymentIntentId);
-                System.out.println("Payment processed successfully");
+                System.out.println("Deposit payment succeeded");
 
             } catch (Exception e) {
-                System.out.println("Error processing webhook: " + e.getMessage());
+                System.err.println("Error processing webhook: " + e.getMessage());
                 e.printStackTrace();
                 return ResponseEntity.status(500).body("Webhook processing failed");
             }
         }
-
         return ResponseEntity.ok("Webhook received");
     }
 }

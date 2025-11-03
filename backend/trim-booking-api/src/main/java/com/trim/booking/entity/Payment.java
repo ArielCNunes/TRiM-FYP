@@ -12,14 +12,14 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
-    @Column(name = "stripe_payment_intent_id", unique = true)
+    @Column(name = "stripe_payment_intent_id")
     private String stripePaymentIntentId;
 
     @Enumerated(EnumType.STRING)
@@ -42,11 +42,8 @@ public class Payment {
 
     public enum PaymentStatus {
         PENDING,
-        PROCESSING,
         SUCCEEDED,
-        FAILED,
-        REFUNDED,
-        PAY_IN_SHOP
+        FAILED
     }
 
     // Constructors
@@ -100,14 +97,6 @@ public class Payment {
 
     public void setPaymentDate(LocalDateTime paymentDate) {
         this.paymentDate = paymentDate;
-    }
-
-    public String getRefundId() {
-        return refundId;
-    }
-
-    public void setRefundId(String refundId) {
-        this.refundId = refundId;
     }
 
     public LocalDateTime getCreatedAt() {

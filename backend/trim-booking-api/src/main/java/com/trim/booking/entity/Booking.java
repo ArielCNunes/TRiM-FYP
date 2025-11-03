@@ -3,6 +3,7 @@ package com.trim.booking.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
@@ -46,6 +47,14 @@ public class Booking {
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal depositAmount = BigDecimal.ZERO;
+
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal outstandingBalance = BigDecimal.ZERO;
+
     @Column(length = 500)
     private String notes;
 
@@ -67,10 +76,9 @@ public class Booking {
     }
 
     public enum PaymentStatus {
-        PENDING,
-        PAID,
-        REFUNDED,
-        PAY_IN_SHOP
+        DEPOSIT_PENDING,
+        DEPOSIT_PAID,
+        CANCELLED
     }
 
     // Constructors
@@ -164,5 +172,21 @@ public class Booking {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public BigDecimal getDepositAmount() {
+        return depositAmount;
+    }
+
+    public void setDepositAmount(BigDecimal depositAmount) {
+        this.depositAmount = depositAmount;
+    }
+
+    public BigDecimal getOutstandingBalance() {
+        return outstandingBalance;
+    }
+
+    public void setOutstandingBalance(BigDecimal outstandingBalance) {
+        this.outstandingBalance = outstandingBalance;
     }
 }

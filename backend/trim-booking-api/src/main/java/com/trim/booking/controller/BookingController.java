@@ -55,30 +55,6 @@ public class BookingController {
     }
 
     /**
-     * Mark booking as paid (for pay_in_shop bookings).
-     * <p>
-     * PUT /api/bookings/{id}/mark-paid
-     */
-    @PutMapping("/{id}/mark-paid")
-    @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
-    public ResponseEntity<?> markAsPaid(@PathVariable Long id) {
-        try {
-            Booking booking = bookingService.getBookingById(id);
-
-            if (booking.getPaymentStatus() != Booking.PaymentStatus.PAY_IN_SHOP) {
-                return ResponseEntity.badRequest().body("Only pay-in-shop bookings can be marked as paid manually");
-            }
-
-            booking.setPaymentStatus(Booking.PaymentStatus.PAID);
-            bookingRepository.save(booking);
-
-            return ResponseEntity.ok(booking);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    /**
      * Get all bookings for a customer.
      * <p>
      * GET /api/bookings/customer/{customerId}

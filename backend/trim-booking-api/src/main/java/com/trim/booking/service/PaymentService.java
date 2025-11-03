@@ -2,6 +2,7 @@ package com.trim.booking.service;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import com.trim.booking.service.DepositCalculationService;
 import com.stripe.model.Refund;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.RefundCreateParams;
@@ -24,32 +25,64 @@ import java.util.Map;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
+    private final DepositCalculationService depositCalculationService;
 
-    public PaymentService(PaymentRepository paymentRepository, BookingRepository bookingRepository) {
+    public PaymentService(PaymentRepository paymentRepository,
+                          BookingRepository bookingRepository,
+                          DepositCalculationService depositCalculationService) {
         this.paymentRepository = paymentRepository;
         this.bookingRepository = bookingRepository;
+        this.depositCalculationService = depositCalculationService;
     }
 
     /**
-     * Create a Stripe PaymentIntent for a booking.
-     * Returns client_secret for frontend to complete payment.
+     * Create a Stripe PaymentIntent for a deposit.
+     * <p>
+     * POST /api/payments/create-intent
+     * Body: { "bookingId": 1 }
+     *
+     * @param bookingId ID of booking needing deposit payment
+     * @return Map with clientSecret, paymentIntentId, depositAmount, outstandingBalance
+     * @throws StripeException  If Stripe API call fails
+     * @throws RuntimeException If booking not found
      */
     @Transactional
-    public Map<String, String> createPaymentIntent(Long bookingId) throws StripeException {
+    public Map<String, Object> createDepositPaymentIntent(Long bookingId) throws StripeException {
+        // Get booking (must exist)
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        // Convert price to cents (Stripe uses smallest currency unit)
-        long amountInCents = booking.getService().getPrice()
+        // Calculate deposit amount
+        BigDecimal depositAmount = depositCalculationService.calculateDeposit(
+                booking.getService().getPrice(),
+                booking.getService().getDepositPercentage()
+        );
+
+        // Calculate outstanding balance
+        BigDecimal outstandingBalance = depositCalculationService.calculateOutstandingBalance(
+                booking.getService().getPrice(),
+                depositAmount
+        );
+
+        // Store amounts on booking
+        booking.setDepositAmount(depositAmount);
+        booking.setOutstandingBalance(outstandingBalance);
+        booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PENDING);
+        bookingRepository.save(booking);
+
+        // Convert deposit to cents for Stripe
+        long amountInCents = depositAmount
                 .multiply(BigDecimal.valueOf(100))
                 .longValue();
 
-        // Create PaymentIntent
+        // Create PaymentIntent in Stripe
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount(amountInCents)
                 .setCurrency("eur")
                 .putMetadata("booking_id", bookingId.toString())
-                .setDescription("Booking: " + booking.getService().getName() + " with " +
+                .putMetadata("deposit_amount", depositAmount.toPlainString())
+                .putMetadata("outstanding_balance", outstandingBalance.toPlainString())
+                .setDescription("Booking Deposit: " + booking.getService().getName() + " with " +
                         booking.getBarber().getUser().getFirstName())
                 .build();
 
@@ -58,73 +91,44 @@ public class PaymentService {
         // Create Payment record
         Payment payment = new Payment();
         payment.setBooking(booking);
-        payment.setAmount(booking.getService().getPrice());
+        payment.setAmount(depositAmount);
         payment.setStripePaymentIntentId(paymentIntent.getId());
         payment.setStatus(Payment.PaymentStatus.PENDING);
         paymentRepository.save(payment);
 
-        // Update booking payment status
-        booking.setPaymentStatus(Booking.PaymentStatus.PENDING);
-        bookingRepository.save(booking);
-
-        // Return client_secret for frontend
-        Map<String, String> response = new HashMap<>();
+        // Return response for frontend
+        Map<String, Object> response = new HashMap<>();
         response.put("clientSecret", paymentIntent.getClientSecret());
         response.put("paymentIntentId", paymentIntent.getId());
+        response.put("depositAmount", depositAmount);
+        response.put("outstandingBalance", outstandingBalance);
+        response.put("bookingId", bookingId);
+
         return response;
     }
 
+
     /**
-     * Handle successful payment (called by webhook).
+     * Handle successful deposit payment (called by webhook).
+     * Confirms the booking after deposit is received.
+     *
+     * @param paymentIntentId Stripe PaymentIntent ID
      */
     @Transactional
     public void handlePaymentSuccess(String paymentIntentId) {
         Payment payment = paymentRepository.findByStripePaymentIntentId(paymentIntentId)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
 
-        // Update payment
+        // Update payment record
         payment.setStatus(Payment.PaymentStatus.SUCCEEDED);
-        payment.setPaymentDate(LocalDateTime.now());
         paymentRepository.save(payment);
 
-        // Update booking
+        // Update booking to CONFIRMED
         Booking booking = payment.getBooking();
-        booking.setPaymentStatus(Booking.PaymentStatus.PAID);
+        booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
         booking.setStatus(Booking.BookingStatus.CONFIRMED);
         bookingRepository.save(booking);
 
-        System.out.println("Payment succeeded for booking: " + booking.getId());
-    }
-
-    /**
-     * Process refund for a cancelled booking.
-     */
-    @Transactional
-    public void processRefund(Long bookingId) throws StripeException {
-        Payment payment = paymentRepository.findByBookingId(bookingId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
-
-        if (payment.getStatus() != Payment.PaymentStatus.SUCCEEDED) {
-            throw new RuntimeException("Cannot refund payment that hasn't succeeded");
-        }
-
-        // Create refund in Stripe
-        RefundCreateParams params = RefundCreateParams.builder()
-                .setPaymentIntent(payment.getStripePaymentIntentId())
-                .build();
-
-        Refund refund = Refund.create(params);
-
-        // Update payment
-        payment.setStatus(Payment.PaymentStatus.REFUNDED);
-        payment.setRefundId(refund.getId());
-        paymentRepository.save(payment);
-
-        // Update booking
-        Booking booking = payment.getBooking();
-        booking.setPaymentStatus(Booking.PaymentStatus.REFUNDED);
-        bookingRepository.save(booking);
-
-        System.out.println("Refund processed for booking: " + bookingId);
+        System.out.println("Deposit payment succeeded for booking: " + booking.getId());
     }
 }

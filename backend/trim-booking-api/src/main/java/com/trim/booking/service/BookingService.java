@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -93,27 +94,14 @@ public class BookingService {
         booking.setStartTime(startTime);
         booking.setEndTime(endTime);
         booking.setStatus(Booking.BookingStatus.PENDING);
-        booking.setPaymentStatus(Booking.PaymentStatus.PENDING);
+        booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PENDING);
 
-        // Set payment status based on payment method
-        if ("pay_in_shop".equalsIgnoreCase(paymentMethod)) {
-            booking.setPaymentStatus(Booking.PaymentStatus.PAY_IN_SHOP);
-            booking.setStatus(Booking.BookingStatus.CONFIRMED);
-        } else {
-            // Online payment - will be handled by payment service
-            booking.setPaymentStatus(Booking.PaymentStatus.PENDING);
-            booking.setStatus(Booking.BookingStatus.PENDING);
-        }
+        // Deposit amounts will be set by PaymentService
+        booking.setDepositAmount(BigDecimal.ZERO);
+        booking.setOutstandingBalance(service.getPrice());
 
-        // Save to database - unique constraint will catch any duplicates that slipped through
         try {
             Booking savedBooking = bookingRepository.save(booking);
-
-            // Send confirmation email asynchronously
-            emailService.sendBookingConfirmation(savedBooking);
-
-            // Send SMS notification asynchronously
-            smsService.sendBookingConfirmation(savedBooking);
             return savedBooking;
         } catch (Exception e) {
             throw new RuntimeException("Failed to create booking - slot may have been taken");
@@ -185,31 +173,9 @@ public class BookingService {
             throw new RuntimeException("Booking is already cancelled");
         }
 
-        // Update booking status
+        // Update booking status to CANCELLED
         booking.setStatus(Booking.BookingStatus.CANCELLED);
-
-        // If booking was paid online (via Stripe), process refund
-        if (booking.getPaymentStatus() == Booking.PaymentStatus.PAID) {
-            try {
-                // Check if payment exists (only for online payments)
-                Optional<Payment> paymentOpt = paymentRepository.findByBookingId(bookingId);
-                if (paymentOpt.isPresent()) {
-                    // Online payment - process Stripe refund
-                    paymentService.processRefund(bookingId);
-                    System.out.println("Refund processed for booking: " + bookingId);
-                } else {
-                    // Pay-in-shop marked as paid - just update status, no refund
-                    bookingRepository.save(booking);
-                    System.out.println("Booking cancelled (pay-in-shop, no refund): " + bookingId);
-                }
-            } catch (Exception e) {
-                System.err.println("Failed to process refund: " + e.getMessage());
-                throw new RuntimeException("Failed to process refund: " + e.getMessage());
-            }
-        } else {
-            // No refund needed for unpaid bookings
-            bookingRepository.save(booking);
-        }
+        bookingRepository.save(booking);
 
         System.out.println("Booking cancelled: " + bookingId);
     }
