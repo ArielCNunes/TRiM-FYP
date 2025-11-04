@@ -22,13 +22,17 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
     private final DepositCalculationService depositCalculationService;
+    private final EmailService emailService;
+    private final SmsService smsService;
 
     public PaymentService(PaymentRepository paymentRepository,
                           BookingRepository bookingRepository,
-                          DepositCalculationService depositCalculationService) {
+                          DepositCalculationService depositCalculationService, EmailService emailService, SmsService smsService) {
         this.paymentRepository = paymentRepository;
         this.bookingRepository = bookingRepository;
         this.depositCalculationService = depositCalculationService;
+        this.emailService = emailService;
+        this.smsService = smsService;
     }
 
     /**
@@ -105,6 +109,7 @@ public class PaymentService {
     /**
      * Handle successful deposit payment (called by webhook).
      * Confirms the booking after deposit is received.
+     * Sends confirmation email and SMS to customer.
      *
      * @param paymentIntentId Stripe PaymentIntent ID
      */
@@ -122,6 +127,10 @@ public class PaymentService {
         booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
         booking.setStatus(Booking.BookingStatus.CONFIRMED);
         bookingRepository.save(booking);
+
+        // Send confirmation notifications asynchronously
+        emailService.sendBookingConfirmation(booking);
+        smsService.sendBookingConfirmation(booking);
 
         System.out.println("Deposit payment succeeded for booking: " + booking.getId());
     }

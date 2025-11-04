@@ -30,15 +30,17 @@ public class SmsService {
     @Async
     public void sendBookingConfirmation(Booking booking) {
         try {
+            String toPhone = booking.getCustomer().getPhone();
+
             String messageBody = buildConfirmationSms(booking);
 
             Message message = Message.creator(
-                    new PhoneNumber(booking.getCustomer().getPhone()), // To
-                    new PhoneNumber(twilioConfig.getPhoneNumber()),     // From (Twilio number)
-                    messageBody                                         // Message
+                    new PhoneNumber(toPhone),
+                    new PhoneNumber(twilioConfig.getPhoneNumber()),
+                    messageBody
             ).create();
 
-            System.out.println("SMS sent to: " + booking.getCustomer().getPhone() +
+            System.out.println("SMS sent to: " + toPhone +
                     " (SID: " + message.getSid() + ")");
 
         } catch (Exception e) {
@@ -69,15 +71,17 @@ public class SmsService {
     @Async
     public void sendReminderSms(Booking booking) {
         try {
+            String toPhone = booking.getCustomer().getPhone();
+
             String messageBody = buildReminderSms(booking);
 
             Message message = Message.creator(
-                    new PhoneNumber(booking.getCustomer().getPhone()),
+                    new PhoneNumber(toPhone),
                     new PhoneNumber(twilioConfig.getPhoneNumber()),
                     messageBody
             ).create();
 
-            System.out.println("SMS reminder sent to: " + booking.getCustomer().getPhone() +
+            System.out.println("SMS reminder sent to: " + toPhone +
                     " (SID: " + message.getSid() + ")");
 
         } catch (Exception e) {
