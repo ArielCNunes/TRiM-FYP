@@ -82,6 +82,25 @@ function AvailabilitySection({ barberId }: { barberId?: number }) {
     "sunday",
   ] as const;
 
+  // Generate time options from 6:00 AM to 10:00 PM in 30-minute intervals
+  const timeOptions: { value: string; label: string }[] = [];
+  for (let hour = 6; hour <= 22; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const timeStr = `${String(hour).padStart(2, "0")}:${String(
+        minute
+      ).padStart(2, "0")}`;
+      const displayTime = new Date(`2000-01-01T${timeStr}`).toLocaleTimeString(
+        "en-US",
+        {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }
+      );
+      timeOptions.push({ value: timeStr, label: displayTime });
+    }
+  }
+
   // Load existing availability
   useEffect(() => {
     if (!barberId) return;
@@ -169,39 +188,78 @@ function AvailabilitySection({ barberId }: { barberId?: number }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {days.map((day) => (
         <div
           key={day}
-          className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg"
+          className={`border rounded-lg transition-all ${
+            availability[day].enabled
+              ? "border-blue-200 bg-blue-50"
+              : "border-gray-200 bg-gray-50"
+          }`}
         >
-          <label className="flex items-center gap-2 flex-1">
-            <input
-              type="checkbox"
-              checked={availability[day].enabled}
-              onChange={() => handleToggle(day)}
-              className="w-4 h-4 rounded border-gray-300"
-            />
-            <span className="font-medium text-gray-900 capitalize w-20">
-              {day}
-            </span>
-          </label>
+          {/* Day header with toggle */}
+          <div className="flex items-center justify-between p-3 border-b border-gray-200">
+            <label className="flex items-center gap-3 cursor-pointer flex-1">
+              <input
+                type="checkbox"
+                checked={availability[day].enabled}
+                onChange={() => handleToggle(day)}
+                className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="font-semibold text-gray-900 capitalize text-lg">
+                {day}
+              </span>
+            </label>
+            {!availability[day].enabled && (
+              <span className="text-sm text-gray-500 italic">Day off</span>
+            )}
+          </div>
 
+          {/* Time selection - only shown when enabled */}
           {availability[day].enabled && (
-            <div className="flex gap-2">
-              <input
-                type="time"
-                value={availability[day].start}
-                onChange={(e) => handleTimeChange(day, "start", e.target.value)}
-                className="px-3 py-1 border border-gray-300 rounded bg-white text-sm"
-              />
-              <span className="text-gray-600">to</span>
-              <input
-                type="time"
-                value={availability[day].end}
-                onChange={(e) => handleTimeChange(day, "end", e.target.value)}
-                className="px-3 py-1 border border-gray-300 rounded bg-white text-sm"
-              />
+            <div className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Start Time
+                  </label>
+                  <select
+                    value={availability[day].start}
+                    onChange={(e) =>
+                      handleTimeChange(day, "start", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {timeOptions.map((time) => (
+                      <option key={time.value} value={time.value}>
+                        {time.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="text-gray-400 pt-6">→</div>
+
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    End Time
+                  </label>
+                  <select
+                    value={availability[day].end}
+                    onChange={(e) =>
+                      handleTimeChange(day, "end", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {timeOptions.map((time) => (
+                      <option key={time.value} value={time.value}>
+                        {time.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -210,7 +268,7 @@ function AvailabilitySection({ barberId }: { barberId?: number }) {
       <button
         onClick={handleSave}
         disabled={loading}
-        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 rounded-md transition mt-4"
+        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-md transition mt-4"
       >
         {loading ? "Saving..." : "Save Availability"}
       </button>
