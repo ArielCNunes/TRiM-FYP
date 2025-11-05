@@ -19,32 +19,23 @@ public class BookingService {
     private final UserRepository userRepository;
     private final BarberRepository barberRepository;
     private final ServiceRepository serviceRepository;
-    private final AvailabilityService availabilityService;
-    private final EmailService emailService;
-    private final SmsService smsService;
-    private final PaymentService paymentService;
-    private final PaymentRepository paymentRepository;
+    // Unused but kept for future use (email/SMS notifications, payment processing)
+    // private final AvailabilityService availabilityService;
+    // private final EmailService emailService;
+    // private final SmsService smsService;
+    // private final PaymentService paymentService;
+    // private final PaymentRepository paymentRepository;
     private final GuestUserService guestUserService;
 
     public BookingService(BookingRepository bookingRepository,
                           UserRepository userRepository,
                           BarberRepository barberRepository,
                           ServiceRepository serviceRepository,
-                          AvailabilityService availabilityService,
-                          EmailService emailService,
-                          SmsService smsService,
-                          PaymentService paymentService,
-                          PaymentRepository paymentRepository,
                           GuestUserService guestUserService) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.barberRepository = barberRepository;
         this.serviceRepository = serviceRepository;
-        this.availabilityService = availabilityService;
-        this.emailService = emailService;
-        this.smsService = smsService;
-        this.paymentService = paymentService;
-        this.paymentRepository = paymentRepository;
         this.guestUserService = guestUserService;
     }
 

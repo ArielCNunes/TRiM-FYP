@@ -84,8 +84,6 @@ public class AuthController {
     /**
      * Create a guest booking with customer information.
      * Automatically creates a guest user and booking.
-     *
-     * POST /api/auth/guest-booking
      */
     @PostMapping("/guest-booking")
     public ResponseEntity<?> createGuestBooking(@Valid @RequestBody GuestBookingRequest request) {
@@ -125,8 +123,6 @@ public class AuthController {
     /**
      * Save a guest account by setting a password.
      * Converts a guest user to a registered user.
-     *
-     * POST /api/auth/save-account
      */
     @PostMapping("/save-account")
     public ResponseEntity<?> saveGuestAccount(@Valid @RequestBody SaveAccountRequest request) {
