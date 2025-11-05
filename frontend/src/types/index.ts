@@ -28,7 +28,7 @@ export interface User {
   firstName: string;
   lastName: string;
   phone: string;
-  role: 'CUSTOMER' | 'BARBER' | 'ADMIN';
+  role: "CUSTOMER" | "BARBER" | "ADMIN";
   createdAt: string;
 }
 
@@ -67,7 +67,7 @@ export interface BookingRequest {
   serviceId: number;
   bookingDate: string;
   startTime: string;
-  paymentMethod: 'pay_online' | 'pay_in_shop';
+  paymentMethod: "pay_online" | "pay_in_shop";
   notes?: string;
 }
 
@@ -81,6 +81,8 @@ export interface BookingResponse {
   endTime: string;
   status: string;
   paymentStatus: string;
+  depositAmount?: number;
+  outstandingBalance?: number;
   notes?: string;
   createdAt: string;
 }

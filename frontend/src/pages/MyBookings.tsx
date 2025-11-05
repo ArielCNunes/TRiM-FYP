@@ -174,7 +174,7 @@ export default function MyBookings() {
 
               {/* Main content with service, barber, and pricing info */}
               <div className="px-6 py-5">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                   {/* Service */}
                   <div>
                     <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
@@ -199,10 +199,10 @@ export default function MyBookings() {
                     </p>
                   </div>
 
-                  {/* Price */}
+                  {/* Total Price */}
                   <div>
                     <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
-                      Price
+                      Total Price
                     </p>
                     <p className="text-2xl font-bold text-blue-600">
                       €{booking.service.price.toFixed(2)}
@@ -212,12 +212,57 @@ export default function MyBookings() {
                   {/* Payment Status */}
                   <div>
                     <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
-                      Payment
+                      Payment Status
                     </p>
                     <p className="text-sm font-medium text-gray-900">
-                      {booking.paymentStatus}
+                      {booking.paymentStatus === "DEPOSIT_PAID" &&
+                        "Deposit Paid"}
+                      {booking.paymentStatus === "FULLY_PAID" && "Fully Paid"}
+                      {booking.paymentStatus === "PENDING" && "Pending Payment"}
+                      {booking.paymentStatus === "REFUNDED" && "Refunded"}
+                      {![
+                        "DEPOSIT_PAID",
+                        "FULLY_PAID",
+                        "PENDING",
+                        "REFUNDED",
+                      ].includes(booking.paymentStatus) &&
+                        booking.paymentStatus}
                     </p>
+                    {booking.depositAmount !== undefined && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        Deposit: €{booking.depositAmount.toFixed(2)}
+                      </p>
+                    )}
                   </div>
+
+                  {/* Outstanding Balance */}
+                  {booking.outstandingBalance !== undefined &&
+                    booking.outstandingBalance > 0 && (
+                      <div>
+                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                          Outstanding
+                        </p>
+                        <p className="text-2xl font-bold text-orange-600">
+                          €{booking.outstandingBalance.toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          Pay at shop
+                        </p>
+                      </div>
+                    )}
+
+                  {/* Show nothing in 5th column if fully paid */}
+                  {(booking.outstandingBalance === undefined ||
+                    booking.outstandingBalance === 0) && (
+                    <div>
+                      <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                        Balance
+                      </p>
+                      <p className="text-lg font-medium text-green-600">
+                        Paid in Full
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

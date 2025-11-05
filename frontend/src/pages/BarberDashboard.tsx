@@ -28,7 +28,9 @@ export default function BarberDashboard() {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="text-4xl font-bold mb-2 text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mb-8">Welcome, {user.firstName} {user.lastName}</p>
+        <p className="text-gray-600 mb-8">
+          Welcome, {user.firstName} {user.lastName}
+        </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
@@ -258,9 +260,9 @@ function UpcomingBookings({ barberId }: { barberId?: number }) {
       {bookings.map((booking) => (
         <div
           key={booking.id}
-          className="p-4 border border-gray-200 rounded-lg bg-gray-50"
+          className="p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
         >
-          <div className="flex justify-between items-start mb-2">
+          <div className="flex justify-between items-start mb-3">
             <div>
               <p className="font-semibold text-gray-900">
                 {booking.service.name}
@@ -279,16 +281,75 @@ function UpcomingBookings({ barberId }: { barberId?: number }) {
               {booking.status}
             </span>
           </div>
-          <p className="text-sm text-gray-600">
-            {new Date(booking.bookingDate).toLocaleDateString()} at{" "}
-            {booking.startTime}
-          </p>
-          <p className="text-sm text-gray-600">
-            Duration: {booking.service.durationMinutes} min
-          </p>
-          <p className="text-sm text-gray-600">
-            Price: €{booking.service.price}
-          </p>
+
+          <div className="space-y-1 mb-3">
+            <p className="text-sm text-gray-600">
+              {new Date(booking.bookingDate).toLocaleDateString()} at{" "}
+              {booking.startTime}
+            </p>
+            <p className="text-sm text-gray-600">
+              Duration: {booking.service.durationMinutes} min
+            </p>
+          </div>
+
+          {/* Payment Information */}
+          <div className="pt-3 border-t border-gray-300">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-xs text-gray-500 uppercase font-semibold">
+                  Payment Status
+                </p>
+                <p className="text-sm font-medium text-gray-900">
+                  {booking.paymentStatus === "DEPOSIT_PAID" && "Deposit Paid"}
+                  {booking.paymentStatus === "FULLY_PAID" && "Fully Paid"}
+                  {booking.paymentStatus === "PENDING" && "Pending Payment"}
+                  {booking.paymentStatus === "REFUNDED" && "Refunded"}
+                  {![
+                    "DEPOSIT_PAID",
+                    "FULLY_PAID",
+                    "PENDING",
+                    "REFUNDED",
+                  ].includes(booking.paymentStatus) && booking.paymentStatus}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-500 uppercase font-semibold">
+                  Total Price
+                </p>
+                <p className="text-lg font-bold text-blue-600">
+                  €{booking.service.price.toFixed(2)}
+                </p>
+              </div>
+            </div>
+
+            {/* Outstanding Balance Alert */}
+            {booking.outstandingBalance !== undefined &&
+              booking.outstandingBalance > 0 && (
+                <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xs text-orange-700 font-semibold">
+                        OUTSTANDING BALANCE
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-orange-600">
+                      €{booking.outstandingBalance.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+            {/* Fully Paid Indicator */}
+            {(booking.outstandingBalance === undefined ||
+              booking.outstandingBalance === 0) &&
+              booking.paymentStatus === "FULLY_PAID" && (
+                <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-md text-center">
+                  <p className="text-sm font-medium text-green-700">
+                    Paid in Full
+                  </p>
+                </div>
+              )}
+          </div>
         </div>
       ))}
     </div>
