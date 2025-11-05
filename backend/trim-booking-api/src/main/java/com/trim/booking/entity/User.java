@@ -28,8 +28,8 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Column(nullable = false)
+    // Password can be null for guest accounts (accounts created during booking)
+    @Column
     private String passwordHash;
 
     @NotBlank(message = "Phone number is required")

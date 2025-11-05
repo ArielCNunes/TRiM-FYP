@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BookingService {
@@ -25,12 +24,18 @@ public class BookingService {
     private final SmsService smsService;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
+    private final GuestUserService guestUserService;
 
     public BookingService(BookingRepository bookingRepository,
                           UserRepository userRepository,
                           BarberRepository barberRepository,
                           ServiceRepository serviceRepository,
-                          AvailabilityService availabilityService, EmailService emailService, SmsService smsService, PaymentService paymentService, PaymentRepository paymentRepository) {
+                          AvailabilityService availabilityService,
+                          EmailService emailService,
+                          SmsService smsService,
+                          PaymentService paymentService,
+                          PaymentRepository paymentRepository,
+                          GuestUserService guestUserService) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.barberRepository = barberRepository;
@@ -40,6 +45,7 @@ public class BookingService {
         this.smsService = smsService;
         this.paymentService = paymentService;
         this.paymentRepository = paymentRepository;
+        this.guestUserService = guestUserService;
     }
 
     /**
@@ -101,11 +107,38 @@ public class BookingService {
         booking.setOutstandingBalance(service.getPrice());
 
         try {
-            Booking savedBooking = bookingRepository.save(booking);
-            return savedBooking;
+            return bookingRepository.save(booking);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create booking - slot may have been taken");
         }
+    }
+
+    /**
+     * Create a booking for a guest user.
+     * This method creates a guest user account first, then creates the booking.
+     *
+     * @param firstName Customer's first name
+     * @param lastName Customer's last name
+     * @param email Customer's email
+     * @param phone Customer's phone
+     * @param barberId Barber ID
+     * @param serviceId Service ID
+     * @param bookingDate Booking date
+     * @param startTime Start time
+     * @param paymentMethod Payment method (pay_online or pay_in_shop)
+     * @return Booking object
+     * @throws ConflictException if email already exists or time slot unavailable
+     */
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Booking createGuestBooking(String firstName, String lastName, String email, String phone,
+                                       Long barberId, Long serviceId, LocalDate bookingDate,
+                                       LocalTime startTime, String paymentMethod) {
+
+        // Step 1: Create guest user via service
+        User guestCustomer = guestUserService.createGuestUser(firstName, lastName, email, phone);
+
+        // Step 2: Create booking using the guest user
+        return createBooking(guestCustomer.getId(), barberId, serviceId, bookingDate, startTime, paymentMethod);
     }
 
     /**
@@ -134,8 +167,7 @@ public class BookingService {
      * Get barber's bookings for a specific date.
      */
     public List<Booking> getBarberScheduleForDate(Long barberId, LocalDate date) {
-        List<Booking> allBookings = bookingRepository.findByBarberIdAndBookingDate(barberId, date);
-        return allBookings;
+        return bookingRepository.findByBarberIdAndBookingDate(barberId, date);
     }
 
     /**

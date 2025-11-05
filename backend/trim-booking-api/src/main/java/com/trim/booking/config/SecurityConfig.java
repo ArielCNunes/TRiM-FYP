@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/availability").permitAll()
                         .requestMatchers("/api/bookings").permitAll()
                         .requestMatchers("/api/payments/webhook").permitAll()
+                        .requestMatchers("/api/payments/create-intent").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
                         .anyRequest().authenticated()
