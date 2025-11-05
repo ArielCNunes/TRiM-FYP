@@ -39,6 +39,7 @@ export interface Service {
   description: string;
   durationMinutes: number;
   price: number;
+  depositPercentage: number;
   active: boolean;
 }
 

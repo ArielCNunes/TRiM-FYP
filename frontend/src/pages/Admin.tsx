@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useAppSelector } from '../store/hooks';
-import { useNavigate } from 'react-router-dom';
-import { servicesApi, barbersApi } from '../api/endpoints';
-import type { Service, Barber } from '../types';
+import { useEffect, useState } from "react";
+import { useAppSelector } from "../store/hooks";
+import { useNavigate } from "react-router-dom";
+import { servicesApi, barbersApi } from "../api/endpoints";
+import type { Service, Barber } from "../types";
 
 /**
  * Type definition for admin dashboard tab navigation
  */
-type AdminTab = 'services' | 'barbers';
+type AdminTab = "services" | "barbers";
 
 /**
  * Admin Dashboard
- * 
+ *
  * Allows admins to:
  * 1. Create and manage services
  * 2. Create and manage barbers
@@ -19,15 +19,15 @@ type AdminTab = 'services' | 'barbers';
  */
 export default function Admin() {
   const navigate = useNavigate();
-  const user = useAppSelector(state => state.auth.user);
+  const user = useAppSelector((state) => state.auth.user);
 
   // Verify admin role - redirect if unauthorized
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || user.role !== "ADMIN") {
     return (
       <div className="p-8 text-center">
         <p className="text-red-600">Access denied. Admin role required.</p>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md"
         >
           Go Home
@@ -36,7 +36,7 @@ export default function Admin() {
     );
   }
 
-  const [activeTab, setActiveTab] = useState<AdminTab>('services');
+  const [activeTab, setActiveTab] = useState<AdminTab>("services");
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,21 +47,21 @@ export default function Admin() {
         {/* Tab Navigation */}
         <div className="flex gap-4 mb-8 border-b">
           <button
-            onClick={() => setActiveTab('services')}
+            onClick={() => setActiveTab("services")}
             className={`px-6 py-3 font-semibold transition ${
-              activeTab === 'services'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
+              activeTab === "services"
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             Services
           </button>
           <button
-            onClick={() => setActiveTab('barbers')}
+            onClick={() => setActiveTab("barbers")}
             className={`px-6 py-3 font-semibold transition ${
-              activeTab === 'barbers'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
+              activeTab === "barbers"
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             Barbers
@@ -69,10 +69,10 @@ export default function Admin() {
         </div>
 
         {/* Services Tab */}
-        {activeTab === 'services' && <ServicesSection />}
+        {activeTab === "services" && <ServicesSection />}
 
         {/* Barbers Tab */}
-        {activeTab === 'barbers' && <BarbersSection />}
+        {activeTab === "barbers" && <BarbersSection />}
       </div>
     </div>
   );
@@ -80,7 +80,7 @@ export default function Admin() {
 
 /**
  * Services Management Section
- * 
+ *
  * Handles CRUD operations for services:
  * - Display list of all active services
  * - Create new services with form validation
@@ -91,14 +91,18 @@ function ServicesSection() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
   // Form data for creating new services
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     durationMinutes: 30,
     price: 0,
+    depositPercentage: 50,
   });
 
   // Fetch services on component mount
@@ -115,7 +119,7 @@ function ServicesSection() {
       setServices(response.data);
       setStatus(null);
     } catch (error) {
-      setStatus({ type: 'error', message: 'Failed to load services' });
+      setStatus({ type: "error", message: "Failed to load services" });
     }
   };
 
@@ -134,17 +138,25 @@ function ServicesSection() {
         description: formData.description,
         durationMinutes: parseInt(String(formData.durationMinutes)),
         price: parseFloat(String(formData.price)),
+        depositPercentage: parseInt(String(formData.depositPercentage)),
         active: true,
       } as any);
-      
+
       // Reset form and refresh services list
-      setFormData({ name: '', description: '', durationMinutes: 30, price: 0 });
+      setFormData({
+        name: "",
+        description: "",
+        durationMinutes: 30,
+        price: 0,
+        depositPercentage: 50,
+      });
       setShowForm(false);
-      setStatus({ type: 'success', message: 'Service created successfully' });
+      setStatus({ type: "success", message: "Service created successfully" });
       fetchServices();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to create service';
-      setStatus({ type: 'error', message: String(message) });
+      const message =
+        error.response?.data?.message || "Failed to create service";
+      setStatus({ type: "error", message: String(message) });
     } finally {
       setLoading(false);
     }
@@ -159,7 +171,7 @@ function ServicesSection() {
           onClick={() => setShowForm(!showForm)}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
-          {showForm ? 'Cancel' : 'Add Service'}
+          {showForm ? "Cancel" : "Add Service"}
         </button>
       </div>
 
@@ -169,30 +181,40 @@ function ServicesSection() {
           <h3 className="text-xl font-bold mb-4">Create New Service</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Service Name</label>
+              <label className="block text-sm font-medium mb-1">
+                Service Name
+              </label>
               <input
                 type="text"
                 required
                 className="w-full border rounded-md p-2"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
+              <label className="block text-sm font-medium mb-1">
+                Description
+              </label>
               <textarea
                 required
                 className="w-full border rounded-md p-2"
                 rows={3}
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Duration (minutes)</label>
+                <label className="block text-sm font-medium mb-1">
+                  Duration (minutes)
+                </label>
                 <input
                   type="number"
                   required
@@ -200,12 +222,19 @@ function ServicesSection() {
                   step="15"
                   className="w-full border rounded-md p-2"
                   value={formData.durationMinutes}
-                  onChange={(e) => setFormData({ ...formData, durationMinutes: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      durationMinutes: parseInt(e.target.value),
+                    })
+                  }
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Price (€)</label>
+                <label className="block text-sm font-medium mb-1">
+                  Price (€)
+                </label>
                 <input
                   type="number"
                   required
@@ -213,9 +242,38 @@ function ServicesSection() {
                   step="0.01"
                   className="w-full border rounded-md p-2"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      price: parseFloat(e.target.value),
+                    })
+                  }
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Deposit Percentage (%)
+              </label>
+              <input
+                type="number"
+                required
+                min="0"
+                max="100"
+                step="1"
+                className="w-full border rounded-md p-2"
+                value={formData.depositPercentage}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    depositPercentage: parseInt(e.target.value),
+                  })
+                }
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Percentage of the total price required as deposit (0-100%)
+              </p>
             </div>
 
             <button
@@ -223,7 +281,7 @@ function ServicesSection() {
               disabled={loading}
               className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
             >
-              {loading ? 'Creating...' : 'Create Service'}
+              {loading ? "Creating..." : "Create Service"}
             </button>
           </form>
         </div>
@@ -233,9 +291,9 @@ function ServicesSection() {
       {status && (
         <div
           className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
-            status.type === 'success'
-              ? 'border-green-200 bg-green-50 text-green-700'
-              : 'border-red-200 bg-red-50 text-red-700'
+            status.type === "success"
+              ? "border-green-200 bg-green-50 text-green-700"
+              : "border-red-200 bg-red-50 text-red-700"
           }`}
         >
           {status.message}
@@ -248,9 +306,21 @@ function ServicesSection() {
           <div key={service.id} className="p-4 bg-white rounded-lg shadow">
             <h3 className="text-lg font-bold mb-2">{service.name}</h3>
             <p className="text-gray-600 mb-3 text-sm">{service.description}</p>
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>{service.durationMinutes} min</span>
-              <span className="font-semibold">€{service.price.toFixed(2)}</span>
+            <div className="space-y-1 text-sm text-gray-500">
+              <div className="flex justify-between">
+                <span>Duration:</span>
+                <span>{service.durationMinutes} min</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Price:</span>
+                <span className="font-semibold">
+                  €{service.price.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Deposit:</span>
+                <span>{service.depositPercentage}%</span>
+              </div>
             </div>
           </div>
         ))}
@@ -258,7 +328,9 @@ function ServicesSection() {
 
       {/* Empty state message */}
       {services.length === 0 && (
-        <p className="text-center text-gray-500">No services yet. Create one to get started.</p>
+        <p className="text-center text-gray-500">
+          No services yet. Create one to get started.
+        </p>
       )}
     </div>
   );
@@ -266,7 +338,7 @@ function ServicesSection() {
 
 /**
  * Barbers Management Section
- * 
+ *
  * Handles CRUD operations for barbers:
  * - Display list of all active barbers
  * - Create new barber accounts with user credentials
@@ -277,16 +349,19 @@ function BarbersSection() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
   // Form data for creating new barbers
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    bio: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    password: "",
+    bio: "",
   });
 
   // Fetch barbers on component mount
@@ -303,7 +378,7 @@ function BarbersSection() {
       setBarbers(response.data);
       setStatus(null);
     } catch (error) {
-      setStatus({ type: 'error', message: 'Failed to load barbers' });
+      setStatus({ type: "error", message: "Failed to load barbers" });
     }
   };
 
@@ -319,22 +394,23 @@ function BarbersSection() {
     try {
       // Create new barber with user account
       await barbersApi.create(formData as any);
-      
+
       // Reset form and refresh barbers list
       setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        password: '',
-        bio: '',
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        password: "",
+        bio: "",
       });
       setShowForm(false);
-      setStatus({ type: 'success', message: 'Barber created successfully' });
+      setStatus({ type: "success", message: "Barber created successfully" });
       fetchBarbers();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to create barber';
-      setStatus({ type: 'error', message: String(message) });
+      const message =
+        error.response?.data?.message || "Failed to create barber";
+      setStatus({ type: "error", message: String(message) });
     } finally {
       setLoading(false);
     }
@@ -349,7 +425,7 @@ function BarbersSection() {
           onClick={() => setShowForm(!showForm)}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
-          {showForm ? 'Cancel' : 'Add Barber'}
+          {showForm ? "Cancel" : "Add Barber"}
         </button>
       </div>
 
@@ -360,24 +436,32 @@ function BarbersSection() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">First Name</label>
+                <label className="block text-sm font-medium mb-1">
+                  First Name
+                </label>
                 <input
                   type="text"
                   required
                   className="w-full border rounded-md p-2"
                   value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Last Name</label>
+                <label className="block text-sm font-medium mb-1">
+                  Last Name
+                </label>
                 <input
                   type="text"
                   required
                   className="w-full border rounded-md p-2"
                   value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -389,7 +473,9 @@ function BarbersSection() {
                 required
                 className="w-full border rounded-md p-2"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
             </div>
 
@@ -400,7 +486,9 @@ function BarbersSection() {
                 required
                 className="w-full border rounded-md p-2"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
               />
             </div>
 
@@ -412,7 +500,9 @@ function BarbersSection() {
                 minLength={6}
                 className="w-full border rounded-md p-2"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
               />
             </div>
 
@@ -422,7 +512,9 @@ function BarbersSection() {
                 className="w-full border rounded-md p-2"
                 rows={3}
                 value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, bio: e.target.value })
+                }
               />
             </div>
 
@@ -431,7 +523,7 @@ function BarbersSection() {
               disabled={loading}
               className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
             >
-              {loading ? 'Creating...' : 'Create Barber'}
+              {loading ? "Creating..." : "Create Barber"}
             </button>
           </form>
         </div>
@@ -441,9 +533,9 @@ function BarbersSection() {
       {status && (
         <div
           className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
-            status.type === 'success'
-              ? 'border-green-200 bg-green-50 text-green-700'
-              : 'border-red-200 bg-red-50 text-red-700'
+            status.type === "success"
+              ? "border-green-200 bg-green-50 text-green-700"
+              : "border-red-200 bg-red-50 text-red-700"
           }`}
         >
           {status.message}
@@ -458,7 +550,9 @@ function BarbersSection() {
               {barber.user.firstName} {barber.user.lastName}
             </h3>
             <p className="text-sm text-gray-600 mb-2">{barber.user.email}</p>
-            {barber.bio && <p className="text-sm text-gray-700 mb-2">{barber.bio}</p>}
+            {barber.bio && (
+              <p className="text-sm text-gray-700 mb-2">{barber.bio}</p>
+            )}
             <p className="text-xs text-gray-500">{barber.user.phone}</p>
           </div>
         ))}
@@ -466,7 +560,9 @@ function BarbersSection() {
 
       {/* Empty state message */}
       {barbers.length === 0 && (
-        <p className="text-center text-gray-500">No barbers yet. Create one to get started.</p>
+        <p className="text-center text-gray-500">
+          No barbers yet. Create one to get started.
+        </p>
       )}
     </div>
   );
