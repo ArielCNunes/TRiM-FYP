@@ -13,7 +13,10 @@ export default function Auth() {
         {/* Logo and heading */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">TRiM</h1>
-          <p className="text-gray-600">Book your haircut with us!</p>
+          <p className="text-gray-600 mb-2">Book your haircut with us!</p>
+          <p className="text-sm text-gray-500">
+            Log in to manage your bookings and view appointment history
+          </p>
         </div>
 
         {/* Auth tabs with forms */}

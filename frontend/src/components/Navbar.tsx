@@ -101,22 +101,12 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <div className="flex space-x-4">
-                {/* Sign in link for unauthenticated users */}
-                <Link
-                  to="/auth"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-600 bg-white hover:bg-gray-50"
-                >
-                  Sign in
-                </Link>
-                {/* Sign up link for new users */}
-                <Link
-                  to="/auth"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-600 bg-white hover:bg-gray-50"
-                >
-                  Sign up
-                </Link>
-              </div>
+              <Link
+                to="/auth"
+                className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              >
+                Sign in / Sign up
+              </Link>
             )}
           </div>
         </div>
