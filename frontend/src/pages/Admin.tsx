@@ -484,12 +484,17 @@ function BarbersSection() {
               <input
                 type="tel"
                 required
+                pattern="[0-9]{10,15}"
                 className="w-full border rounded-md p-2"
                 value={formData.phone}
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
+                placeholder="353871234567 (digits only, 10-15 chars)"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Enter digits only (no spaces or dashes), 10-15 characters
+              </p>
             </div>
 
             <div>
@@ -497,12 +502,13 @@ function BarbersSection() {
               <input
                 type="password"
                 required
-                minLength={6}
+                minLength={8}
                 className="w-full border rounded-md p-2"
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
+                placeholder="Minimum 8 characters"
               />
             </div>
 
