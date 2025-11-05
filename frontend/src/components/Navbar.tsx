@@ -35,48 +35,53 @@ export default function Navbar() {
               <span className="text-2xl font-bold text-primary-600">TRiM</span>
             </Link>
 
-            {/* Conditional navigation links based on authentication and user role */}
-            {isAuthenticated && (
-              <div className="ml-6 flex space-x-8">
-                {/* Customer navigation links */}
-                {user?.role === "CUSTOMER" && (
-                  <>
-                    <Link
-                      to="/booking"
-                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
-                    >
-                      Book Appointment
-                    </Link>
+            {/* Navigation links */}
+            <div className="ml-6 flex space-x-8">
+              {/* Book Appointment - Always visible for guests and customers only */}
+              {(!user || user.role === "CUSTOMER") && (
+                <Link
+                  to="/booking"
+                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-primary-600"
+                >
+                  Book Appointment
+                </Link>
+              )}
+
+              {/* Authenticated user links */}
+              {isAuthenticated && (
+                <>
+                  {/* Customer navigation links */}
+                  {user?.role === "CUSTOMER" && (
                     <Link
                       to="/my-bookings"
                       className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
                     >
                       My Bookings
                     </Link>
-                  </>
-                )}
+                  )}
 
-                {/* Barber navigation link */}
-                {user?.role === "BARBER" && (
-                  <Link
-                    to="/barber"
-                    className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
-                  >
-                    Dashboard
-                  </Link>
-                )}
+                  {/* Barber navigation link */}
+                  {user?.role === "BARBER" && (
+                    <Link
+                      to="/barber"
+                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
+                    >
+                      Dashboard
+                    </Link>
+                  )}
 
-                {/* Admin navigation link */}
-                {user?.role === "ADMIN" && (
-                  <Link
-                    to="/admin"
-                    className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
-                  >
-                    Admin Dashboard
-                  </Link>
-                )}
-              </div>
-            )}
+                  {/* Admin navigation link */}
+                  {user?.role === "ADMIN" && (
+                    <Link
+                      to="/admin"
+                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           {/* User authentication controls on the right side */}
