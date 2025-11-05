@@ -19,6 +19,10 @@ export const authApi = {
   /** Create a new user account. */
   register: (userData: RegisterRequest) =>
     api.post<User>("/auth/register", userData),
+
+  /** Save a guest account with password. */
+  saveAccount: (data: { userId: number; password: string }) =>
+    api.post("/auth/save-account", data),
 };
 
 /** Service catalogue endpoints. */
@@ -70,6 +74,25 @@ export const bookingsApi = {
   /** Create a new booking. */
   create: (booking: BookingRequest) =>
     api.post<BookingResponse>("/bookings", booking),
+
+  /** Create a guest booking without authentication. */
+  createGuest: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    barberId: number;
+    serviceId: number;
+    bookingDate: string;
+    startTime: string;
+    paymentMethod: string;
+  }) =>
+    api.post<{
+      bookingId: number;
+      customerId: number;
+      depositAmount: number;
+      outstandingBalance: number;
+    }>("/auth/guest-booking", data),
 
   /** Fetch bookings for the authenticated customer. */
   getCustomerBookings: (customerId: number) =>
