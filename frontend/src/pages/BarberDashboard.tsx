@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
 import { useAppSelector } from "../store/hooks";
 import { barbersApi, bookingsApi } from "../api/endpoints";
+import { MarkCompleteButton } from "../components/MarkCompleteButton";
+import type { BookingResponse } from "../types";
+
+/**
+ * Type definition for barber dashboard tab navigation
+ */
+type BarberTab = "availability" | "bookings";
 
 /**
  * Barber Dashboard - Main dashboard for barbers to manage their availability and bookings
  */
 export default function BarberDashboard() {
   const user = useAppSelector((state) => state.auth.user);
+  const [activeTab, setActiveTab] = useState<BarberTab>("bookings");
 
   if (!user) {
     return (
@@ -25,31 +33,58 @@ export default function BarberDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-4xl font-bold mb-2 text-gray-900">Dashboard</h1>
+        {/* Page header */}
+        <h1 className="text-4xl font-bold mb-2 text-gray-900">
+          Barber Dashboard
+        </h1>
         <p className="text-gray-600 mb-8">
           Welcome, {user.firstName} {user.lastName}
         </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              My Availability
-            </h2>
-            <p className="text-gray-600 mb-4">
+        {/* Tab Navigation */}
+        <div className="flex gap-4 mb-8 border-b">
+          <button
+            onClick={() => setActiveTab("bookings")}
+            className={`px-6 py-3 font-semibold transition ${
+              activeTab === "bookings"
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            My Bookings
+          </button>
+          <button
+            onClick={() => setActiveTab("availability")}
+            className={`px-6 py-3 font-semibold transition ${
+              activeTab === "availability"
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            Availability
+          </button>
+        </div>
+
+        {/* Bookings Tab */}
+        {activeTab === "bookings" && (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-2xl font-bold mb-6">My Bookings</h2>
+            <BookingsSection barberId={user.barberId} />
+          </div>
+        )}
+
+        {/* Availability Tab */}
+        {activeTab === "availability" && (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-2xl font-bold mb-4">My Availability</h2>
+            <p className="text-gray-600 mb-6">
               Set your working hours and days off
             </p>
             <AvailabilitySection barberId={user.barberId} />
           </div>
-
-          <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Your Upcoming Bookings
-            </h2>
-            <UpcomingBookings barberId={user.barberId} />
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -276,7 +311,10 @@ function AvailabilitySection({ barberId }: { barberId?: number }) {
   );
 }
 
-function UpcomingBookings({ barberId }: { barberId?: number }) {
+/**
+ * Bookings Section - Shows all bookings for the barber with management actions
+ */
+function BookingsSection({ barberId }: { barberId?: number }) {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -288,16 +326,12 @@ function UpcomingBookings({ barberId }: { barberId?: number }) {
   const loadBookings = async () => {
     try {
       const response = await bookingsApi.getBarberBookings(barberId!);
-      // Filter for upcoming bookings only
-      const upcoming = response.data.filter(
-        (b: any) => b.status === "PENDING" || b.status === "CONFIRMED"
-      );
-      // Sort by date ascending
-      upcoming.sort(
+      // Sort by date descending (most recent first)
+      const sorted = response.data.sort(
         (a: any, b: any) =>
-          new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime()
+          new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime()
       );
-      setBookings(upcoming);
+      setBookings(sorted);
     } catch (error) {
       console.error("Failed to load bookings", error);
     } finally {
@@ -306,12 +340,23 @@ function UpcomingBookings({ barberId }: { barberId?: number }) {
   };
 
   if (loading) {
-    return <p className="text-gray-600">Loading bookings...</p>;
+    return <p className="text-center text-gray-500">Loading bookings...</p>;
   }
 
   if (bookings.length === 0) {
-    return <p className="text-gray-600">No upcoming bookings</p>;
+    return (
+      <p className="text-center text-gray-500 py-8">
+        No bookings found. Bookings will appear here once customers make
+        appointments.
+      </p>
+    );
   }
+
+  const handleBookingUpdate = (updatedBooking: BookingResponse) => {
+    setBookings((prev) =>
+      prev.map((b) => (b.id === updatedBooking.id ? updatedBooking : b))
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -331,9 +376,17 @@ function UpcomingBookings({ barberId }: { barberId?: number }) {
             </div>
             <span
               className={`px-2 py-1 rounded text-xs font-semibold ${
-                booking.status === "CONFIRMED"
+                booking.status === "COMPLETED"
                   ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
+                  : booking.status === "CONFIRMED"
+                  ? "bg-blue-100 text-blue-800"
+                  : booking.status === "PENDING"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : booking.status === "CANCELLED"
+                  ? "bg-red-100 text-red-800"
+                  : booking.status === "NO_SHOW"
+                  ? "bg-gray-100 text-gray-800"
+                  : "bg-gray-100 text-gray-800"
               }`}
             >
               {booking.status}
@@ -407,6 +460,18 @@ function UpcomingBookings({ barberId }: { barberId?: number }) {
                   </p>
                 </div>
               )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="mt-4 pt-4 border-t border-gray-300">
+            <MarkCompleteButton
+              bookingId={booking.id}
+              bookingStatus={booking.status}
+              onSuccess={handleBookingUpdate}
+              onError={(error) => {
+                console.error("Error marking complete:", error);
+              }}
+            />
           </div>
         </div>
       ))}

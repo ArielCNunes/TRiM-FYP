@@ -105,6 +105,10 @@ export const bookingsApi = {
   /** Fetch bookings for a specific barber. */
   getBarberBookings: (barberId: number) =>
     api.get(`/bookings/barber/${barberId}`),
+
+  /** Mark a booking as complete. */
+  markComplete: (bookingId: number) =>
+    api.put<BookingResponse>(`/bookings/${bookingId}/complete`),
 };
 
 /** Payment endpoints for Stripe integration. */
