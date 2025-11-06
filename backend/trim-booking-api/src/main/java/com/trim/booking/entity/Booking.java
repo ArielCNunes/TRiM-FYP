@@ -76,8 +76,11 @@ public class Booking {
     }
 
     public enum PaymentStatus {
+        PENDING,
         DEPOSIT_PENDING,
         DEPOSIT_PAID,
+        FULLY_PAID,
+        REFUNDED,
         CANCELLED
     }
 

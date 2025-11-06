@@ -169,6 +169,8 @@ public class BookingService {
     public Booking markAsCompleted(Long bookingId) {
         Booking booking = getBookingById(bookingId);
         booking.setStatus(Booking.BookingStatus.COMPLETED);
+        booking.setPaymentStatus(Booking.PaymentStatus.FULLY_PAID);
+        booking.setOutstandingBalance(BigDecimal.ZERO);
         return bookingRepository.save(booking);
     }
 

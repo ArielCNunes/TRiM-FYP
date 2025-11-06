@@ -38,10 +38,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.bookingDate >= CURRENT_DATE AND b.status != 'CANCELLED'")
     Long countUpcomingBookings();
 
-    @Query("SELECT SUM(b.service.price) FROM Booking b WHERE b.paymentStatus = 'PAID'")
+    @Query("SELECT SUM(b.service.price) FROM Booking b WHERE b.paymentStatus = 'FULLY_PAID'")
     BigDecimal calculateTotalRevenue();
 
-    @Query("SELECT SUM(b.service.price) FROM Booking b WHERE b.paymentStatus = 'PAID' AND MONTH(b.bookingDate) = MONTH(CURRENT_DATE) AND YEAR(b.bookingDate) = YEAR(CURRENT_DATE)")
+    @Query("SELECT SUM(b.service.price) FROM Booking b WHERE b.paymentStatus = 'FULLY_PAID' AND MONTH(b.bookingDate) = MONTH(CURRENT_DATE) AND YEAR(b.bookingDate) = YEAR(CURRENT_DATE)")
     BigDecimal calculateThisMonthRevenue();
 
     @Query("SELECT b.service.name as serviceName, COUNT(b) as count FROM Booking b WHERE b.status != 'CANCELLED' GROUP BY b.service.name ORDER BY count DESC")
