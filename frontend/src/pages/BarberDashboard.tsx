@@ -148,19 +148,34 @@ function AvailabilitySection({ barberId }: { barberId?: number }) {
       const response = await barbersApi.getAvailability(barberId!);
       const data = response.data;
 
-      // Map backend data to frontend state
-      const mapped = { ...availability };
+      // Create a fresh mapped object with default values
+      const mapped: any = {
+        monday: { start: "09:00", end: "17:00", enabled: true, id: null },
+        tuesday: { start: "09:00", end: "17:00", enabled: true, id: null },
+        wednesday: { start: "09:00", end: "17:00", enabled: true, id: null },
+        thursday: { start: "09:00", end: "17:00", enabled: true, id: null },
+        friday: { start: "09:00", end: "17:00", enabled: true, id: null },
+        saturday: { start: "10:00", end: "16:00", enabled: false, id: null },
+        sunday: { start: "09:00", end: "17:00", enabled: false, id: null },
+      };
+
+      // Map backend data to the state
       data.forEach((item: any) => {
         const dayKey = item.dayOfWeek.toLowerCase();
-        if (mapped[dayKey as (typeof days)[number]]) {
-          mapped[dayKey as (typeof days)[number]] = {
-            start: item.startTime,
-            end: item.endTime,
+        if (mapped[dayKey]) {
+          // Remove seconds from time format (e.g., "08:30:00" -> "08:30")
+          const startTime = item.startTime.substring(0, 5);
+          const endTime = item.endTime.substring(0, 5);
+
+          mapped[dayKey] = {
+            start: startTime,
+            end: endTime,
             enabled: item.isAvailable,
             id: item.id,
           };
         }
       });
+
       setAvailability(mapped);
     } catch (error) {
       console.error("Failed to load availability", error);
