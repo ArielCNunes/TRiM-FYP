@@ -109,6 +109,10 @@ export const bookingsApi = {
   /** Mark a booking as complete. */
   markComplete: (bookingId: number) =>
     api.put<BookingResponse>(`/bookings/${bookingId}/complete`),
+
+  /** Mark a booking as no-show. */
+  markNoShow: (bookingId: number) =>
+    api.put<BookingResponse>(`/bookings/${bookingId}/no-show`),
 };
 
 /** Payment endpoints for Stripe integration. */
