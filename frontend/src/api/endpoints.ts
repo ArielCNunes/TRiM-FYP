@@ -8,6 +8,7 @@ import type {
   Barber,
   BookingRequest,
   BookingResponse,
+  DashboardStats,
 } from "../types";
 
 /** Auth endpoints for login and registration. */
@@ -126,4 +127,10 @@ export const paymentsApi = {
       outstandingBalance: number;
       bookingId: number;
     }>("/payments/create-intent", { bookingId }),
+};
+
+/** Dashboard endpoints for admin statistics. */
+export const dashboardApi = {
+  /** Get admin dashboard statistics. */
+  getAdminStats: () => api.get<DashboardStats>("/dashboard/admin"),
 };

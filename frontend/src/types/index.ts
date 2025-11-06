@@ -86,3 +86,26 @@ export interface BookingResponse {
   notes?: string;
   createdAt: string;
 }
+
+// Dashboard Types
+export interface DashboardStats {
+  totalBookings: number;
+  todaysBookings: number;
+  upcomingBookings: number;
+  totalRevenue: number;
+  thisMonthRevenue: number;
+  activeCustomers: number;
+  activeBarbers: number;
+  popularServices: Array<{
+    serviceName: string;
+    bookingCount: number;
+  }>;
+  recentBookings: Array<{
+    customerName: string;
+    barberName: string;
+    serviceName: string;
+    date: string;
+    time: string;
+    status: string;
+  }>;
+}

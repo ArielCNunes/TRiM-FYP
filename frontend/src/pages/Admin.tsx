@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useAppSelector } from "../store/hooks";
 import { useNavigate } from "react-router-dom";
-import { servicesApi, barbersApi } from "../api/endpoints";
-import type { Service, Barber } from "../types";
+import { servicesApi, barbersApi, dashboardApi } from "../api/endpoints";
+import type { Service, Barber, DashboardStats } from "../types";
 
 /**
  * Type definition for admin dashboard tab navigation
  */
-type AdminTab = "services" | "barbers";
+type AdminTab = "dashboard" | "services" | "barbers";
 
 /**
  * Admin Dashboard
@@ -36,7 +36,7 @@ export default function Admin() {
     );
   }
 
-  const [activeTab, setActiveTab] = useState<AdminTab>("services");
+  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -46,6 +46,16 @@ export default function Admin() {
 
         {/* Tab Navigation */}
         <div className="flex gap-4 mb-8 border-b">
+          <button
+            onClick={() => setActiveTab("dashboard")}
+            className={`px-6 py-3 font-semibold transition ${
+              activeTab === "dashboard"
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            Dashboard
+          </button>
           <button
             onClick={() => setActiveTab("services")}
             className={`px-6 py-3 font-semibold transition ${
@@ -68,11 +78,200 @@ export default function Admin() {
           </button>
         </div>
 
+        {/* Dashboard Tab */}
+        {activeTab === "dashboard" && <DashboardSection />}
+
         {/* Services Tab */}
         {activeTab === "services" && <ServicesSection />}
 
         {/* Barbers Tab */}
         {activeTab === "barbers" && <BarbersSection />}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Dashboard Section - Shows admin statistics and overview
+ */
+function DashboardSection() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const response = await dashboardApi.getAdminStats();
+      setStats(response.data);
+      setError(null);
+    } catch (err) {
+      setError("Failed to load dashboard statistics");
+      console.error("Error fetching stats:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error || !stats) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600">{error || "Failed to load statistics"}</p>
+        <button
+          onClick={fetchStats}
+          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Key Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <p className="text-sm text-gray-600 mb-1">Total Bookings</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalBookings}</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <p className="text-sm text-gray-600 mb-1">Today's Bookings</p>
+          <p className="text-3xl font-bold text-blue-600">{stats.todaysBookings}</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <p className="text-sm text-gray-600 mb-1">Active Customers</p>
+          <p className="text-3xl font-bold text-green-600">{stats.activeCustomers}</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <p className="text-sm text-gray-600 mb-1">Active Barbers</p>
+          <p className="text-3xl font-bold text-purple-600">{stats.activeBarbers}</p>
+        </div>
+      </div>
+
+      {/* Revenue Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
+          <p className="text-3xl font-bold text-gray-900">
+            €{stats.totalRevenue.toFixed(2)}
+          </p>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <p className="text-sm text-gray-600 mb-1">This Month Revenue</p>
+          <p className="text-3xl font-bold text-blue-600">
+            €{stats.thisMonthRevenue.toFixed(2)}
+          </p>
+        </div>
+      </div>
+
+      {/* Popular Services */}
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-xl font-bold mb-4">Popular Services</h3>
+        {stats.popularServices.length > 0 ? (
+          <div className="space-y-2">
+            {stats.popularServices.map((service, index) => (
+              <div
+                key={index}
+                className="flex justify-between items-center p-3 bg-gray-50 rounded"
+              >
+                <span className="font-medium text-gray-900">{service.serviceName}</span>
+                <span className="text-sm text-gray-600">
+                  {service.bookingCount} bookings
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">No services data yet</p>
+        )}
+      </div>
+
+      {/* Recent Bookings */}
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-xl font-bold mb-4">Recent Bookings</h3>
+        {stats.recentBookings.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">
+                    Customer
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">
+                    Barber
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">
+                    Service
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">
+                    Date
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">
+                    Time
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.recentBookings.map((booking, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {booking.customerName}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {booking.barberName}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {booking.serviceName}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      {new Date(booking.date).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{booking.time}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          booking.status === "COMPLETED"
+                            ? "bg-green-100 text-green-800"
+                            : booking.status === "CONFIRMED"
+                            ? "bg-blue-100 text-blue-800"
+                            : booking.status === "PENDING"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : booking.status === "CANCELLED"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {booking.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">No recent bookings</p>
+        )}
       </div>
     </div>
   );
