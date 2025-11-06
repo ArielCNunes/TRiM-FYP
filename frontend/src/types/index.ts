@@ -97,8 +97,8 @@ export interface DashboardStats {
   activeCustomers: number;
   activeBarbers: number;
   popularServices: Array<{
-    serviceName: string;
-    bookingCount: number;
+    name: string;
+    count: number;
   }>;
   recentBookings: Array<{
     customerName: string;

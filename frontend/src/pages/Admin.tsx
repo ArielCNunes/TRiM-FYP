@@ -191,9 +191,9 @@ function DashboardSection() {
                 key={index}
                 className="flex justify-between items-center p-3 bg-gray-50 rounded"
               >
-                <span className="font-medium text-gray-900">{service.serviceName}</span>
+                <span className="font-medium text-gray-900">{service.name}</span>
                 <span className="text-sm text-gray-600">
-                  {service.bookingCount} bookings
+                  {service.count} bookings
                 </span>
               </div>
             ))}
