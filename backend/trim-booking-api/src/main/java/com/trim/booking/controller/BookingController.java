@@ -176,6 +176,23 @@ public class BookingController {
     }
 
     /**
+     * Mark booking as fully paid.
+     * Used when customer pays the outstanding balance in the shop.
+     * <p>
+     * PUT /api/bookings/{id}/mark-paid
+     */
+    @PutMapping("/{id}/mark-paid")
+    @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
+    public ResponseEntity<?> markAsPaid(@PathVariable Long id) {
+        try {
+            Booking booking = bookingService.markAsPaid(id);
+            return ResponseEntity.ok(booking);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
      * Mark booking as no-show.
      * <p>
      * PUT /api/bookings/{id}/no-show

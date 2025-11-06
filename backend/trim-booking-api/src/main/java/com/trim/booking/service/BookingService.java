@@ -170,6 +170,23 @@ public class BookingService {
         Booking booking = getBookingById(bookingId);
         booking.setStatus(Booking.BookingStatus.COMPLETED);
         booking.setPaymentStatus(Booking.PaymentStatus.FULLY_PAID);
+        // Set deposit amount to full service price for FULLY_PAID status
+        booking.setDepositAmount(booking.getService().getPrice());
+        booking.setOutstandingBalance(BigDecimal.ZERO);
+        return bookingRepository.save(booking);
+    }
+
+    /**
+     * Mark booking as fully paid.
+     * Used when customer pays the outstanding balance in the shop.
+     * Only admin or barber can do this.
+     */
+    @Transactional
+    public Booking markAsPaid(Long bookingId) {
+        Booking booking = getBookingById(bookingId);
+        booking.setPaymentStatus(Booking.PaymentStatus.FULLY_PAID);
+        // Set deposit amount to full service price for FULLY_PAID status
+        booking.setDepositAmount(booking.getService().getPrice());
         booking.setOutstandingBalance(BigDecimal.ZERO);
         return bookingRepository.save(booking);
     }
