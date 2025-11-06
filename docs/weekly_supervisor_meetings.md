@@ -88,3 +88,30 @@
 
 #### Next Meeting Date
 **Scheduled:** Wednesday 5th of November at 10:10am.
+
+---
+
+### Meeting 4 - Tuesday 4th of November
+**Duration:** 10 minutes  
+**Location:** In-person in the college canteen
+
+#### Agenda
+- Demo progress
+
+#### Progress Demonstrated
+- Showed supervisor the current version of my FYP.
+
+#### Technical Discussion
+- Areas that can be researched in depth for dissertation.
+
+#### Supervisor Feedback
+- Make sure I can research deep enough into the chosen topic.
+
+#### Decisions Made
+- Keep polishing MVP.
+
+#### Action Items for Next Meeting
+- Update MVP progress.
+
+#### Next Meeting Date
+**Scheduled:** Wednesday 12th of November at 10:10am.
