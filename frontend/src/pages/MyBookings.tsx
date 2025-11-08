@@ -16,6 +16,8 @@ export default function MyBookings() {
 
   // Local state for bookings list, loading indicator, and in-flight cancellation
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
+  const [pastBookings, setPastBookings] = useState<BookingResponse[]>([]);
+  const [showPastBookings, setShowPastBookings] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState<number | null>(null);
   const [status, setStatus] = useState<{
@@ -51,17 +53,37 @@ export default function MyBookings() {
   const fetchBookings = async () => {
     try {
       const response = await bookingsApi.getCustomerBookings(user.id || 0);
-      // Filter for upcoming bookings only (not completed, cancelled, or no-show)
-      const upcomingBookings = response.data.filter(
-        (booking) =>
-          booking.status === "PENDING" || booking.status === "CONFIRMED"
-      );
-      // Sort by date ascending (nearest first)
-      upcomingBookings.sort(
+      const now = new Date();
+      
+      // Separate upcoming and past bookings
+      const upcoming: BookingResponse[] = [];
+      const past: BookingResponse[] = [];
+      
+      response.data.forEach((booking) => {
+        const bookingDateTime = new Date(`${booking.bookingDate}T${booking.startTime}`);
+        const isUpcoming = booking.status === "PENDING" || booking.status === "CONFIRMED";
+        
+        if (bookingDateTime > now && isUpcoming) {
+          upcoming.push(booking);
+        } else {
+          past.push(booking);
+        }
+      });
+      
+      // Sort upcoming by date ascending (nearest first)
+      upcoming.sort(
         (a, b) =>
           new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime()
       );
-      setBookings(upcomingBookings);
+      
+      // Sort past by date descending (most recent first)
+      past.sort(
+        (a, b) =>
+          new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime()
+      );
+      
+      setBookings(upcoming);
+      setPastBookings(past);
       setStatus(null);
     } catch (error) {
       setStatus({ type: "error", message: "Failed to load bookings" });
@@ -280,6 +302,182 @@ export default function MyBookings() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Past Bookings Section */}
+      {!loading && pastBookings.length > 0 && (
+        <div className="mt-12">
+          <button
+            onClick={() => setShowPastBookings(!showPastBookings)}
+            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition flex items-center justify-between"
+          >
+            <span className="text-lg">
+              Past Bookings ({pastBookings.length})
+            </span>
+            <svg
+              className={`w-5 h-5 transform transition-transform ${
+                showPastBookings ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          {showPastBookings && (
+            <div className="mt-4 space-y-4">
+              {pastBookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="bg-gray-50 border border-gray-300 rounded-lg shadow-sm overflow-hidden opacity-75"
+                >
+                  {/* Header section with date */}
+                  <div className="bg-gradient-to-r from-gray-100 to-gray-200 px-6 py-4 border-b border-gray-300">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium mb-1">
+                          Appointment Date
+                        </p>
+                        <p className="text-2xl font-bold text-gray-700">
+                          {new Date(booking.bookingDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "short",
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                        <p className="text-lg font-semibold text-gray-600 mt-1">
+                          {booking.startTime.substring(0, 5)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span
+                          className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                            booking.status === "COMPLETED"
+                              ? "bg-green-100 text-green-700 border border-green-200"
+                              : booking.status === "CANCELLED"
+                              ? "bg-red-100 text-red-700 border border-red-200"
+                              : booking.status === "NO_SHOW"
+                              ? "bg-orange-100 text-orange-700 border border-orange-200"
+                              : "bg-gray-200 text-gray-700 border border-gray-300"
+                          }`}
+                        >
+                          {booking.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Main content with service, barber, and pricing info */}
+                  <div className="px-6 py-5">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                      {/* Service */}
+                      <div>
+                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                          Service
+                        </p>
+                        <p className="text-lg font-semibold text-gray-700">
+                          {booking.service.name}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {booking.service.durationMinutes} minutes
+                        </p>
+                      </div>
+
+                      {/* Barber */}
+                      <div>
+                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                          Barber
+                        </p>
+                        <p className="text-lg font-semibold text-gray-700">
+                          {booking.barber.user.firstName}{" "}
+                          {booking.barber.user.lastName}
+                        </p>
+                      </div>
+
+                      {/* Total Price */}
+                      <div>
+                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                          Total Price
+                        </p>
+                        <p className="text-2xl font-bold text-gray-600">
+                          €{booking.service.price.toFixed(2)}
+                        </p>
+                      </div>
+
+                      {/* Payment Status */}
+                      <div>
+                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                          Payment Status
+                        </p>
+                        <p className="text-sm font-medium text-gray-700">
+                          {booking.paymentStatus === "DEPOSIT_PAID" &&
+                            "Deposit Paid"}
+                          {booking.paymentStatus === "FULLY_PAID" &&
+                            "Fully Paid"}
+                          {booking.paymentStatus === "PENDING" &&
+                            "Pending Payment"}
+                          {booking.paymentStatus === "REFUNDED" && "Refunded"}
+                          {![
+                            "DEPOSIT_PAID",
+                            "FULLY_PAID",
+                            "PENDING",
+                            "REFUNDED",
+                          ].includes(booking.paymentStatus) &&
+                            booking.paymentStatus}
+                        </p>
+                        {booking.depositAmount !== undefined && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            Deposit: €{booking.depositAmount.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Outstanding Balance */}
+                      {booking.outstandingBalance !== undefined &&
+                        booking.outstandingBalance > 0 && (
+                          <div>
+                            <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                              Outstanding
+                            </p>
+                            <p className="text-2xl font-bold text-orange-600">
+                              €{booking.outstandingBalance.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-gray-600 mt-1">
+                              Unpaid
+                            </p>
+                          </div>
+                        )}
+
+                      {/* Show nothing in 5th column if fully paid */}
+                      {(booking.outstandingBalance === undefined ||
+                        booking.outstandingBalance === 0) && (
+                        <div>
+                          <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                            Balance
+                          </p>
+                          <p className="text-lg font-medium text-green-600">
+                            {booking.status === "COMPLETED" ? "Paid in Full" : "N/A"}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
