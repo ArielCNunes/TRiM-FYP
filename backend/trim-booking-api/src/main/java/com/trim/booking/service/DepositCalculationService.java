@@ -19,15 +19,23 @@ public class DepositCalculationService {
      * Balance is rounded UP to nearest €5, deposit is the remainder.
      *
      * @param totalPrice Total service price
+     * @param depositPercentage Deposit percentage (e.g., 50 for 50%)
      * @return Deposit amount (totalPrice - balanceAmount)
      */
-    public BigDecimal calculateDeposit(BigDecimal totalPrice) {
+    public BigDecimal calculateDeposit(BigDecimal totalPrice, Integer depositPercentage) {
         if (totalPrice == null) {
             throw new IllegalArgumentException("Price cannot be null");
         }
+        if (depositPercentage == null) {
+            throw new IllegalArgumentException("Deposit percentage cannot be null");
+        }
 
-        // Calculate target balance (50% of total, ideally)
-        BigDecimal targetBalance = totalPrice.divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+        // Calculate deposit amount using the percentage parameter
+        BigDecimal depositAmount = totalPrice.multiply(BigDecimal.valueOf(depositPercentage))
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+        // Calculate target balance (remaining amount)
+        BigDecimal targetBalance = totalPrice.subtract(depositAmount);
 
         // Round balance UP to nearest €5
         BigDecimal balanceAmount = roundUpToNearestFive(targetBalance);
@@ -41,11 +49,23 @@ public class DepositCalculationService {
      * Balance is rounded up to nearest €5.
      *
      * @param totalPrice Total service price
+     * @param depositPercentage Deposit percentage (e.g., 50 for 50%)
      * @return Outstanding balance (multiple of €5)
      */
-    public BigDecimal calculateOutstandingBalance(BigDecimal totalPrice) {
-        // Calculate target balance (50% of total)
-        BigDecimal targetBalance = totalPrice.divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+    public BigDecimal calculateOutstandingBalance(BigDecimal totalPrice, Integer depositPercentage) {
+        if (totalPrice == null) {
+            throw new IllegalArgumentException("Price cannot be null");
+        }
+        if (depositPercentage == null) {
+            throw new IllegalArgumentException("Deposit percentage cannot be null");
+        }
+
+        // Calculate deposit amount using the percentage parameter
+        BigDecimal depositAmount = totalPrice.multiply(BigDecimal.valueOf(depositPercentage))
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+        // Calculate target balance (remaining amount)
+        BigDecimal targetBalance = totalPrice.subtract(depositAmount);
 
         // Round balance UP to nearest €5
         return roundUpToNearestFive(targetBalance);

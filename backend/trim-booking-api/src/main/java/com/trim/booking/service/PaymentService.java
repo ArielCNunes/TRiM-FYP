@@ -54,12 +54,14 @@ public class PaymentService {
 
         // Calculate deposit amount
         BigDecimal depositAmount = depositCalculationService.calculateDeposit(
-                booking.getService().getPrice()
+                booking.getService().getPrice(),
+                booking.getService().getDepositPercentage()
         );
 
         // Calculate outstanding balance
         BigDecimal outstandingBalance = depositCalculationService.calculateOutstandingBalance(
-                booking.getService().getPrice()
+                booking.getService().getPrice(),
+                booking.getService().getDepositPercentage()
         );
 
         // Store amounts on booking
