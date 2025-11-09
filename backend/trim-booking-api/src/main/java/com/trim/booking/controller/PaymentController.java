@@ -3,7 +3,6 @@ package com.trim.booking.controller;
 import com.google.gson.Gson;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
-import com.stripe.model.PaymentIntent;
 import com.stripe.net.Webhook;
 import com.trim.booking.service.PaymentService;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,22 +31,14 @@ public class PaymentController {
      * Body: { "bookingId": 1 }
      */
     @PostMapping("/create-intent")
-    public ResponseEntity<?> createPaymentIntent(@RequestBody Map<String, Long> request) {
-        try {
-            Long bookingId = request.get("bookingId");
-            if (bookingId == null) {
-                return ResponseEntity.badRequest().body("bookingId is required");
-            }
-
-            Map<String, Object> response = paymentService.createDepositPaymentIntent(bookingId);
-            return ResponseEntity.ok(response);
-        } catch (StripeException e) {
-            System.err.println("Stripe error: " + e.getMessage());
-            return ResponseEntity.badRequest().body("Payment creation failed: " + e.getMessage());
-        } catch (RuntimeException e) {
-            System.err.println("Error: " + e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<Map<String, Object>> createPaymentIntent(@RequestBody Map<String, Long> request) throws StripeException {
+        Long bookingId = request.get("bookingId");
+        if (bookingId == null) {
+            throw new IllegalArgumentException("bookingId is required");
         }
+
+        Map<String, Object> response = paymentService.createDepositPaymentIntent(bookingId);
+        return ResponseEntity.ok(response);
     }
 
     /**

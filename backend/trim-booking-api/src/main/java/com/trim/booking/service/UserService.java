@@ -2,6 +2,7 @@ package com.trim.booking.service;
 
 import com.trim.booking.dto.RegisterRequest;
 import com.trim.booking.entity.User;
+import com.trim.booking.exception.UnauthorizedException;
 import com.trim.booking.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,16 +25,16 @@ public class UserService {
      * @param email    User's email
      * @param password Plain text password
      * @return User if credentials valid
-     * @throws RuntimeException if credentials invalid
+     * @throws UnauthorizedException if credentials invalid
      */
     public User login(String email, String password) {
         // Find user by email
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
         // Check password
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new UnauthorizedException("Invalid email or password");
         }
 
         return user;

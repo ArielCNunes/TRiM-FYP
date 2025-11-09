@@ -2,6 +2,7 @@ package com.trim.booking.controller;
 
 import com.trim.booking.entity.BarberAvailability;
 import com.trim.booking.entity.Barber;
+import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberAvailabilityRepository;
 import com.trim.booking.repository.BarberRepository;
 import org.springframework.http.HttpStatus;
@@ -34,31 +35,27 @@ public class BarberAvailabilityController {
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @PostMapping
-    public ResponseEntity<?> setAvailability(@RequestBody Map<String, Object> request) {
-        try {
-            Long barberId = Long.valueOf(request.get("barberId").toString());
-            DayOfWeek dayOfWeek = DayOfWeek.valueOf(request.get("dayOfWeek").toString());
-            LocalTime startTime = LocalTime.parse(request.get("startTime").toString());
-            LocalTime endTime = LocalTime.parse(request.get("endTime").toString());
-            Boolean isAvailable = Boolean.valueOf(request.get("isAvailable").toString());
+    public ResponseEntity<BarberAvailability> setAvailability(@RequestBody Map<String, Object> request) {
+        Long barberId = Long.valueOf(request.get("barberId").toString());
+        DayOfWeek dayOfWeek = DayOfWeek.valueOf(request.get("dayOfWeek").toString());
+        LocalTime startTime = LocalTime.parse(request.get("startTime").toString());
+        LocalTime endTime = LocalTime.parse(request.get("endTime").toString());
+        Boolean isAvailable = Boolean.valueOf(request.get("isAvailable").toString());
 
-            // Get barber
-            Barber barber = barberRepository.findById(barberId)
-                    .orElseThrow(() -> new RuntimeException("Barber not found"));
+        // Get barber
+        Barber barber = barberRepository.findById(barberId)
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + barberId));
 
-            // Create availability
-            BarberAvailability availability = new BarberAvailability();
-            availability.setBarber(barber);
-            availability.setDayOfWeek(dayOfWeek);
-            availability.setStartTime(startTime);
-            availability.setEndTime(endTime);
-            availability.setIsAvailable(isAvailable);
+        // Create availability
+        BarberAvailability availability = new BarberAvailability();
+        availability.setBarber(barber);
+        availability.setDayOfWeek(dayOfWeek);
+        availability.setStartTime(startTime);
+        availability.setEndTime(endTime);
+        availability.setIsAvailable(isAvailable);
 
-            BarberAvailability saved = barberAvailabilityRepository.save(availability);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        BarberAvailability saved = barberAvailabilityRepository.save(availability);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     /**
@@ -68,30 +65,26 @@ public class BarberAvailabilityController {
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAvailability(@PathVariable Long id, @RequestBody Map<String, Object> request) {
-        try {
-            BarberAvailability availability = barberAvailabilityRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Availability not found"));
+    public ResponseEntity<BarberAvailability> updateAvailability(@PathVariable Long id, @RequestBody Map<String, Object> request) {
+        BarberAvailability availability = barberAvailabilityRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Availability not found with id: " + id));
 
-            // Update fields if provided
-            if (request.containsKey("dayOfWeek")) {
-                availability.setDayOfWeek(DayOfWeek.valueOf(request.get("dayOfWeek").toString()));
-            }
-            if (request.containsKey("startTime")) {
-                availability.setStartTime(LocalTime.parse(request.get("startTime").toString()));
-            }
-            if (request.containsKey("endTime")) {
-                availability.setEndTime(LocalTime.parse(request.get("endTime").toString()));
-            }
-            if (request.containsKey("isAvailable")) {
-                availability.setIsAvailable(Boolean.valueOf(request.get("isAvailable").toString()));
-            }
-
-            BarberAvailability updated = barberAvailabilityRepository.save(availability);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        // Update fields if provided
+        if (request.containsKey("dayOfWeek")) {
+            availability.setDayOfWeek(DayOfWeek.valueOf(request.get("dayOfWeek").toString()));
         }
+        if (request.containsKey("startTime")) {
+            availability.setStartTime(LocalTime.parse(request.get("startTime").toString()));
+        }
+        if (request.containsKey("endTime")) {
+            availability.setEndTime(LocalTime.parse(request.get("endTime").toString()));
+        }
+        if (request.containsKey("isAvailable")) {
+            availability.setIsAvailable(Boolean.valueOf(request.get("isAvailable").toString()));
+        }
+
+        BarberAvailability updated = barberAvailabilityRepository.save(availability);
+        return ResponseEntity.ok(updated);
     }
 
     /**

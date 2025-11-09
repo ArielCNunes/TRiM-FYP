@@ -1,6 +1,7 @@
 package com.trim.booking.controller;
 
 import com.trim.booking.entity.Barber;
+import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.service.BarberService;
 import com.trim.booking.dto.CreateBarberRequest;
 import com.trim.booking.dto.UpdateBarberRequest;
@@ -23,38 +24,30 @@ public class BarberController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createBarber(@Valid @RequestBody CreateBarberRequest request) {
-        try {
-            Barber barber = barberService.createBarber(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getEmail(),
-                    request.getPhone(),
-                    request.getPassword(),
-                    request.getBio(),
-                    request.getProfileImageUrl()
-            );
-            return ResponseEntity.status(HttpStatus.CREATED).body(barber);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Barber> createBarber(@Valid @RequestBody CreateBarberRequest request) {
+        Barber barber = barberService.createBarber(
+                request.getFirstName(),
+                request.getLastName(),
+                request.getEmail(),
+                request.getPhone(),
+                request.getPassword(),
+                request.getBio(),
+                request.getProfileImageUrl()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(barber);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateBarber(
+    public ResponseEntity<Barber> updateBarber(
             @PathVariable Long id,
             @Valid @RequestBody UpdateBarberRequest request) {
-        try {
-            Barber updated = barberService.updateBarber(
-                    id,
-                    request.getBio(),
-                    request.getProfileImageUrl()
-            );
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Barber updated = barberService.updateBarber(
+                id,
+                request.getBio(),
+                request.getProfileImageUrl()
+        );
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping
@@ -71,18 +64,14 @@ public class BarberController {
     public ResponseEntity<Barber> getBarberById(@PathVariable Long id) {
         return barberService.getBarberById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + id));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivateBarber(@PathVariable Long id) {
-        try {
-            barberService.deactivateBarber(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        barberService.deactivateBarber(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")

@@ -151,7 +151,7 @@ public class BookingService {
      */
     public Booking getBookingById(Long bookingId) {
         return bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
     }
 
     /**
@@ -208,7 +208,7 @@ public class BookingService {
     @Transactional
     public void cancelBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
 
         // Check if booking is already cancelled
         if (booking.getStatus() == Booking.BookingStatus.CANCELLED) {

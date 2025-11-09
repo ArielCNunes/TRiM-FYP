@@ -1,6 +1,7 @@
 package com.trim.booking.controller;
 
 import com.trim.booking.entity.ServiceOffered;
+import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.service.ServicesOfferedService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class ServiceController {
     public ResponseEntity<ServiceOffered> getServiceById(@PathVariable Long id) {
         return servicesOfferedService.getServiceById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -48,12 +49,8 @@ public class ServiceController {
     public ResponseEntity<ServiceOffered> updateService(
             @PathVariable Long id,
             @Valid @RequestBody ServiceOffered service) {
-        try {
-            ServiceOffered updated = servicesOfferedService.updateService(id, service);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        ServiceOffered updated = servicesOfferedService.updateService(id, service);
+        return ResponseEntity.ok(updated);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -66,11 +63,7 @@ public class ServiceController {
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivateService(@PathVariable Long id) {
-        try {
-            servicesOfferedService.deactivateService(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        servicesOfferedService.deactivateService(id);
+        return ResponseEntity.noContent().build();
     }
 }

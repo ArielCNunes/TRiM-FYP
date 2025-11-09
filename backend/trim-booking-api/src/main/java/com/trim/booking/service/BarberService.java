@@ -2,6 +2,7 @@ package com.trim.booking.service;
 
 import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.User;
+import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -73,7 +74,7 @@ public class BarberService {
                     if (profileImageUrl != null) barber.setProfileImageUrl(profileImageUrl);
                     return barberRepository.save(barber);
                 })
-                .orElseThrow(() -> new RuntimeException("Barber not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + id));
     }
 
     public void deactivateBarber(Long id) {
@@ -82,7 +83,7 @@ public class BarberService {
                     barber.setActive(false);
                     return barberRepository.save(barber);
                 })
-                .orElseThrow(() -> new RuntimeException("Barber not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + id));
     }
 
     public void deleteBarber(Long id) {

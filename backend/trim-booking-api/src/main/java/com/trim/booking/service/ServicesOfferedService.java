@@ -1,6 +1,7 @@
 package com.trim.booking.service;
 
 import com.trim.booking.entity.ServiceOffered;
+import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,7 @@ public class ServicesOfferedService {
                     service.setActive(updatedService.getActive());
                     return serviceRepository.save(service);
                 })
-                .orElseThrow(() -> new RuntimeException("Service not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
     }
 
     public void deleteService(Long id) {
@@ -57,6 +58,6 @@ public class ServicesOfferedService {
                     service.setActive(false);
                     return serviceRepository.save(service);
                 })
-                .orElseThrow(() -> new RuntimeException("Service not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
     }
 }

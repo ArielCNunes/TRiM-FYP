@@ -36,22 +36,16 @@ public class BookingController {
      * Body: { "customerId": 1, "barberId": 1, "serviceId": 1, "bookingDate": "2025-10-13", "startTime": "10:00" }
      */
     @PostMapping
-    public ResponseEntity<?> createBooking(@Valid @RequestBody CreateBookingRequest request) {
-        try {
-            Booking booking = bookingService.createBooking(
-                    request.getCustomerId(),
-                    request.getBarberId(),
-                    request.getServiceId(),
-                    request.getBookingDate(),
-                    request.getStartTime(),
-                    request.getPaymentMethod() != null ? request.getPaymentMethod() : "pay_online"
-            );
-            return ResponseEntity.status(HttpStatus.CREATED).body(booking);
-        } catch (RuntimeException e) {
-            System.out.println("Error creating booking: " + e.getMessage());
-            System.out.println("ID: " + request.getCustomerId());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Booking> createBooking(@Valid @RequestBody CreateBookingRequest request) {
+        Booking booking = bookingService.createBooking(
+                request.getCustomerId(),
+                request.getBarberId(),
+                request.getServiceId(),
+                request.getBookingDate(),
+                request.getStartTime(),
+                request.getPaymentMethod() != null ? request.getPaymentMethod() : "pay_online"
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 
     /**
@@ -120,13 +114,9 @@ public class BookingController {
      * GET /api/bookings/{id}
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBookingById(@PathVariable Long id) {
-        try {
-            Booking booking = bookingService.getBookingById(id);
-            return ResponseEntity.ok(booking);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
+        Booking booking = bookingService.getBookingById(id);
+        return ResponseEntity.ok(booking);
     }
 
     /**
@@ -135,16 +125,12 @@ public class BookingController {
      * PATCH /api/bookings/{id}/cancel
      */
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<?> cancelBooking(@PathVariable Long id) {
-        try {
-            bookingService.cancelBooking(id);
+    public ResponseEntity<Booking> cancelBooking(@PathVariable Long id) {
+        bookingService.cancelBooking(id);
 
-            // Fetch the updated booking to return it
-            Booking booking = bookingService.getBookingById(id);
-            return ResponseEntity.ok(booking);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        // Fetch the updated booking to return it
+        Booking booking = bookingService.getBookingById(id);
+        return ResponseEntity.ok(booking);
     }
 
     /**
@@ -166,13 +152,9 @@ public class BookingController {
      */
     @PutMapping("/{id}/complete")
     @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
-    public ResponseEntity<?> markAsCompleted(@PathVariable Long id) {
-        try {
-            Booking booking = bookingService.markAsCompleted(id);
-            return ResponseEntity.ok(booking);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Booking> markAsCompleted(@PathVariable Long id) {
+        Booking booking = bookingService.markAsCompleted(id);
+        return ResponseEntity.ok(booking);
     }
 
     /**
@@ -183,13 +165,9 @@ public class BookingController {
      */
     @PutMapping("/{id}/mark-paid")
     @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
-    public ResponseEntity<?> markAsPaid(@PathVariable Long id) {
-        try {
-            Booking booking = bookingService.markAsPaid(id);
-            return ResponseEntity.ok(booking);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Booking> markAsPaid(@PathVariable Long id) {
+        Booking booking = bookingService.markAsPaid(id);
+        return ResponseEntity.ok(booking);
     }
 
     /**
@@ -199,12 +177,8 @@ public class BookingController {
      */
     @PutMapping("/{id}/no-show")
     @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
-    public ResponseEntity<?> markAsNoShow(@PathVariable Long id) {
-        try {
-            Booking booking = bookingService.markAsNoShow(id);
-            return ResponseEntity.ok(booking);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Booking> markAsNoShow(@PathVariable Long id) {
+        Booking booking = bookingService.markAsNoShow(id);
+        return ResponseEntity.ok(booking);
     }
 }

@@ -1,7 +1,9 @@
 package com.trim.booking.config;
 
+import com.stripe.exception.StripeException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.exception.ConflictException;
+import com.trim.booking.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -74,6 +76,37 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle unauthorized exceptions (401 Unauthorized).
+     * Thrown when authentication fails.
+     */
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthorized(UnauthorizedException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.UNAUTHORIZED.value());
+        response.put("error", "Unauthorized");
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    /**
+     * Handle Stripe payment exceptions (400 Bad Request).
+     * Thrown when Stripe API calls fail.
+     */
+    @ExceptionHandler(StripeException.class)
+    public ResponseEntity<Map<String, Object>> handleStripeException(StripeException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Payment Error");
+        response.put("message", "Payment creation failed: " + ex.getMessage());
+
+        System.err.println("Stripe error: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
      * Handle access denied (403 Forbidden).
      * User is authenticated but doesn't have permission.
      */
@@ -86,6 +119,36 @@ public class GlobalExceptionHandler {
         response.put("message", "You do not have permission to access this resource");
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    /**
+     * Handle illegal argument exceptions (400 Bad Request).
+     * Thrown when invalid arguments are passed to methods.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Bad Request");
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * Handle generic runtime exceptions (400 Bad Request).
+     * These are typically business logic errors with user-friendly messages.
+     */
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Bad Request");
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     /**
@@ -102,7 +165,7 @@ public class GlobalExceptionHandler {
 
         // Log the actual error for debugging
         System.err.println("Unexpected error: " + ex.getClass().getName() + " - " + ex.getMessage());
-
+        ex.printStackTrace();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
