@@ -1,25 +1,12 @@
 import type { DashboardStats } from "../../../types";
 import EmptyState from "../../shared/EmptyState";
+import StatusBadge from "../../shared/StatusBadge";
 
 interface RecentBookingsTableProps {
   recentBookings: DashboardStats["recentBookings"];
 }
 
 export default function RecentBookingsTable({ recentBookings }: RecentBookingsTableProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "COMPLETED":
-        return "bg-green-100 text-green-800";
-      case "CONFIRMED":
-        return "bg-blue-100 text-blue-800";
-      case "PENDING":
-        return "bg-yellow-100 text-yellow-800";
-      case "CANCELLED":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow">
@@ -66,13 +53,7 @@ export default function RecentBookingsTable({ recentBookings }: RecentBookingsTa
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">{booking.time}</td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${getStatusColor(
-                        booking.status
-                      )}`}
-                    >
-                      {booking.status}
-                    </span>
+                    <StatusBadge status={booking.status} type="booking" />
                   </td>
                 </tr>
               ))}

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useAppSelector } from "../store/hooks";
 import { barbersApi, bookingsApi } from "../api/endpoints";
-import { MarkCompleteButton } from "../components/MarkCompleteButton";
-import { MarkNoShowButton } from "../components/MarkNoShowButton";
+import BookingActionButton from "../components/booking/BookingActionButton";
+import StatusBadge from "../components/shared/StatusBadge";
+import { formatPaymentStatus } from "../utils/statusUtils";
 import type { BookingResponse } from "../types";
 
 /**
@@ -449,23 +450,7 @@ function BookingsSection({ barberId }: { barberId?: number }) {
                     {booking.customer.lastName}
                   </p>
                 </div>
-                <span
-                  className={`px-2 py-1 rounded text-xs font-semibold ${
-                    booking.status === "COMPLETED"
-                      ? "bg-green-100 text-green-800"
-                      : booking.status === "CONFIRMED"
-                      ? "bg-blue-100 text-blue-800"
-                      : booking.status === "PENDING"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : booking.status === "CANCELLED"
-                      ? "bg-red-100 text-red-800"
-                      : booking.status === "NO_SHOW"
-                      ? "bg-gray-100 text-gray-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {booking.status}
-                </span>
+                <StatusBadge status={booking.status} type="booking" />
               </div>
 
               <div className="space-y-1 mb-3">
@@ -486,22 +471,7 @@ function BookingsSection({ barberId }: { barberId?: number }) {
                       Payment Status
                     </p>
                     <p className="text-sm font-medium text-gray-900">
-                      {booking.paymentStatus === "DEPOSIT_PAID" &&
-                        "Deposit Paid"}
-                      {booking.paymentStatus === "FULLY_PAID" && "Fully Paid"}
-                      {booking.paymentStatus === "PENDING" &&
-                        "Awaiting Payment"}
-                      {booking.paymentStatus === "DEPOSIT_PENDING" &&
-                        "Deposit Pending"}
-                      {booking.paymentStatus === "REFUNDED" && "Refunded"}
-                      {![
-                        "DEPOSIT_PAID",
-                        "FULLY_PAID",
-                        "PENDING",
-                        "DEPOSIT_PENDING",
-                        "REFUNDED",
-                      ].includes(booking.paymentStatus) &&
-                        booking.paymentStatus}
+                      {formatPaymentStatus(booking.paymentStatus)}
                     </p>
                   </div>
                   <div className="text-right">
@@ -552,19 +522,21 @@ function BookingsSection({ barberId }: { barberId?: number }) {
                 booking.status === "CONFIRMED") && (
                 <div className="mt-4 pt-4 border-t border-gray-300">
                   <div className="grid grid-cols-2 gap-3">
-                    <MarkCompleteButton
+                    <BookingActionButton
                       bookingId={booking.id}
                       bookingStatus={booking.status}
+                      actionType="complete"
                       onSuccess={handleBookingUpdate}
-                      onError={(error) => {
+                      onError={(error: string) => {
                         console.error("Error marking complete:", error);
                       }}
                     />
-                    <MarkNoShowButton
+                    <BookingActionButton
                       bookingId={booking.id}
                       bookingStatus={booking.status}
+                      actionType="no-show"
                       onSuccess={handleBookingUpdate}
-                      onError={(error) => {
+                      onError={(error: string) => {
                         console.error("Error marking no-show:", error);
                       }}
                     />

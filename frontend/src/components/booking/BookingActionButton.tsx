@@ -1,22 +1,25 @@
 import React, { useState } from "react";
-import { bookingsApi } from "../api/endpoints";
-import type { BookingResponse } from "../types";
+import { bookingsApi } from "../../api/endpoints";
+import type { BookingResponse } from "../../types";
+import { getBookingActionButtonStyles } from "../../utils/statusUtils";
 
-interface MarkNoShowButtonProps {
+interface BookingActionButtonProps {
   bookingId: number;
   bookingStatus: string;
+  actionType: "complete" | "no-show";
   onSuccess?: (updatedBooking: BookingResponse) => void;
   onError?: (error: string) => void;
   disabled?: boolean;
 }
 
 /**
- * Button component for marking a booking as no-show
- * Handles API call, loading states, and error messages
+ * Generic button component for booking actions (mark complete, mark no-show)
+ * Handles API calls, loading states, and error messages
  */
-export const MarkNoShowButton: React.FC<MarkNoShowButtonProps> = ({
+export const BookingActionButton: React.FC<BookingActionButtonProps> = ({
   bookingId,
   bookingStatus,
+  actionType,
   onSuccess,
   onError,
   disabled = false,
@@ -25,15 +28,15 @@ export const MarkNoShowButton: React.FC<MarkNoShowButtonProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [lastClickTime, setLastClickTime] = useState(0);
 
-  // Button should be disabled if already no-show, completed, cancelled, or loading
+  // Button should be disabled if already in a terminal state or loading
   const isDisabled =
     disabled ||
     loading ||
-    bookingStatus === "NO_SHOW" ||
     bookingStatus === "COMPLETED" ||
-    bookingStatus === "CANCELLED";
+    bookingStatus === "CANCELLED" ||
+    bookingStatus === "NO_SHOW";
 
-  const handleMarkNoShow = async () => {
+  const handleAction = async () => {
     // Debounce: Prevent multiple rapid clicks
     const now = Date.now();
     if (now - lastClickTime < 1000) {
@@ -45,11 +48,16 @@ export const MarkNoShowButton: React.FC<MarkNoShowButtonProps> = ({
     setError(null);
 
     try {
-      const response = await bookingsApi.markNoShow(bookingId);
+      const response =
+        actionType === "complete"
+          ? await bookingsApi.markComplete(bookingId)
+          : await bookingsApi.markNoShow(bookingId);
+
       const updatedBooking = response.data;
+      const expectedStatus = actionType === "complete" ? "COMPLETED" : "NO_SHOW";
 
       // Verify status actually changed
-      if (updatedBooking.status !== "NO_SHOW") {
+      if (updatedBooking.status !== expectedStatus) {
         throw new Error("Booking status did not update correctly");
       }
 
@@ -59,11 +67,12 @@ export const MarkNoShowButton: React.FC<MarkNoShowButtonProps> = ({
 
       setError(null);
     } catch (err: any) {
+      const actionText = actionType === "complete" ? "complete" : "no-show";
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data ||
         err.message ||
-        "Failed to mark booking as no-show";
+        `Failed to mark booking as ${actionText}`;
 
       setError(errorMessage);
 
@@ -76,30 +85,30 @@ export const MarkNoShowButton: React.FC<MarkNoShowButtonProps> = ({
   };
 
   const getButtonText = (): string => {
-    if (loading) return "Processing...";
-    if (bookingStatus === "NO_SHOW") return "No-Show";
-    if (bookingStatus === "COMPLETED") return "Completed";
-    if (bookingStatus === "CANCELLED") return "Cancelled";
-    return "Mark No-Show";
-  };
+    if (loading) {
+      return actionType === "complete" ? "Completing..." : "Processing...";
+    }
 
-  const getButtonColor = (): string => {
-    if (bookingStatus === "NO_SHOW") return "bg-gray-600";
-    if (bookingStatus === "COMPLETED") return "bg-green-600";
-    if (bookingStatus === "CANCELLED") return "bg-red-400";
-    if (loading) return "bg-gray-400";
-    return "bg-orange-600 hover:bg-orange-700";
+    if (bookingStatus === "COMPLETED") return "Completed ✓";
+    if (bookingStatus === "NO_SHOW") return "No-Show";
+    if (bookingStatus === "CANCELLED") return "Cancelled";
+
+    return actionType === "complete" ? "Mark Complete" : "Mark No-Show";
   };
 
   return (
     <div className="flex flex-col gap-2">
       <button
-        onClick={handleMarkNoShow}
+        onClick={handleAction}
         disabled={isDisabled}
-        className={`${getButtonColor()} text-white px-4 py-2 rounded font-semibold transition ${
+        className={`${getBookingActionButtonStyles(
+          bookingStatus,
+          loading,
+          actionType
+        )} text-white px-4 py-2 rounded font-semibold transition ${
           isDisabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
         }`}
-        aria-label={`Mark booking ${bookingId} as no-show`}
+        aria-label={`Mark booking ${bookingId} as ${actionType === "complete" ? "complete" : "no-show"}`}
       >
         {getButtonText()}
       </button>
@@ -115,3 +124,5 @@ export const MarkNoShowButton: React.FC<MarkNoShowButtonProps> = ({
     </div>
   );
 };
+
+export default BookingActionButton;

@@ -3,6 +3,8 @@ import { useAppSelector } from "../store/hooks";
 import { useNavigate } from "react-router-dom";
 import { bookingsApi } from "../api/endpoints";
 import type { BookingResponse } from "../types";
+import StatusBadge from "../components/shared/StatusBadge";
+import { formatPaymentStatus } from "../utils/statusUtils";
 
 /**
  * My Bookings Page
@@ -181,15 +183,11 @@ export default function MyBookings() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span
-                      className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                        booking.status === "CONFIRMED"
-                          ? "bg-green-100 text-green-800 border border-green-200"
-                          : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                      }`}
-                    >
-                      {booking.status} {/* DEBUGGING */}
-                    </span>
+                    <StatusBadge 
+                      status={booking.status} 
+                      type="booking" 
+                      className="px-4 py-2 rounded-full border border-opacity-20"
+                    />
                   </div>
                 </div>
               </div>
@@ -237,18 +235,7 @@ export default function MyBookings() {
                       Payment Status
                     </p>
                     <p className="text-sm font-medium text-gray-900">
-                      {booking.paymentStatus === "DEPOSIT_PAID" &&
-                        "Deposit Paid"}
-                      {booking.paymentStatus === "FULLY_PAID" && "Fully Paid"}
-                      {booking.paymentStatus === "PENDING" && "Pending Payment"}
-                      {booking.paymentStatus === "REFUNDED" && "Refunded"}
-                      {![
-                        "DEPOSIT_PAID",
-                        "FULLY_PAID",
-                        "PENDING",
-                        "REFUNDED",
-                      ].includes(booking.paymentStatus) &&
-                        booking.paymentStatus}
+                      {formatPaymentStatus(booking.paymentStatus)}
                     </p>
                     {booking.depositAmount !== undefined && (
                       <p className="text-xs text-gray-600 mt-1">
@@ -362,19 +349,11 @@ export default function MyBookings() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <span
-                          className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                            booking.status === "COMPLETED"
-                              ? "bg-green-100 text-green-700 border border-green-200"
-                              : booking.status === "CANCELLED"
-                              ? "bg-red-100 text-red-700 border border-red-200"
-                              : booking.status === "NO_SHOW"
-                              ? "bg-orange-100 text-orange-700 border border-orange-200"
-                              : "bg-gray-200 text-gray-700 border border-gray-300"
-                          }`}
-                        >
-                          {booking.status}
-                        </span>
+                        <StatusBadge 
+                          status={booking.status} 
+                          type="booking" 
+                          className="px-4 py-2 rounded-full border border-opacity-20"
+                        />
                       </div>
                     </div>
                   </div>
@@ -422,20 +401,7 @@ export default function MyBookings() {
                           Payment Status
                         </p>
                         <p className="text-sm font-medium text-gray-700">
-                          {booking.paymentStatus === "DEPOSIT_PAID" &&
-                            "Deposit Paid"}
-                          {booking.paymentStatus === "FULLY_PAID" &&
-                            "Fully Paid"}
-                          {booking.paymentStatus === "PENDING" &&
-                            "Pending Payment"}
-                          {booking.paymentStatus === "REFUNDED" && "Refunded"}
-                          {![
-                            "DEPOSIT_PAID",
-                            "FULLY_PAID",
-                            "PENDING",
-                            "REFUNDED",
-                          ].includes(booking.paymentStatus) &&
-                            booking.paymentStatus}
+                          {formatPaymentStatus(booking.paymentStatus)}
                         </p>
                         {booking.depositAmount !== undefined && (
                           <p className="text-xs text-gray-600 mt-1">
