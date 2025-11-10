@@ -14,6 +14,8 @@ import java.math.RoundingMode;
 @Service
 public class DepositCalculationService {
 
+    private static final BigDecimal MIN_DEPOSIT_AMOUNT = BigDecimal.valueOf(0.50);
+
     /**
      * Calculate deposit amount.
      * Balance is rounded UP to nearest €5, deposit is the remainder.
@@ -40,8 +42,15 @@ public class DepositCalculationService {
         // Round balance UP to nearest €5
         BigDecimal balanceAmount = roundUpToNearestFive(targetBalance);
 
-        // Deposit is whatever remains
-        return totalPrice.subtract(balanceAmount);
+        // Calculate final deposit
+        BigDecimal finalDeposit = totalPrice.subtract(balanceAmount);
+
+        // Ensure deposit meets Stripe minimum of €0.50
+        if (finalDeposit.compareTo(MIN_DEPOSIT_AMOUNT) < 0) {
+            return MIN_DEPOSIT_AMOUNT;
+        }
+
+        return finalDeposit;
     }
 
     /**
@@ -68,7 +77,16 @@ public class DepositCalculationService {
         BigDecimal targetBalance = totalPrice.subtract(depositAmount);
 
         // Round balance UP to nearest €5
-        return roundUpToNearestFive(targetBalance);
+        BigDecimal roundedBalance = roundUpToNearestFive(targetBalance);
+
+        // Check if the resulting deposit would be below minimum
+        BigDecimal resultingDeposit = totalPrice.subtract(roundedBalance);
+        if (resultingDeposit.compareTo(MIN_DEPOSIT_AMOUNT) < 0) {
+            // Adjust balance so deposit equals minimum
+            return totalPrice.subtract(MIN_DEPOSIT_AMOUNT);
+        }
+
+        return roundedBalance;
     }
 
     /**

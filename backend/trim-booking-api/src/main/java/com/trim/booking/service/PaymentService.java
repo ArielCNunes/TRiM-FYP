@@ -75,6 +75,11 @@ public class PaymentService {
                 .multiply(BigDecimal.valueOf(100))
                 .longValue();
 
+        // Safety check: Stripe minimum is 50 cents
+        if (amountInCents < 50) {
+            throw new IllegalArgumentException("Deposit amount must be at least 0.50 EUR. Calculated amount was too low.");
+        }
+
         // Create PaymentIntent in Stripe
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount(amountInCents)
