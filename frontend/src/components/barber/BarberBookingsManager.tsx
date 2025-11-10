@@ -61,15 +61,31 @@ export default function BarberBookingsManager({
 
   // Filter bookings based on the selected view
   const filteredBookings = bookings.filter((b) => {
+    const bookingDate = new Date(b.bookingDate);
+    const now = new Date();
+
+    // Create a datetime combining the booking date and start time
+    const [hours, minutes] = b.startTime.split(":").map(Number);
+    const bookingDateTime = new Date(bookingDate);
+    bookingDateTime.setHours(hours, minutes, 0, 0);
+
+    const isPast = bookingDateTime < now;
+    const isFutureOrNow = bookingDateTime >= now;
+
     if (filterView === "active") {
-      // Active: PENDING and CONFIRMED only
-      return b.status === "PENDING" || b.status === "CONFIRMED";
+      // Active: PENDING and CONFIRMED only, and booking datetime is now or in the future
+      const isActiveStatus = b.status === "PENDING" || b.status === "CONFIRMED";
+      return isActiveStatus && isFutureOrNow;
     } else if (filterView === "completed") {
       // Completed bookings
       return b.status === "COMPLETED";
     } else {
-      // Cancelled: CANCELLED and NO_SHOW
-      return b.status === "CANCELLED" || b.status === "NO_SHOW";
+      // Cancelled: CANCELLED, NO_SHOW, or past PENDING/CONFIRMED (assumed cancelled)
+      const isExplicitlyCancelled =
+        b.status === "CANCELLED" || b.status === "NO_SHOW";
+      const isImplicitlyCancelled =
+        (b.status === "PENDING" || b.status === "CONFIRMED") && isPast;
+      return isExplicitlyCancelled || isImplicitlyCancelled;
     }
   });
 
