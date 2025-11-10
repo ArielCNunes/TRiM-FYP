@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.net.Webhook;
-import com.trim.booking.service.PaymentService;
+import com.trim.booking.service.payment.PaymentService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

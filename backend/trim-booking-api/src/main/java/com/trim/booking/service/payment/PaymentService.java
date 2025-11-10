@@ -1,4 +1,4 @@
-package com.trim.booking.service;
+package com.trim.booking.service.payment;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -7,6 +7,8 @@ import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.Payment;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.PaymentRepository;
+import com.trim.booking.service.notification.EmailService;
+import com.trim.booking.service.notification.SmsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

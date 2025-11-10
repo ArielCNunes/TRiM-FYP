@@ -1,0 +1,142 @@
+package com.trim.booking.service.booking;
+
+import com.trim.booking.entity.Barber;
+import com.trim.booking.entity.Booking;
+import com.trim.booking.entity.ServiceOffered;
+import com.trim.booking.entity.User;
+import com.trim.booking.repository.BookingRepository;
+import com.trim.booking.service.user.GuestUserService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+/**
+ * Service responsible for booking create/update operations
+ * Single responsibility: creating and modifying bookings.
+ */
+@Service
+public class BookingCommandService {
+    private final BookingRepository bookingRepository;
+    private final BookingValidationService validationService;
+    private final BookingConflictDetectionService conflictDetectionService;
+    private final GuestUserService guestUserService;
+
+    public BookingCommandService(BookingRepository bookingRepository,
+                                 BookingValidationService validationService,
+                                 BookingConflictDetectionService conflictDetectionService,
+                                 GuestUserService guestUserService) {
+        this.bookingRepository = bookingRepository;
+        this.validationService = validationService;
+        this.conflictDetectionService = conflictDetectionService;
+        this.guestUserService = guestUserService;
+    }
+
+    /**
+     * Create a new booking with race condition protection.
+     * Uses pessimistic locking to prevent two customers from booking the same slot simultaneously.
+     *
+     * @param customerId    Customer ID
+     * @param barberId      Barber ID
+     * @param serviceId     Service ID
+     * @param bookingDate   Booking date
+     * @param startTime     Start time
+     * @param paymentMethod Payment method
+     * @return Created booking
+     */
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Booking createBooking(Long customerId, Long barberId, Long serviceId,
+                                 LocalDate bookingDate, LocalTime startTime,
+                                 String paymentMethod) {
+        // Step 1: Validate entities exist
+        User customer = validationService.validateAndGetCustomer(customerId);
+        Barber barber = validationService.validateAndGetBarber(barberId);
+        ServiceOffered service = validationService.validateAndGetService(serviceId);
+
+        // Step 2: Validate business rules
+        validationService.validateBookingTimeInFuture(bookingDate, startTime);
+        validationService.validateBusinessHours(startTime);
+
+        // Step 3: Calculate end time
+        LocalTime endTime = startTime.plusMinutes(service.getDurationMinutes());
+
+        // Step 4: Check for conflicts with pessimistic locking
+        conflictDetectionService.validateTimeSlotAvailable(
+                barberId, bookingDate, startTime, endTime);
+
+        // Step 5: Create and save booking
+        Booking booking = buildBooking(customer, barber, service,
+                bookingDate, startTime, endTime);
+
+        try {
+            return bookingRepository.save(booking);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create booking - slot may have been taken");
+        }
+    }
+
+    /**
+     * Create a booking for a guest user.
+     * This method creates a guest user account first, then creates the booking.
+     *
+     * @param firstName     Customer's first name
+     * @param lastName      Customer's last name
+     * @param email         Customer's email
+     * @param phone         Customer's phone
+     * @param barberId      Barber ID
+     * @param serviceId     Service ID
+     * @param bookingDate   Booking date
+     * @param startTime     Start time
+     * @param paymentMethod Payment method
+     * @return Created booking
+     */
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Booking createGuestBooking(String firstName, String lastName,
+                                      String email, String phone,
+                                      Long barberId, Long serviceId,
+                                      LocalDate bookingDate, LocalTime startTime,
+                                      String paymentMethod) {
+        // Step 1: Create guest user via service
+        User guestCustomer = guestUserService.createGuestUser(firstName, lastName, email, phone);
+
+        // Step 2: Create booking using the guest user
+        return createBooking(guestCustomer.getId(), barberId, serviceId,
+                bookingDate, startTime, paymentMethod);
+    }
+
+    /**
+     * Build a booking entity with default values.
+     *
+     * @param customer    Customer
+     * @param barber      Barber
+     * @param service     Service
+     * @param bookingDate Booking date
+     * @param startTime   Start time
+     * @param endTime     End time
+     * @return Booking entity (not yet persisted)
+     */
+    private Booking buildBooking(User customer, Barber barber,
+                                 ServiceOffered service,
+                                 LocalDate bookingDate, LocalTime startTime,
+                                 LocalTime endTime) {
+        Booking booking = new Booking();
+        booking.setCustomer(customer);
+        booking.setBarber(barber);
+        booking.setService(service);
+        booking.setBookingDate(bookingDate);
+        booking.setStartTime(startTime);
+        booking.setEndTime(endTime);
+        booking.setStatus(Booking.BookingStatus.PENDING);
+        booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PENDING);
+
+        // Deposit amounts will be set by PaymentService
+        booking.setDepositAmount(BigDecimal.ZERO);
+        booking.setOutstandingBalance(service.getPrice());
+
+        return booking;
+    }
+}
+

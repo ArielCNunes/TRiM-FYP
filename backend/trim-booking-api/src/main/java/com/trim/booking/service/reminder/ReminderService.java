@@ -1,7 +1,9 @@
-package com.trim.booking.service;
+package com.trim.booking.service.reminder;
 
 import com.trim.booking.entity.Booking;
 import com.trim.booking.repository.BookingRepository;
+import com.trim.booking.service.notification.EmailService;
+import com.trim.booking.service.notification.SmsService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 

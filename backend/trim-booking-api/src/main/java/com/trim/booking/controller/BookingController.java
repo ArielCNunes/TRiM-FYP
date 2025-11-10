@@ -4,7 +4,7 @@ import com.trim.booking.repository.BookingRepository;
 
 import com.trim.booking.dto.CreateBookingRequest;
 import com.trim.booking.entity.Booking;
-import com.trim.booking.service.BookingService;
+import com.trim.booking.service.booking.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

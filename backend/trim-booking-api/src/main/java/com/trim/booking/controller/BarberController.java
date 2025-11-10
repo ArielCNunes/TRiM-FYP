@@ -2,7 +2,7 @@ package com.trim.booking.controller;
 
 import com.trim.booking.entity.Barber;
 import com.trim.booking.exception.ResourceNotFoundException;
-import com.trim.booking.service.BarberService;
+import com.trim.booking.service.barber.BarberService;
 import com.trim.booking.dto.CreateBarberRequest;
 import com.trim.booking.dto.UpdateBarberRequest;
 import jakarta.validation.Valid;

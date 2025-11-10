@@ -1,4 +1,4 @@
-package com.trim.booking.service;
+package com.trim.booking.service.payment;
 
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.trim.booking.service;
+package com.trim.booking.service.barber;
 
 import com.trim.booking.entity.BarberAvailability;
 import com.trim.booking.entity.Booking;

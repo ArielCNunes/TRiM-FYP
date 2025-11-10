@@ -1,4 +1,4 @@
-package com.trim.booking.service;
+package com.trim.booking.service.dashboard;
 
 import com.trim.booking.dto.DashboardStats;
 import com.trim.booking.entity.Booking;

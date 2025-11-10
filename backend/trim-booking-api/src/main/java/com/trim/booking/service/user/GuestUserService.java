@@ -1,4 +1,4 @@
-package com.trim.booking.service;
+package com.trim.booking.service.user;
 
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.ConflictException;

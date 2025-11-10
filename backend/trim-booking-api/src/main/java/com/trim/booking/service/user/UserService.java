@@ -1,4 +1,4 @@
-package com.trim.booking.service;
+package com.trim.booking.service.user;
 
 import com.trim.booking.dto.RegisterRequest;
 import com.trim.booking.entity.User;

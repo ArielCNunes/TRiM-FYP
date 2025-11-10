@@ -1,6 +1,6 @@
 package com.trim.booking.controller;
 
-import com.trim.booking.service.AvailabilityService;
+import com.trim.booking.service.barber.AvailabilityService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

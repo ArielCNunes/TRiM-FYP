@@ -2,7 +2,7 @@ package com.trim.booking.controller;
 
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.exception.ResourceNotFoundException;
-import com.trim.booking.service.ServicesOfferedService;
+import com.trim.booking.service.barber.ServicesOfferedService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

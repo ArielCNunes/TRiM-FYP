@@ -1,4 +1,4 @@
-package com.trim.booking.service;
+package com.trim.booking.service.notification;
 
 import com.trim.booking.entity.Booking;
 import org.springframework.mail.SimpleMailMessage;

@@ -1,4 +1,4 @@
-package com.trim.booking.service;
+package com.trim.booking.service.barber;
 
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.exception.ResourceNotFoundException;
