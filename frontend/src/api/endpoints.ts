@@ -103,6 +103,12 @@ export const bookingsApi = {
   cancelBooking: (bookingId: number) =>
     api.patch<BookingResponse>(`/bookings/${bookingId}/cancel`),
 
+  /** Update a booking's date and time (reschedule). */
+  updateBooking: (
+    bookingId: number,
+    data: { bookingDate: string; startTime: string }
+  ) => api.put<BookingResponse>(`/bookings/${bookingId}`, data),
+
   /** Fetch bookings for a specific barber. */
   getBarberBookings: (barberId: number) =>
     api.get(`/bookings/barber/${barberId}`),

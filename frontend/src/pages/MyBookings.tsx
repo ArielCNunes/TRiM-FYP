@@ -5,6 +5,7 @@ import { bookingsApi } from "../api/endpoints";
 import type { BookingResponse } from "../types";
 import StatusBadge from "../components/shared/StatusBadge";
 import { formatPaymentStatus } from "../utils/statusUtils";
+import RescheduleBookingModal from "../components/booking/RescheduleBookingModal";
 
 /**
  * My Bookings Page
@@ -26,6 +27,11 @@ export default function MyBookings() {
     type: "success" | "error";
     message: string;
   } | null>(null);
+
+  // Reschedule modal state
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [bookingToReschedule, setBookingToReschedule] =
+    useState<BookingResponse | null>(null);
 
   // Redirect if not authenticated
   if (!user) {
@@ -56,34 +62,37 @@ export default function MyBookings() {
     try {
       const response = await bookingsApi.getCustomerBookings(user.id || 0);
       const now = new Date();
-      
+
       // Separate upcoming and past bookings
       const upcoming: BookingResponse[] = [];
       const past: BookingResponse[] = [];
-      
+
       response.data.forEach((booking) => {
-        const bookingDateTime = new Date(`${booking.bookingDate}T${booking.startTime}`);
-        const isUpcoming = booking.status === "PENDING" || booking.status === "CONFIRMED";
-        
+        const bookingDateTime = new Date(
+          `${booking.bookingDate}T${booking.startTime}`
+        );
+        const isUpcoming =
+          booking.status === "PENDING" || booking.status === "CONFIRMED";
+
         if (bookingDateTime > now && isUpcoming) {
           upcoming.push(booking);
         } else {
           past.push(booking);
         }
       });
-      
+
       // Sort upcoming by date ascending (nearest first)
       upcoming.sort(
         (a, b) =>
           new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime()
       );
-      
+
       // Sort past by date descending (most recent first)
       past.sort(
         (a, b) =>
           new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime()
       );
-      
+
       setBookings(upcoming);
       setPastBookings(past);
       setStatus(null);
@@ -114,6 +123,22 @@ export default function MyBookings() {
     } finally {
       setCancelling(null);
     }
+  };
+
+  /**
+   * Open the reschedule modal for the specified booking.
+   */
+  const handleReschedule = (booking: BookingResponse) => {
+    setBookingToReschedule(booking);
+    setRescheduleModalOpen(true);
+  };
+
+  /**
+   * Handle successful reschedule - refresh bookings and show success message.
+   */
+  const handleRescheduleSuccess = () => {
+    setStatus({ type: "success", message: "Booking rescheduled successfully" });
+    fetchBookings();
   };
 
   return (
@@ -183,9 +208,9 @@ export default function MyBookings() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <StatusBadge 
-                      status={booking.status} 
-                      type="booking" 
+                    <StatusBadge
+                      status={booking.status}
+                      type="booking"
                       className="px-4 py-2 rounded-full border border-opacity-20"
                     />
                   </div>
@@ -276,7 +301,14 @@ export default function MyBookings() {
               </div>
 
               {/* Action footer */}
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                <button
+                  onClick={() => handleReschedule(booking)}
+                  disabled={cancelling === booking.id}
+                  className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition"
+                >
+                  Reschedule
+                </button>
                 <button
                   onClick={() => handleCancel(booking.id)}
                   disabled={cancelling === booking.id}
@@ -349,9 +381,9 @@ export default function MyBookings() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <StatusBadge 
-                          status={booking.status} 
-                          type="booking" 
+                        <StatusBadge
+                          status={booking.status}
+                          type="booking"
                           className="px-4 py-2 rounded-full border border-opacity-20"
                         />
                       </div>
@@ -420,9 +452,7 @@ export default function MyBookings() {
                             <p className="text-2xl font-bold text-orange-600">
                               €{booking.outstandingBalance.toFixed(2)}
                             </p>
-                            <p className="text-xs text-gray-600 mt-1">
-                              Unpaid
-                            </p>
+                            <p className="text-xs text-gray-600 mt-1">Unpaid</p>
                           </div>
                         )}
 
@@ -434,7 +464,9 @@ export default function MyBookings() {
                             Balance
                           </p>
                           <p className="text-lg font-medium text-green-600">
-                            {booking.status === "COMPLETED" ? "Paid in Full" : "N/A"}
+                            {booking.status === "COMPLETED"
+                              ? "Paid in Full"
+                              : "N/A"}
                           </p>
                         </div>
                       )}
@@ -445,6 +477,19 @@ export default function MyBookings() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Reschedule Modal */}
+      {bookingToReschedule && (
+        <RescheduleBookingModal
+          booking={bookingToReschedule}
+          isOpen={rescheduleModalOpen}
+          onClose={() => {
+            setRescheduleModalOpen(false);
+            setBookingToReschedule(null);
+          }}
+          onSuccess={handleRescheduleSuccess}
+        />
       )}
     </div>
   );
