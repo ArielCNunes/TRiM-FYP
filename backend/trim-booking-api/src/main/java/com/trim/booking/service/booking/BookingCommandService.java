@@ -58,7 +58,6 @@ public class BookingCommandService {
 
         // Step 2: Validate business rules
         validationService.validateBookingTimeInFuture(bookingDate, startTime);
-        validationService.validateBusinessHours(startTime);
 
         // Step 3: Calculate end time
         LocalTime endTime = startTime.plusMinutes(service.getDurationMinutes());

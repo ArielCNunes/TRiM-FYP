@@ -88,22 +88,5 @@ public class BookingValidationService {
             throw new IllegalArgumentException("Cannot book in the past");
         }
     }
-
-    /**
-     * Validate business hours.
-     * Currently validates against fixed hours, can be extended to check barber's working hours.
-     *
-     * @param startTime Start time
-     * @throws IllegalArgumentException if time is outside business hours
-     */
-    public void validateBusinessHours(LocalTime startTime) {
-        LocalTime openingTime = LocalTime.of(9, 0);
-        LocalTime closingTime = LocalTime.of(18, 0);
-
-        if (startTime.isBefore(openingTime) || startTime.isAfter(closingTime)) {
-            throw new IllegalArgumentException(
-                    "Bookings must be between 09:00 and 18:00");
-        }
-    }
 }
 
