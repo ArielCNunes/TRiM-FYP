@@ -1,9 +1,12 @@
 package com.trim.booking.service.booking;
 
+import com.trim.booking.dto.UpdateBookingRequest;
 import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.entity.User;
+import com.trim.booking.exception.BadRequestException;
+import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.service.user.GuestUserService;
 import org.springframework.stereotype.Service;
@@ -139,6 +142,61 @@ public class BookingCommandService {
         booking.setOutstandingBalance(service.getPrice());
 
         return booking;
+    }
+
+    /**
+     * Update an existing booking's date and time.
+     * Only allows changing date/time to avoid payment/refund complexity.
+     * Barber and service remain the same.
+     *
+     * @param bookingId Booking ID to update
+     * @param request   Update request with new date/time
+     * @return Updated booking
+     * @throws ResourceNotFoundException if booking not found
+     * @throws BadRequestException       if booking cannot be updated
+     */
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Booking updateBooking(Long bookingId, UpdateBookingRequest request) {
+        // Step 1: Fetch existing booking
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        // Step 2: Validate booking status - can't update completed/cancelled bookings
+        if (booking.getStatus() == Booking.BookingStatus.COMPLETED) {
+            throw new BadRequestException("Cannot update a completed booking");
+        }
+        if (booking.getStatus() == Booking.BookingStatus.CANCELLED) {
+            throw new BadRequestException("Cannot update a cancelled booking");
+        }
+
+        // Step 3: Validate new date/time is in the future
+        validationService.validateBookingTimeInFuture(request.getBookingDate(), request.getStartTime());
+
+        // Step 4: Calculate new end time based on service duration
+        ServiceOffered service = booking.getService();
+        LocalTime newEndTime = request.getStartTime().plusMinutes(service.getDurationMinutes());
+
+        // Step 5: Check for conflicts (excluding current booking)
+        conflictDetectionService.validateTimeSlotAvailableForUpdate(
+                bookingId,
+                booking.getBarber().getId(),
+                request.getBookingDate(),
+                request.getStartTime(),
+                newEndTime
+        );
+
+        // Step 6: Update booking fields
+        booking.setBookingDate(request.getBookingDate());
+        booking.setStartTime(request.getStartTime());
+        booking.setEndTime(newEndTime);
+
+        // Step 7: Reset expiry if it was set (give them another 10 minutes for new slot)
+        if (booking.getExpiresAt() != null && booking.getStatus() == Booking.BookingStatus.PENDING) {
+            booking.setExpiresAt(java.time.LocalDateTime.now().plusMinutes(10));
+        }
+
+        // Step 8: Save and return
+        return bookingRepository.save(booking);
     }
 }
 

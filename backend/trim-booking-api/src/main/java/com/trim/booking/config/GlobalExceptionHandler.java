@@ -1,6 +1,7 @@
 package com.trim.booking.config;
 
 import com.stripe.exception.StripeException;
+import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.exception.ConflictException;
 import com.trim.booking.exception.UnauthorizedException;
@@ -88,6 +89,21 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    /**
+     * Handle bad request exceptions (400 Bad Request).
+     * Thrown when request contains invalid data or violates business rules.
+     */
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String, Object>> handleBadRequest(BadRequestException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Bad Request");
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     /**

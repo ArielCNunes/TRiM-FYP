@@ -1,5 +1,6 @@
 package com.trim.booking.service.booking;
 
+import com.trim.booking.dto.UpdateBookingRequest;
 import com.trim.booking.entity.Booking;
 import org.springframework.stereotype.Service;
 
@@ -124,5 +125,17 @@ public class BookingService {
      */
     public void cancelBooking(Long bookingId) {
         statusService.cancelBooking(bookingId);
+    }
+
+    /**
+     * Update an existing booking's date and time.
+     * Only allows changing date/time
+     *
+     * @param bookingId Booking ID to update
+     * @param request   Update request with new date/time
+     * @return Updated booking
+     */
+    public Booking updateBooking(Long bookingId, UpdateBookingRequest request) {
+        return commandService.updateBooking(bookingId, request);
     }
 }

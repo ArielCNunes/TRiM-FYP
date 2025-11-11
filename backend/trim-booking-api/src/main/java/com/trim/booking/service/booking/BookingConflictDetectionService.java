@@ -69,6 +69,46 @@ public class BookingConflictDetectionService {
     }
 
     /**
+     * Check if the time slot is available for updating an existing booking.
+     * Excludes the booking being updated from conflict detection.
+     *
+     * @param bookingIdToExclude The booking ID being updated (exclude from conflict check)
+     * @param barberId           Barber ID
+     * @param bookingDate        Booking date
+     * @param startTime          Start time
+     * @param endTime            End time
+     * @throws ConflictException if slot is taken
+     */
+    public void validateTimeSlotAvailableForUpdate(Long bookingIdToExclude, Long barberId,
+                                                   LocalDate bookingDate,
+                                                   LocalTime startTime, LocalTime endTime) {
+        List<Booking> existingBookings = bookingRepository
+                .findByBarberIdAndBookingDateWithLock(barberId, bookingDate);
+
+        for (Booking existing : existingBookings) {
+            // Skip the booking being updated
+            if (existing.getId().equals(bookingIdToExclude)) {
+                continue;
+            }
+
+            // Skip cancelled bookings
+            if (existing.getStatus() == Booking.BookingStatus.CANCELLED) {
+                continue;
+            }
+
+            // Skip expired pending bookings
+            if (existing.isExpired()) {
+                continue;
+            }
+
+            // Check for time overlap
+            if (hasTimeOverlap(startTime, endTime, existing.getStartTime(), existing.getEndTime())) {
+                throw new ConflictException("This time slot is no longer available");
+            }
+        }
+    }
+
+    /**
      * Get all conflicting bookings (without throwing exception).
      * Useful for UI to show busy slots.
      *

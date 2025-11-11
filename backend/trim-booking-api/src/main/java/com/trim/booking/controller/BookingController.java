@@ -3,6 +3,7 @@ package com.trim.booking.controller;
 import com.trim.booking.repository.BookingRepository;
 
 import com.trim.booking.dto.CreateBookingRequest;
+import com.trim.booking.dto.UpdateBookingRequest;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.service.booking.BookingService;
 import jakarta.validation.Valid;
@@ -131,6 +132,35 @@ public class BookingController {
         // Fetch the updated booking to return it
         Booking booking = bookingService.getBookingById(id);
         return ResponseEntity.ok(booking);
+    }
+
+    /**
+     * Update a booking's date and time.
+     * Only allows changing date/time
+     * <p>
+     * PUT /api/bookings/{id}
+     * Body: { "bookingDate": "2025-11-20", "startTime": "14:00" }
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBooking(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateBookingRequest request) {
+        // Get authenticated user
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Fetch booking to check ownership
+        Booking booking = bookingService.getBookingById(id);
+
+        // Authorization check: only booking owner can update their booking
+        if (!booking.getCustomer().getId().equals(authenticatedUserId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You can only update your own bookings");
+        }
+
+        // Perform update
+        Booking updated = bookingService.updateBooking(id, request);
+        return ResponseEntity.ok(updated);
     }
 
     /**

@@ -1,92 +1,84 @@
-### Create Booking
+### Variables
+@token = your-jwt-token-here
+@bookingId = 1
+
+### Create a booking (to have something to update)
 POST http://localhost:8080/api/bookings
+Authorization: Bearer {{token}}
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjQsInN1YiI6ImFyaWVsY2Fzc2lhbm8zMjFAZ21haWwuY29tIiwiaWF0IjoxNzYxMDYyODU1LCJleHAiOjE3NjExNDkyNTV9.ZbTu9-4XGU-vmOD8QkZdCo9PP4ddA0D_stzx4eTkWyA
 
 {
-  "customerId": 4,
+  "customerId": 1,
   "barberId": 1,
   "serviceId": 1,
-  "bookingDate": "2025-10-22",
-  "startTime": "09:00",
-  "notes": "First haircut appointment"
-}
-
-### Get Barber Schedule for Specific Date (as Barber)
-GET http://localhost:8080/api/bookings/barber/1/schedule?date=2025-10-13
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyLCJzdWIiOiJtaWtlQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNDM0NjAwLCJleHAiOjE3NjA1MjEwMDB9.hBF-_3p-i5q1lz1JfPN-cgscGQXUvLPYvYg2kiVKQBc
-
-### Mark Booking as Completed
-PUT http://localhost:8080/api/bookings/1/complete
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyLCJzdWIiOiJtaWtlQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNDM0NjAwLCJleHAiOjE3NjA1MjEwMDB9.hBF-_3p-i5q1lz1JfPN-cgscGQXUvLPYvYg2kiVKQBc
-
-### Mark Booking as No-Show
-PUT http://localhost:8080/api/bookings/1/no-show
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyLCJzdWIiOiJtaWtlQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNDM0NjAwLCJleHAiOjE3NjA1MjEwMDB9.hBF-_3p-i5q1lz1JfPN-cgscGQXUvLPYvYg2kiVKQBc
-
-### Get Customer Bookings
-GET http://localhost:8080/api/bookings/customer/1
-
-### Get Barber Bookings
-GET http://localhost:8080/api/bookings/barber/1
-
-### Get Booking by ID
-GET http://localhost:8080/api/bookings/1
-
-### Cancel Booking
-PATCH http://localhost:8080/api/bookings/1/cancel
-
-### Get Customer 1 Bookings as Customer 1 (should work)
-GET http://localhost:8080/api/bookings/customer/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjEsInN1YiI6ImpvaG5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjAzNDUyMjYsImV4cCI6MTc2MDQzMTYyNn0.UrozYVZWiKNHW3d0Lx-wj8fZLLbqi5HtR7vYbuG-4Rs
-
-### Get Customer 1 Bookings as Different Customer (should fail with 403)
-GET http://localhost:8080/api/bookings/customer/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwMzQ1MjczLCJleHAiOjE3NjA0MzE2NzN9.zEOCwnBz6ubAKJgl5nop2igTBeNBKeMQh7nTeIW_9pI
-
-### Create Payment Intent for Booking
-POST http://localhost:8080/api/payments/create-intent
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjQsInN1YiI6ImFyaWVsY2Fzc2lhbm8zMjFAZ21haWwuY29tIiwiaWF0IjoxNzYwNDU2MzM0LCJleHAiOjE3NjA1NDI3MzR9.v3XEf2i78OBB6z3cRelmjB7oVm-FBRHn7RhV_MvPEpc
-
-{
-  "bookingId": 6
-}
-
-### Create Booking with Pay In Shop
-POST http://localhost:8080/api/bookings
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjQsInN1YiI6ImFyaWVsY2Fzc2lhbm8zMjFAZ21haWwuY29tIiwiaWF0IjoxNzYwNDU2MzM0LCJleHAiOjE3NjA1NDI3MzR9.v3XEf2i78OBB6z3cRelmjB7oVm-FBRHn7RhV_MvPEpc
-
-{
-  "customerId": 4,
-  "barberId": 1,
-  "serviceId": 1,
-  "bookingDate": "2025-10-16",
+  "bookingDate": "2025-11-20",
   "startTime": "10:00",
-  "paymentMethod": "pay_in_shop"
+  "paymentMethod": "pay_online"
 }
 
-### Mark Pay-In-Shop Booking as Paid (Barber)
-PUT http://localhost:8080/api/bookings/7/mark-paid
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQkFSQkVSIiwidXNlcklkIjoyLCJzdWIiOiJtaWtlQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNDU4NzMwLCJleHAiOjE3NjA1NDUxMzB9.IQdoAZSM66q1wwIjjZZDs_4X5y8RqutxEFRbGiID7ts
+### Get a specific booking by ID
+GET http://localhost:8080/api/bookings/{{bookingId}}
+Authorization: Bearer {{token}}
 
-### Cancel Paid Booking (Should Trigger Refund)
-PATCH http://localhost:8080/api/bookings/7/cancel
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQ1VTVE9NRVIiLCJ1c2VySWQiOjQsInN1YiI6ImFyaWVsY2Fzc2lhbm8zMjFAZ21haWwuY29tIiwiaWF0IjoxNzYwNDY4MzEzLCJleHAiOjE3NjA1NTQ3MTN9.tahscVdJxnAfdtNhe98g4qxZhJ4LmoZ0mBPXeyqguvY
+### Update booking - reschedule to new date and time
+PUT http://localhost:8080/api/bookings/{{bookingId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
 
-### Get All Bookings (Admin)
+{
+  "bookingDate": "2025-11-25",
+  "startTime": "14:30"
+}
+
+### Update booking
+PUT http://localhost:8080/api/bookings/{{bookingId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookingDate": "2025-11-22",
+  "startTime": "10:00"
+}
+
+### Update booking
+PUT http://localhost:8080/api/bookings/{{bookingId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookingDate": "2025-11-20",
+  "startTime": "15:00"
+}
+
+### Get customer's bookings
+GET http://localhost:8080/api/bookings/customer/1
+Authorization: Bearer {{token}}
+
+### Cancel a booking
+PATCH http://localhost:8080/api/bookings/{{bookingId}}/cancel
+Authorization: Bearer {{token}}
+
+### Get all bookings (Admin only)
 GET http://localhost:8080/api/bookings/all
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNTE0OTMxLCJleHAiOjE3NjA2MDEzMzF9.HYA7ExEvFjnazTZ56zXJU8dX44ZLSfJc4293BOerMhc
+Authorization: Bearer {{token}}
 
-### Get All Bookings for Specific Date
-GET http://localhost:8080/api/bookings/all?date=2025-10-15
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNTE0OTMxLCJleHAiOjE3NjA2MDEzMzF9.HYA7ExEvFjnazTZ56zXJU8dX44ZLSfJc4293BOerMhc
+### Get all bookings filtered by status
+GET http://localhost:8080/api/bookings/all?status=PENDING
+Authorization: Bearer {{token}}
 
-### Get All Bookings by Status
-GET http://localhost:8080/api/bookings/all?status=CONFIRMED
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNTE0OTMxLCJleHAiOjE3NjA2MDEzMzF9.HYA7ExEvFjnazTZ56zXJU8dX44ZLSfJc4293BOerMhc
+### Get all bookings filtered by date
+GET http://localhost:8080/api/bookings/all?date=2025-11-20
+Authorization: Bearer {{token}}
 
-### Get Bookings by Date and Status
-GET http://localhost:8080/api/bookings/all?date=2025-10-13&status=PENDING
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOjMsInN1YiI6ImFkbWluQGJhcmJlcnNob3AuY29tIiwiaWF0IjoxNzYwNTE0OTMxLCJleHAiOjE3NjA2MDEzMzF9.HYA7ExEvFjnazTZ56zXJU8dX44ZLSfJc4293BOerMhc
+### Mark booking as completed (Barber/Admin only)
+PUT http://localhost:8080/api/bookings/{{bookingId}}/complete
+Authorization: Bearer {{token}}
+
+### Mark booking as paid (Barber/Admin only)
+PUT http://localhost:8080/api/bookings/{{bookingId}}/mark-paid
+Authorization: Bearer {{token}}
+
+### Mark booking as no-show (Barber/Admin only)
+PUT http://localhost:8080/api/bookings/{{bookingId}}/no-show
+Authorization: Bearer {{token}}
+
