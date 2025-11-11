@@ -46,4 +46,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b.service.name as serviceName, COUNT(b) as count FROM Booking b WHERE b.status != 'CANCELLED' GROUP BY b.service.name ORDER BY count DESC")
     List<Object[]> findPopularServices();
+
+    @Query("SELECT b FROM Booking b WHERE b.status = 'PENDING' " +
+            "AND b.expiresAt IS NOT NULL " +
+            "AND b.expiresAt < CURRENT_TIMESTAMP")
+    List<Booking> findExpiredPendingBookings();
 }

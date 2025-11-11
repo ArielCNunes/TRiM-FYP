@@ -131,6 +131,9 @@ public class BookingCommandService {
         booking.setStatus(Booking.BookingStatus.PENDING);
         booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PENDING);
 
+        // Set expiry: 10 minutes from now for pending bookings
+        booking.setExpiresAt(java.time.LocalDateTime.now().plusMinutes(10));
+
         // Deposit amounts will be set by PaymentService
         booking.setDepositAmount(BigDecimal.ZERO);
         booking.setOutstandingBalance(service.getPrice());

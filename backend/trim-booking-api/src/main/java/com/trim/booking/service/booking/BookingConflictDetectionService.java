@@ -42,6 +42,11 @@ public class BookingConflictDetectionService {
                 continue;
             }
 
+            // Skip expired pending bookings
+            if (existing.isExpired()) {
+                continue;
+            }
+
             // Check for time overlap
             if (hasTimeOverlap(startTime, endTime, existing.getStartTime(), existing.getEndTime())) {
                 throw new ConflictException("This time slot is no longer available");

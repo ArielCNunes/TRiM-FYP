@@ -135,6 +135,7 @@ public class PaymentService {
         Booking booking = payment.getBooking();
         booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
         booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking.setExpiresAt(null); // Clear expiry if booking is confirmed
         bookingRepository.save(booking);
 
         // Send confirmation notifications asynchronously

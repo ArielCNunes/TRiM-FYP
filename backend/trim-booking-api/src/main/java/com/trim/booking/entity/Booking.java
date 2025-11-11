@@ -61,6 +61,9 @@ public class Booking {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -187,6 +190,30 @@ public class Booking {
 
     public BigDecimal getOutstandingBalance() {
         return outstandingBalance;
+    }
+
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    /**
+     * Check if this booking has expired (for PENDING bookings only).
+     *
+     * @return true if booking is PENDING and past expiry time
+     */
+    public boolean isExpired() {
+        if (status != BookingStatus.PENDING) {
+            return false;
+        }
+        if (expiresAt == null) {
+            return false; // Old bookings without expiry
+        }
+        return LocalDateTime.now().isAfter(expiresAt);
     }
 
     public void setOutstandingBalance(BigDecimal outstandingBalance) {
