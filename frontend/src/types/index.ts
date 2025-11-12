@@ -32,6 +32,20 @@ export interface User {
   createdAt: string;
 }
 
+// Password Reset Types
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface PasswordResetResponse {
+  message: string;
+}
+
 // Service Types
 export interface Service {
   id: number;

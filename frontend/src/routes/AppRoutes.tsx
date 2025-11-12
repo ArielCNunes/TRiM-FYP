@@ -5,6 +5,8 @@ import Admin from "@/pages/Admin";
 import MyBookings from "@/pages/MyBookings";
 import Auth from "@/pages/Auth";
 import BarberDashboard from "@/pages/BarberDashboard";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 
 /**
  * AppRoutes Component
@@ -33,6 +35,10 @@ export default function AppRoutes() {
 
       {/* Barber Dashboard route */}
       <Route path="/barber" element={<BarberDashboard />} />
+
+      {/* Password Reset routes */}
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
     </Routes>
   );
 }

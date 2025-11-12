@@ -9,6 +9,9 @@ import type {
   BookingRequest,
   BookingResponse,
   DashboardStats,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  PasswordResetResponse,
 } from "../types";
 
 /** Auth endpoints for login and registration. */
@@ -24,6 +27,18 @@ export const authApi = {
   /** Save a guest account with password. */
   saveAccount: (data: { userId: number; password: string }) =>
     api.post("/auth/save-account", data),
+
+  /** Request password reset email. */
+  forgotPassword: (data: ForgotPasswordRequest) =>
+    api.post<PasswordResetResponse>("/auth/forgot-password", data),
+
+  /** Reset password with token. */
+  resetPassword: (data: ResetPasswordRequest) =>
+    api.post<PasswordResetResponse>("/auth/reset-password", data),
+
+  /** Validate reset token. */
+  validateResetToken: (token: string) =>
+    api.get<{ valid: boolean }>(`/auth/validate-reset-token?token=${token}`),
 };
 
 /** Service catalogue endpoints. */

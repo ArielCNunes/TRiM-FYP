@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { authApi } from "../../api/endpoints";
 import { useAppDispatch } from "../../store/hooks";
 import { setCredentials } from "../../features/auth/authSlice";
@@ -132,9 +132,12 @@ export function LoginForm() {
       </div>
 
       <div className="text-right">
-        <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
+        <Link
+          to="/forgot-password"
+          className="text-sm text-blue-600 hover:text-blue-700"
+        >
           Forgot password?
-        </a>
+        </Link>
       </div>
 
       <button
