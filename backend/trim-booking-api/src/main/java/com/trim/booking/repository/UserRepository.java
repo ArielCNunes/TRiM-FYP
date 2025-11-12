@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> { // JPA gives me free CRUD methods
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByResetToken(String resetToken);
+
     @Query("SELECT COUNT(u) FROM User u WHERE u.role = 'CUSTOMER'")
     Long countActiveCustomers();
 

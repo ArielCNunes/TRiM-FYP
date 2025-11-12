@@ -4,10 +4,9 @@ import com.trim.booking.dto.*;
 import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.User;
-import com.trim.booking.exception.ConflictException;
-import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.service.booking.BookingService;
+import com.trim.booking.service.user.PasswordResetService;
 import com.trim.booking.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -24,12 +23,15 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final BarberRepository barberRepository;
     private final BookingService bookingService;
+    private final PasswordResetService passwordResetService;
 
-    public AuthController(UserService userService, JwtUtil jwtUtil, BarberRepository barberRepository, BookingService bookingService) {
+    public AuthController(UserService userService, JwtUtil jwtUtil, BarberRepository barberRepository,
+                          BookingService bookingService, PasswordResetService passwordResetService) {
         this.barberRepository = barberRepository;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.bookingService = bookingService;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/register")
@@ -118,5 +120,41 @@ public class AuthController {
                 updatedUser.getEmail(),
                 "Account saved successfully"
         ));
+    }
+
+    /**
+     * Initiate password reset process.
+     * Sends an email with reset link if account exists.
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<PasswordResetResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        String message = passwordResetService.initiatePasswordReset(request.getEmail());
+        return ResponseEntity.ok(new PasswordResetResponse(message));
+    }
+
+    /**
+     * Validate reset token.
+     * Used to check if token is valid before showing reset form.
+     */
+    @GetMapping("/validate-reset-token")
+    public ResponseEntity<PasswordResetResponse> validateResetToken(@RequestParam String token) {
+        boolean isValid = passwordResetService.validateResetToken(token);
+
+        if (isValid) {
+            return ResponseEntity.ok(new PasswordResetResponse("Token is valid"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new PasswordResetResponse("Invalid or expired token"));
+        }
+    }
+
+    /**
+     * Reset password using reset token.
+     * Updates user's password and clears the reset token.
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<PasswordResetResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        String message = passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok(new PasswordResetResponse(message));
     }
 }
