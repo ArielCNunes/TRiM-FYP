@@ -4,7 +4,6 @@ import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -27,62 +26,171 @@ public class EmailService {
     /**
      * Send booking confirmation email to customer.
      * Runs asynchronously so API response isn't delayed.
+     * Uses HTML email with professional styling.
      *
      * @param booking The booking details
      */
     @Async
     public void sendBookingConfirmation(Booking booking) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
             // Recipient
-            message.setTo(booking.getCustomer().getEmail());
+            helper.setTo(booking.getCustomer().getEmail());
 
             // Subject
-            message.setSubject("Booking Confirmation - " + booking.getService().getName());
+            helper.setSubject("Booking Confirmation - " + booking.getService().getName());
 
-            // Email body
-            String emailBody = buildConfirmationEmail(booking);
-            message.setText(emailBody);
+            // Email body (HTML)
+            String emailBody = buildConfirmationEmailHtml(booking);
+            helper.setText(emailBody, true); // true = HTML content
 
             // Sender
-            message.setFrom("noreply.trim.bookings@gmail.com");
+            helper.setFrom("noreply.trim.bookings@gmail.com");
 
             // Send email
-            mailSender.send(message);
+            mailSender.send(mimeMessage);
 
             System.out.println("Confirmation email sent to: " + booking.getCustomer().getEmail());
 
-        } catch (Exception e) {
+        } catch (MessagingException e) {
             // Don't fail the booking if email fails
             System.err.println("Failed to send email: " + e.getMessage());
         }
     }
 
     /**
-     * Build the email body with booking details.
+     * Build the booking confirmation email body as HTML.
+     * Uses inline CSS for compatibility with email clients.
      */
-    private String buildConfirmationEmail(Booking booking) {
+    private String buildConfirmationEmailHtml(Booking booking) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
 
         return String.format("""
-                        Hi %s,
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        </head>
+                        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+                            <table role="presentation" style="width: 100%%; border-collapse: collapse;">
+                                <tr>
+                                    <td align="center" style="padding: 40px 0;">
+                                        <table role="presentation" style="width: 600px; max-width: 100%%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <!-- Header -->
+                                            <tr>
+                                                <td style="padding: 40px 40px 20px 40px; text-align: center; background-color: #10b981; border-radius: 8px 8px 0 0;">
+                                                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Booking Confirmed!</h1>
+                                                </td>
+                                            </tr>
                         
-                        Your booking has been confirmed!
+                                            <!-- Content -->
+                                            <tr>
+                                                <td style="padding: 40px;">
+                                                    <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px;">Hi %s,</h2>
                         
-                        Booking Details:
-                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                        Service: %s
-                        Barber: %s %s
-                        Date: %s
-                        Time: %s - %s
-                        Price: €%.2f
-                        Status: %s
+                                                    <p style="margin: 0 0 30px 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                                                        Great news! Your booking has been confirmed. We're looking forward to seeing you!
+                                                    </p>
                         
-                        We look forward to seeing you!
+                                                    <!-- Booking Details Card -->
+                                                    <table role="presentation" style="width: 100%%; border-collapse: collapse; background-color: #f8f9fa; border-radius: 6px; margin-bottom: 30px;">
+                                                        <tr>
+                                                            <td style="padding: 25px;">
+                                                                <h3 style="margin: 0 0 20px 0; color: #1e40af; font-size: 18px; font-weight: bold;">Booking Details</h3>
                         
-                        Best regards.
+                                                                <!-- Service -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: 15px;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Service:</td>
+                                                                        <td style="padding: 8px 0; color: #333333; font-size: 14px;">%s</td>
+                                                                    </tr>
+                                                                </table>
+                        
+                                                                <!-- Barber -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: 15px;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Barber:</td>
+                                                                        <td style="padding: 8px 0; color: #333333; font-size: 14px;">%s %s</td>
+                                                                    </tr>
+                                                                </table>
+                        
+                                                                <!-- Date -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: 15px;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Date:</td>
+                                                                        <td style="padding: 8px 0; color: #333333; font-size: 14px;">%s</td>
+                                                                    </tr>
+                                                                </table>
+                        
+                                                                <!-- Time -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: 15px;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Time:</td>
+                                                                        <td style="padding: 8px 0; color: #333333; font-size: 14px;">%s - %s</td>
+                                                                    </tr>
+                                                                </table>
+                        
+                                                                <!-- Price -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: 15px;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Price:</td>
+                                                                        <td style="padding: 8px 0; color: #10b981; font-size: 16px; font-weight: bold;">€%.2f</td>
+                                                                    </tr>
+                                                                </table>
+                        
+                                                                <!-- Status -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Status:</td>
+                                                                        <td style="padding: 8px 0;">
+                                                                            <span style="display: inline-block; padding: 4px 12px; background-color: #10b981; color: #ffffff; border-radius: 12px; font-size: 12px; font-weight: bold;">%s</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                        
+                                                    <!-- Important Notice -->
+                                                    <table role="presentation" style="width: 100%%; border-collapse: collapse; background-color: #fff8e1; border-left: 4px solid #fbbf24; border-radius: 4px; margin-bottom: 20px;">
+                                                        <tr>
+                                                            <td style="padding: 15px;">
+                                                                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+                                                                    <strong>Please arrive 5 minutes early.</strong><br>
+                                                                    If you need to cancel or reschedule, please do so at least 24 hours in advance.
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                        
+                                                    <p style="margin: 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                                                        We look forward to seeing you!
+                                                    </p>
+                                                </td>
+                                            </tr>
+                        
+                                            <!-- Footer -->
+                                            <tr>
+                                                <td style="padding: 30px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center;">
+                                                    <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                                                        Best regards,<br>
+                                                        <strong>TRiM</strong>
+                                                    </p>
+                                                    <p style="margin: 0; color: #999999; font-size: 12px;">
+                                                        This is an automated confirmation email.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </body>
+                        </html>
                         """,
                 booking.getCustomer().getFirstName(),
                 booking.getService().getName(),
@@ -98,56 +206,152 @@ public class EmailService {
 
     /**
      * Send appointment reminder email (24 hours before).
+     * Uses HTML email with professional styling.
      */
     @Async
     public void sendReminderEmail(Booking booking) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-            message.setTo(booking.getCustomer().getEmail());
-            message.setSubject("Reminder: Tomorrow's Appointment - " + booking.getService().getName());
+            helper.setTo(booking.getCustomer().getEmail());
+            helper.setSubject("Reminder: Tomorrow's Appointment - " + booking.getService().getName());
 
-            String emailBody = buildReminderEmail(booking);
-            message.setText(emailBody);
-            message.setFrom("noreply.trim.bookings@gmail.com");
+            String emailBody = buildReminderEmailHtml(booking);
+            helper.setText(emailBody, true); // true = HTML content
+            helper.setFrom("noreply.trim.bookings@gmail.com");
 
-            mailSender.send(message);
+            mailSender.send(mimeMessage);
 
             // Log success
             System.out.println("Reminder email sent to: " + booking.getCustomer().getEmail());
 
-        } catch (Exception e) {
+        } catch (MessagingException e) {
             System.err.println("Failed to send reminder email: " + e.getMessage());
         }
     }
 
     /**
-     * Build reminder email body.
+     * Build reminder email body as HTML.
+     * Uses inline CSS for compatibility with email clients.
      */
-    private String buildReminderEmail(Booking booking) {
+    private String buildReminderEmailHtml(Booking booking) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
 
         return String.format("""
-                        Hi %s,
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        </head>
+                        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+                            <table role="presentation" style="width: 100%%; border-collapse: collapse;">
+                                <tr>
+                                    <td align="center" style="padding: 40px 0;">
+                                        <table role="presentation" style="width: 600px; max-width: 100%%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <!-- Header -->
+                                            <tr>
+                                                <td style="padding: 40px 40px 20px 40px; text-align: center; background-color: #f59e0b; border-radius: 8px 8px 0 0;">
+                                                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">⏰ Appointment Reminder</h1>
+                                                </td>
+                                            </tr>
                         
-                        This is a friendly reminder about your appointment tomorrow!
+                                            <!-- Content -->
+                                            <tr>
+                                                <td style="padding: 40px;">
+                                                    <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px;">Hi %s,</h2>
                         
-                        Appointment Details:
-                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                        Service: %s
-                        Barber: %s %s
-                        Date: %s
-                        Time: %s - %s
-                        Price: €%.2f
+                                                    <p style="margin: 0 0 30px 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                                                        This is a friendly reminder about your <strong>appointment tomorrow</strong>!
+                                                    </p>
                         
-                        Please arrive 5 minutes early.
+                                                    <!-- Appointment Details Card -->
+                                                    <table role="presentation" style="width: 100%%; border-collapse: collapse; background-color: #f8f9fa; border-radius: 6px; margin-bottom: 30px;">
+                                                        <tr>
+                                                            <td style="padding: 25px;">
+                                                                <h3 style="margin: 0 0 20px 0; color: #f59e0b; font-size: 18px; font-weight: bold;">Appointment Details</h3>
                         
-                        If you need to cancel, please do so at least 24 hours in advance.
+                                                                <!-- Service -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: 15px;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Service:</td>
+                                                                        <td style="padding: 8px 0; color: #333333; font-size: 14px;">%s</td>
+                                                                    </tr>
+                                                                </table>
                         
-                        See you tomorrow!
+                                                                <!-- Barber -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: 15px;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Barber:</td>
+                                                                        <td style="padding: 8px 0; color: #333333; font-size: 14px;">%s %s</td>
+                                                                    </tr>
+                                                                </table>
                         
-                        Best regards!
+                                                                <!-- Date -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: 15px;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Date:</td>
+                                                                        <td style="padding: 8px 0; color: #333333; font-size: 14px; font-weight: bold;">%s</td>
+                                                                    </tr>
+                                                                </table>
+                        
+                                                                <!-- Time -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: 15px;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Time:</td>
+                                                                        <td style="padding: 8px 0; color: #f59e0b; font-size: 16px; font-weight: bold;">%s - %s</td>
+                                                                    </tr>
+                                                                </table>
+                        
+                                                                <!-- Price -->
+                                                                <table role="presentation" style="width: 100%%; border-collapse: collapse;">
+                                                                    <tr>
+                                                                        <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold; width: 120px;">Price:</td>
+                                                                        <td style="padding: 8px 0; color: #333333; font-size: 14px;">€%.2f</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                        
+                                                    <!-- Important Notice -->
+                                                    <table role="presentation" style="width: 100%%; border-collapse: collapse; background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; margin-bottom: 20px;">
+                                                        <tr>
+                                                            <td style="padding: 15px;">
+                                                                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+                                                                    <strong>⏰ Please arrive 5 minutes early.</strong><br>
+                                                                    If you need to cancel or reschedule, please contact us as soon as possible.
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                        
+                                                    <p style="margin: 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                                                        See you tomorrow! 👋
+                                                    </p>
+                                                </td>
+                                            </tr>
+                        
+                                            <!-- Footer -->
+                                            <tr>
+                                                <td style="padding: 30px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center;">
+                                                    <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                                                        Best regards,<br>
+                                                        <strong>TRiM Booking Team</strong>
+                                                    </p>
+                                                    <p style="margin: 0; color: #999999; font-size: 12px;">
+                                                        This is an automated reminder email.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </body>
+                        </html>
                         """,
                 booking.getCustomer().getFirstName(),
                 booking.getService().getName(),
