@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { barbersApi } from "../../../api/endpoints";
+import { PhoneInput } from "../../shared/PhoneInput";
 
 interface BarberFormProps {
   onSuccess: () => void;
@@ -34,7 +35,8 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
       });
       onSuccess();
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to create barber";
+      const message =
+        error.response?.data?.message || "Failed to create barber";
       throw new Error(message);
     } finally {
       setLoading(false);
@@ -47,9 +49,7 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">
-              First Name
-            </label>
+            <label className="block text-sm font-medium mb-1">First Name</label>
             <input
               type="text"
               required
@@ -62,9 +62,7 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Last Name
-            </label>
+            <label className="block text-sm font-medium mb-1">Last Name</label>
             <input
               type="text"
               required
@@ -90,23 +88,14 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Phone</label>
-          <input
-            type="tel"
-            required
-            pattern="[0-9]{10,15}"
-            className="w-full border rounded-md p-2"
-            value={formData.phone}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
-            placeholder="353871234567 (digits only, 10-15 chars)"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Enter digits only (no spaces or dashes), 10-15 characters
-          </p>
-        </div>
+        <PhoneInput
+          value={formData.phone}
+          onChange={(normalizedPhone) =>
+            setFormData({ ...formData, phone: normalizedPhone })
+          }
+          label="Phone"
+          required
+        />
 
         <div>
           <label className="block text-sm font-medium mb-1">Password</label>
@@ -129,9 +118,7 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
             className="w-full border rounded-md p-2"
             rows={3}
             value={formData.bio}
-            onChange={(e) =>
-              setFormData({ ...formData, bio: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
           />
         </div>
 

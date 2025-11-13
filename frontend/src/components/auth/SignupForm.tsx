@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { authApi } from "../../api/endpoints";
 import { useAppDispatch } from "../../store/hooks";
 import { setCredentials } from "../../features/auth/authSlice";
+import { PhoneInput } from "../shared/PhoneInput";
+import { validatePhoneNumber } from "../../utils/phoneUtils";
 
 type SignupErrors = {
   firstName?: string;
@@ -48,8 +50,8 @@ export function SignupForm() {
 
     if (!phone) {
       newErrors.phone = "Phone is required";
-    } else if (!/^[0-9]{10,15}$/.test(phone.replace(/\D/g, ""))) {
-      newErrors.phone = "Phone must be 10-15 digits";
+    } else if (!validatePhoneNumber(phone)) {
+      newErrors.phone = "Phone must be a valid international number";
     }
 
     if (!password) {
@@ -181,24 +183,16 @@ export function SignupForm() {
         )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-1">
-          Phone
-        </label>
-        <input
-          type="tel"
-          value={phone}
-          onChange={(e) => {
-            setPhone(e.target.value);
-            if (errors.phone) setErrors({ ...errors, phone: undefined });
-          }}
-          placeholder="1234567890"
-          className="w-full bg-gray-50 text-gray-900 px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:outline-none"
-        />
-        {errors.phone && (
-          <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
-        )}
-      </div>
+      <PhoneInput
+        value={phone}
+        onChange={(normalizedPhone) => {
+          setPhone(normalizedPhone);
+          if (errors.phone) setErrors({ ...errors, phone: undefined });
+        }}
+        error={errors.phone}
+        label="Phone"
+        required
+      />
 
       <div>
         <label className="block text-sm font-medium text-gray-900 mb-1">

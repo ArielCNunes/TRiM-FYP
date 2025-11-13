@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { StatusBanner } from "../BookingComponents";
+import { PhoneInput } from "../shared/PhoneInput";
+import { validatePhoneNumber } from "../../utils/phoneUtils";
 
 interface CustomerInfo {
   firstName: string;
@@ -19,7 +21,7 @@ interface CustomerInfoStepProps {
 /**
  * CustomerInfoStep Component
  * Step 4 of booking wizard: collect or confirm customer information
- * 
+ *
  * If user is logged in: fields are pre-populated and read-only
  * If guest: fields are empty and required
  */
@@ -31,7 +33,7 @@ export function CustomerInfoStep({
   onBack,
 }: CustomerInfoStepProps) {
   const isPreFilled = !!initialData;
-  
+
   const [formData, setFormData] = useState<CustomerInfo>(
     initialData || {
       firstName: "",
@@ -66,8 +68,8 @@ export function CustomerInfoStep({
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone is required";
-    } else if (formData.phone.trim().length < 10) {
-      newErrors.phone = "Phone must be at least 10 characters";
+    } else if (!validatePhoneNumber(formData.phone)) {
+      newErrors.phone = "Phone must be a valid international number";
     }
 
     setErrors(newErrors);
@@ -75,10 +77,10 @@ export function CustomerInfoStep({
   };
 
   const handleChange = (field: keyof CustomerInfo, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error for this field when user starts typing
     if (errors[field]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[field];
         return newErrors;
@@ -160,30 +162,21 @@ export function CustomerInfoStep({
         </div>
 
         {/* Phone */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Phone Number *
-          </label>
-          <input
-            type="tel"
-            value={formData.phone}
-            onChange={(e) => handleChange("phone", e.target.value)}
-            disabled={isPreFilled || submitting}
-            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.phone ? "border-red-500" : "border-gray-300"
-            } ${isPreFilled ? "bg-gray-50" : ""}`}
-            placeholder="+353 87 123 4567"
-          />
-          {errors.phone && (
-            <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-          )}
-        </div>
+        <PhoneInput
+          value={formData.phone}
+          onChange={(normalizedPhone) => handleChange("phone", normalizedPhone)}
+          error={errors.phone}
+          disabled={isPreFilled || submitting}
+          label="Phone Number"
+          required
+        />
 
         {/* Info Banner for Pre-filled Users */}
         {isPreFilled && (
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <p className="text-sm text-blue-700">
-              Your information is pre-filled from your account. You cannot edit it here.
+              Your information is pre-filled from your account. You cannot edit
+              it here.
             </p>
           </div>
         )}
