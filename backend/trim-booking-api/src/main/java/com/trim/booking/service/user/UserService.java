@@ -2,6 +2,8 @@ package com.trim.booking.service.user;
 
 import com.trim.booking.dto.RegisterRequest;
 import com.trim.booking.entity.User;
+import com.trim.booking.exception.BadRequestException;
+import com.trim.booking.exception.InvalidPhoneNumberException;
 import com.trim.booking.exception.UnauthorizedException;
 import com.trim.booking.repository.UserRepository;
 import com.trim.booking.util.PhoneNumberUtil;
@@ -54,8 +56,13 @@ public class UserService {
             throw new RuntimeException("Email already registered");
         }
 
-        // Normalize phone number
-        String normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(request.getPhone(), "353");
+        // Normalize phone number (defensive programming - entity will also normalize)
+        String normalizedPhone;
+        try {
+            normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(request.getPhone(), "353");
+        } catch (InvalidPhoneNumberException e) {
+            throw new BadRequestException("Invalid phone number: " + e.getMessage());
+        }
 
         // Create new user
         User user = new User();

@@ -36,7 +36,17 @@ public class SmsService {
             // Validate and normalize phone number as safety check
             if (!PhoneNumberUtil.validateE164Format(toPhone)) {
                 System.err.println("Warning: Phone number not in E.164 format, attempting to normalize: " + toPhone);
-                toPhone = PhoneNumberUtil.normalizePhoneNumber(toPhone, "353");
+                try {
+                    toPhone = PhoneNumberUtil.normalizePhoneNumber(toPhone, "353");
+                    System.out.println("Successfully normalized phone to: " + toPhone);
+                } catch (Exception normalizationError) {
+                    System.err.println("Failed to normalize phone for booking ID: " + booking.getId() +
+                                     ", customer email: " + booking.getCustomer().getEmail() +
+                                     ", phone: " + toPhone +
+                                     ", error: " + normalizationError.getMessage());
+                    // Skip sending SMS with invalid number
+                    return;
+                }
             }
 
             String messageBody = buildConfirmationSms(booking);
@@ -52,7 +62,9 @@ public class SmsService {
 
         } catch (Exception e) {
             // Don't fail the booking if SMS fails
-            System.err.println("Failed to send SMS: " + e.getMessage());
+            System.err.println("Failed to send SMS for booking ID: " +
+                             (booking != null ? booking.getId() : "unknown") +
+                             ", error: " + e.getMessage());
         }
     }
 
@@ -83,7 +95,17 @@ public class SmsService {
             // Validate and normalize phone number as safety check
             if (!PhoneNumberUtil.validateE164Format(toPhone)) {
                 System.err.println("Warning: Phone number not in E.164 format, attempting to normalize: " + toPhone);
-                toPhone = PhoneNumberUtil.normalizePhoneNumber(toPhone, "353");
+                try {
+                    toPhone = PhoneNumberUtil.normalizePhoneNumber(toPhone, "353");
+                    System.out.println("Successfully normalized phone to: " + toPhone);
+                } catch (Exception normalizationError) {
+                    System.err.println("Failed to normalize phone for booking ID: " + booking.getId() +
+                                     ", customer email: " + booking.getCustomer().getEmail() +
+                                     ", phone: " + toPhone +
+                                     ", error: " + normalizationError.getMessage());
+                    // Skip sending SMS with invalid number
+                    return;
+                }
             }
 
             String messageBody = buildReminderSms(booking);
@@ -98,7 +120,9 @@ public class SmsService {
                     " (SID: " + message.getSid() + ")");
 
         } catch (Exception e) {
-            System.err.println("Failed to send reminder SMS: " + e.getMessage());
+            System.err.println("Failed to send reminder SMS for booking ID: " +
+                             (booking != null ? booking.getId() : "unknown") +
+                             ", error: " + e.getMessage());
         }
     }
 

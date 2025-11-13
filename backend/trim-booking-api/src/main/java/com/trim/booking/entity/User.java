@@ -1,5 +1,7 @@
 package com.trim.booking.entity;
 
+import com.trim.booking.exception.BadRequestException;
+import com.trim.booking.exception.InvalidPhoneNumberException;
 import com.trim.booking.util.PhoneNumberUtil;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -62,13 +64,21 @@ public class User {
 
     private void normalizePhoneBeforePersist() {
         if (phone != null && !phone.trim().isEmpty()) {
-            phone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+            try {
+                phone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+            } catch (InvalidPhoneNumberException e) {
+                throw new BadRequestException("Invalid phone number format - must be valid international number: " + e.getMessage());
+            }
         }
     }
 
     private void normalizePhoneBeforeUpdate() {
         if (phone != null && !phone.trim().isEmpty()) {
-            phone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+            try {
+                phone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+            } catch (InvalidPhoneNumberException e) {
+                throw new BadRequestException("Invalid phone number format - must be valid international number: " + e.getMessage());
+            }
         }
     }
 

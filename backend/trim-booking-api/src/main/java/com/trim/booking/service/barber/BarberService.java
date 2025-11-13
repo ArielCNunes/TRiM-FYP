@@ -2,6 +2,8 @@ package com.trim.booking.service.barber;
 
 import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.User;
+import com.trim.booking.exception.BadRequestException;
+import com.trim.booking.exception.InvalidPhoneNumberException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.repository.UserRepository;
@@ -36,7 +38,12 @@ public class BarberService {
         }
 
         // Normalize phone number
-        String normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+        String normalizedPhone;
+        try {
+            normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+        } catch (InvalidPhoneNumberException e) {
+            throw new BadRequestException("Invalid phone number: " + e.getMessage());
+        }
 
         // Create User account with BARBER role
         User user = new User();

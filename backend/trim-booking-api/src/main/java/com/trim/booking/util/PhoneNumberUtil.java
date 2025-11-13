@@ -15,7 +15,7 @@ public class PhoneNumberUtil {
     /**
      * Normalize a phone number to E.164 format.
      *
-     * @param rawPhone Raw phone number input (may contain spaces, dashes, etc.)
+     * @param rawPhone    Raw phone number input (may contain spaces, dashes, etc.)
      * @param countryCode Country code (default "353" for Ireland)
      * @return Normalized phone number in E.164 format (+[country][number])
      * @throws InvalidPhoneNumberException if phone number is invalid
@@ -45,12 +45,19 @@ public class PhoneNumberUtil {
             }
         }
 
-        // Remove leading zeros
-        digitsOnly = digitsOnly.replaceFirst("^0+", "");
+        // Remove SINGLE leading zero (not all leading zeros)
+        if (digitsOnly.startsWith("0")) {
+            digitsOnly = digitsOnly.substring(1);
+        }
 
-        // Check if it's empty after removing zeros
+        // Check if it's empty after removing leading zero
         if (digitsOnly.isEmpty()) {
-            throw new InvalidPhoneNumberException("Invalid phone number: " + rawPhone);
+            throw new InvalidPhoneNumberException("Phone number contains only zeros");
+        }
+
+        // Check minimum length (7 digits required)
+        if (digitsOnly.length() < 7) {
+            throw new InvalidPhoneNumberException("Phone number too short - minimum 7 digits required");
         }
 
         // If it starts with the country code already, just add plus

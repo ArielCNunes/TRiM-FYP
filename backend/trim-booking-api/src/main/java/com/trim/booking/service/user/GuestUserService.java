@@ -1,7 +1,9 @@
 package com.trim.booking.service.user;
 
 import com.trim.booking.entity.User;
+import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.ConflictException;
+import com.trim.booking.exception.InvalidPhoneNumberException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.UserRepository;
 import com.trim.booking.util.PhoneNumberUtil;
@@ -32,8 +34,13 @@ public class GuestUserService {
      */
     @Transactional
     public User createGuestUser(String firstName, String lastName, String email, String phone) {
-        // Normalize phone number
-        String normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+        // Normalize phone number (defensive programming - entity will also normalize)
+        String normalizedPhone;
+        try {
+            normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+        } catch (InvalidPhoneNumberException e) {
+            throw new BadRequestException("Invalid phone number: " + e.getMessage());
+        }
 
         // Check if email already exists
         if (userRepository.existsByEmail(email)) {

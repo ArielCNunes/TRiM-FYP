@@ -18,6 +18,31 @@ class PhoneNumberUtilTest {
     }
 
     @Test
+    void testNormalizePhoneNumber_WithSingleLeadingZero() {
+        // Only first zero removed: 00871234567 becomes +3500871234567
+        String result = PhoneNumberUtil.normalizePhoneNumber("00871234567", "353");
+        assertEquals("+3500871234567", result);
+    }
+
+    @Test
+    void testNormalizePhoneNumber_TooShort() {
+        // Phone too short (less than 7 digits after removing leading zero)
+        InvalidPhoneNumberException exception = assertThrows(InvalidPhoneNumberException.class, () -> {
+            PhoneNumberUtil.normalizePhoneNumber("087123456", "353");
+        });
+        assertTrue(exception.getMessage().contains("Phone number too short - minimum 7 digits required"));
+    }
+
+    @Test
+    void testNormalizePhoneNumber_OnlyZeros() {
+        // Only zeros should give specific error message
+        InvalidPhoneNumberException exception = assertThrows(InvalidPhoneNumberException.class, () -> {
+            PhoneNumberUtil.normalizePhoneNumber("000", "353");
+        });
+        assertTrue(exception.getMessage().contains("Phone number contains only zeros"));
+    }
+
+    @Test
     void testNormalizePhoneNumber_WithSpacesAndDashes() {
         // Format with spaces and dashes: 087-123-4567
         String result = PhoneNumberUtil.normalizePhoneNumber("087-123-4567", "353");
@@ -106,6 +131,22 @@ class PhoneNumberUtilTest {
         // UK phone number: 020 7183 8750
         String result = PhoneNumberUtil.normalizePhoneNumber("020 7183 8750", "44");
         assertEquals("+442071838750", result);
+    }
+
+    @Test
+    void testNormalizePhoneNumber_MinimumLength() {
+        // Exactly 7 digits should work
+        String result = PhoneNumberUtil.normalizePhoneNumber("0871234", "353");
+        assertEquals("+353871234", result);
+    }
+
+    @Test
+    void testNormalizePhoneNumber_JustUnderMinimum() {
+        // 6 digits should fail
+        InvalidPhoneNumberException exception = assertThrows(InvalidPhoneNumberException.class, () -> {
+            PhoneNumberUtil.normalizePhoneNumber("087123", "353");
+        });
+        assertTrue(exception.getMessage().contains("Phone number too short"));
     }
 }
 

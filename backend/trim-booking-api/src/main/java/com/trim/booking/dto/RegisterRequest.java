@@ -35,7 +35,13 @@ public class RegisterRequest {
             return true; // Let @NotBlank handle null/empty
         }
         try {
-            PhoneNumberUtil.validateE164Format(PhoneNumberUtil.normalizePhoneNumber(phone, "353"));
+            // If already looks like E.164, validate directly
+            if (phone.trim().startsWith("+")) {
+                return PhoneNumberUtil.validateE164Format(phone.trim());
+            }
+            // Otherwise, attempt normalization to see if it's valid
+            // Don't store the result - just check if it can be normalized
+            PhoneNumberUtil.normalizePhoneNumber(phone, "353");
             return true;
         } catch (Exception e) {
             return false;
