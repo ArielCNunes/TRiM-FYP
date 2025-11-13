@@ -4,6 +4,7 @@ import com.trim.booking.entity.User;
 import com.trim.booking.exception.ConflictException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.UserRepository;
+import com.trim.booking.util.PhoneNumberUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,9 @@ public class GuestUserService {
      */
     @Transactional
     public User createGuestUser(String firstName, String lastName, String email, String phone) {
+        // Normalize phone number
+        String normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+
         // Check if email already exists
         if (userRepository.existsByEmail(email)) {
             // Find the existing user
@@ -52,7 +56,7 @@ public class GuestUserService {
         guestUser.setFirstName(firstName);
         guestUser.setLastName(lastName);
         guestUser.setEmail(email);
-        guestUser.setPhone(phone);
+        guestUser.setPhone(normalizedPhone);
         guestUser.setRole(User.Role.CUSTOMER);
         // Do NOT set password - leave as null to indicate guest account
 

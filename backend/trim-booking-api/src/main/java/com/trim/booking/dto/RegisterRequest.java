@@ -1,8 +1,9 @@
 package com.trim.booking.dto;
 
+import com.trim.booking.util.PhoneNumberUtil;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class RegisterRequest {
@@ -21,11 +22,24 @@ public class RegisterRequest {
     private String password;
 
     @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^[0-9]{10,15}$", message = "Phone number must be valid")
     private String phone;
 
     // Constructors
     public RegisterRequest() {
+    }
+
+    // Custom validation method for phone number
+    @AssertTrue(message = "Phone must be in valid international format")
+    public boolean isPhoneValid() {
+        if (phone == null || phone.trim().isEmpty()) {
+            return true; // Let @NotBlank handle null/empty
+        }
+        try {
+            PhoneNumberUtil.validateE164Format(PhoneNumberUtil.normalizePhoneNumber(phone, "353"));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // Getters and Setters

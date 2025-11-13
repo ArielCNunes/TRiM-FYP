@@ -5,6 +5,7 @@ import com.trim.booking.entity.User;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.repository.UserRepository;
+import com.trim.booking.util.PhoneNumberUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,12 +35,15 @@ public class BarberService {
             throw new RuntimeException("Email already registered");
         }
 
+        // Normalize phone number
+        String normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+
         // Create User account with BARBER role
         User user = new User();
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
-        user.setPhone(phone);
+        user.setPhone(normalizedPhone);
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setRole(User.Role.BARBER);
 

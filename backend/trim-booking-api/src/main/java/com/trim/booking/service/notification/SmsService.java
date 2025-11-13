@@ -2,6 +2,7 @@ package com.trim.booking.service.notification;
 
 import com.trim.booking.config.TwilioConfig;
 import com.trim.booking.entity.Booking;
+import com.trim.booking.util.PhoneNumberUtil;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import org.springframework.scheduling.annotation.Async;
@@ -31,6 +32,12 @@ public class SmsService {
     public void sendBookingConfirmation(Booking booking) {
         try {
             String toPhone = booking.getCustomer().getPhone();
+
+            // Validate and normalize phone number as safety check
+            if (!PhoneNumberUtil.validateE164Format(toPhone)) {
+                System.err.println("Warning: Phone number not in E.164 format, attempting to normalize: " + toPhone);
+                toPhone = PhoneNumberUtil.normalizePhoneNumber(toPhone, "353");
+            }
 
             String messageBody = buildConfirmationSms(booking);
 
@@ -72,6 +79,12 @@ public class SmsService {
     public void sendReminderSms(Booking booking) {
         try {
             String toPhone = booking.getCustomer().getPhone();
+
+            // Validate and normalize phone number as safety check
+            if (!PhoneNumberUtil.validateE164Format(toPhone)) {
+                System.err.println("Warning: Phone number not in E.164 format, attempting to normalize: " + toPhone);
+                toPhone = PhoneNumberUtil.normalizePhoneNumber(toPhone, "353");
+            }
 
             String messageBody = buildReminderSms(booking);
 

@@ -4,6 +4,7 @@ import com.trim.booking.dto.RegisterRequest;
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.UnauthorizedException;
 import com.trim.booking.repository.UserRepository;
+import com.trim.booking.util.PhoneNumberUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -53,13 +54,16 @@ public class UserService {
             throw new RuntimeException("Email already registered");
         }
 
+        // Normalize phone number
+        String normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(request.getPhone(), "353");
+
         // Create new user
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setPhone(request.getPhone());
+        user.setPhone(normalizedPhone);
         user.setRole(User.Role.CUSTOMER);
 
         // Save to database

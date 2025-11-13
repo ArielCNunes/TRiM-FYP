@@ -1,5 +1,6 @@
 package com.trim.booking.entity;
 
+import com.trim.booking.util.PhoneNumberUtil;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,7 +33,6 @@ public class User {
     @Column
     private String passwordHash;
 
-    @NotBlank(message = "Phone number is required")
     @Column(nullable = false)
     private String phone;
 
@@ -52,6 +52,24 @@ public class User {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        normalizePhoneBeforePersist();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        normalizePhoneBeforeUpdate();
+    }
+
+    private void normalizePhoneBeforePersist() {
+        if (phone != null && !phone.trim().isEmpty()) {
+            phone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+        }
+    }
+
+    private void normalizePhoneBeforeUpdate() {
+        if (phone != null && !phone.trim().isEmpty()) {
+            phone = PhoneNumberUtil.normalizePhoneNumber(phone, "353");
+        }
     }
 
     // Constructors

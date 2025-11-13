@@ -1,5 +1,6 @@
 package com.trim.booking.dto;
 
+import com.trim.booking.util.PhoneNumberUtil;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,7 +19,6 @@ public class GuestBookingRequest {
     private String email;
 
     @NotBlank(message = "Phone is required")
-    @Size(min = 10, max = 20, message = "Phone must be between 10-20 characters")
     private String phone;
 
     @NotNull(message = "Barber ID is required")
@@ -39,6 +39,20 @@ public class GuestBookingRequest {
 
     // Constructors
     public GuestBookingRequest() {
+    }
+
+    // Custom validation method for phone number
+    @AssertTrue(message = "Phone must be in valid international format")
+    public boolean isPhoneValid() {
+        if (phone == null || phone.trim().isEmpty()) {
+            return true; // Let @NotBlank handle null/empty
+        }
+        try {
+            PhoneNumberUtil.validateE164Format(PhoneNumberUtil.normalizePhoneNumber(phone, "353"));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // Getters and Setters
