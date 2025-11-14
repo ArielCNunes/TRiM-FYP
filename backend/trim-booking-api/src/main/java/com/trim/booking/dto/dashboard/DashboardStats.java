@@ -1,4 +1,4 @@
-package com.trim.booking.dto;
+package com.trim.booking.dto.dashboard;
 
 import java.math.BigDecimal;
 import java.util.List;

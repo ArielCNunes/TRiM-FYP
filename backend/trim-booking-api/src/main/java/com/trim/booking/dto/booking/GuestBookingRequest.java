@@ -1,4 +1,4 @@
-package com.trim.booking.dto;
+package com.trim.booking.dto.booking;
 
 import com.trim.booking.util.PhoneNumberUtil;
 import jakarta.validation.constraints.*;

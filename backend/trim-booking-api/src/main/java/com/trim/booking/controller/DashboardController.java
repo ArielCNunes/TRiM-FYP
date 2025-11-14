@@ -1,6 +1,6 @@
 package com.trim.booking.controller;
 
-import com.trim.booking.dto.DashboardStats;
+import com.trim.booking.dto.dashboard.DashboardStats;
 import com.trim.booking.service.dashboard.DashboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,6 +1,6 @@
 package com.trim.booking.service.user;
 
-import com.trim.booking.dto.RegisterRequest;
+import com.trim.booking.dto.auth.RegisterRequest;
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.InvalidPhoneNumberException;

@@ -1,6 +1,8 @@
 package com.trim.booking.controller;
 
-import com.trim.booking.dto.*;
+import com.trim.booking.dto.auth.*;
+import com.trim.booking.dto.booking.GuestBookingRequest;
+import com.trim.booking.dto.booking.GuestBookingResponse;
 import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.User;

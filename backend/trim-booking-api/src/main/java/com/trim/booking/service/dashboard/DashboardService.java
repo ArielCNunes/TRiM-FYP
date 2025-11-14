@@ -1,6 +1,6 @@
 package com.trim.booking.service.dashboard;
 
-import com.trim.booking.dto.DashboardStats;
+import com.trim.booking.dto.dashboard.DashboardStats;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.repository.BookingRepository;

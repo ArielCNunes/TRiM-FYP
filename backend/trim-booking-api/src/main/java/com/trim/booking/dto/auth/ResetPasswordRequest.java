@@ -1,4 +1,4 @@
-package com.trim.booking.dto;
+package com.trim.booking.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -2,8 +2,8 @@ package com.trim.booking.controller;
 
 import com.trim.booking.repository.BookingRepository;
 
-import com.trim.booking.dto.CreateBookingRequest;
-import com.trim.booking.dto.UpdateBookingRequest;
+import com.trim.booking.dto.booking.CreateBookingRequest;
+import com.trim.booking.dto.booking.UpdateBookingRequest;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.service.booking.BookingService;
 import jakarta.validation.Valid;

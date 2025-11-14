@@ -1,4 +1,4 @@
-package com.trim.booking.dto;
+package com.trim.booking.dto.barber;
 
 public class UpdateBarberRequest {
     private String bio;

@@ -1,4 +1,4 @@
-package com.trim.booking.dto;
+package com.trim.booking.dto.auth;
 
 /**
  * Generic response DTO for password reset operations.

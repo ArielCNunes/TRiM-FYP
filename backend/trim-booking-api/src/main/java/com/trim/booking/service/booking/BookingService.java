@@ -1,6 +1,6 @@
 package com.trim.booking.service.booking;
 
-import com.trim.booking.dto.UpdateBookingRequest;
+import com.trim.booking.dto.booking.UpdateBookingRequest;
 import com.trim.booking.entity.Booking;
 import org.springframework.stereotype.Service;
 

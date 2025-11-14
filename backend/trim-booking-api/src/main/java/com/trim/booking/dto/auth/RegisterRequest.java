@@ -1,4 +1,4 @@
-package com.trim.booking.dto;
+package com.trim.booking.dto.auth;
 
 import com.trim.booking.util.PhoneNumberUtil;
 import jakarta.validation.constraints.AssertTrue;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class CreateBarberRequest {
+public class RegisterRequest {
     @NotBlank(message = "First name is required")
     private String firstName;
 
@@ -17,19 +17,15 @@ public class CreateBarberRequest {
     @NotBlank(message = "Email is required")
     private String email;
 
-    @NotBlank(message = "Phone number is required")
-    private String phone;
-
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
-    private String bio;
-
-    private String profileImageUrl;
+    @NotBlank(message = "Phone number is required")
+    private String phone;
 
     // Constructors
-    public CreateBarberRequest() {
+    public RegisterRequest() {
     }
 
     // Custom validation method for phone number
@@ -77,14 +73,6 @@ public class CreateBarberRequest {
         this.email = email;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -93,19 +81,11 @@ public class CreateBarberRequest {
         this.password = password;
     }
 
-    public String getBio() {
-        return bio;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public String getProfileImageUrl() {
-        return profileImageUrl;
-    }
-
-    public void setProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }
