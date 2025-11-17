@@ -115,3 +115,30 @@
 
 #### Next Meeting Date
 **Scheduled:** Wednesday 12th of November at 10:10am.
+
+---
+
+### Meeting 5 - Wednesday 12th of November
+**Duration:** 10 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Update supervisor on project progress.
+
+#### Progress Demonstrated
+- Showed supervisor the current version of my FYP.
+
+#### Technical Discussion
+- Research will likely focus on multi-tenant database patterns.
+
+#### Supervisor Feedback
+- Have a set topic, we don't want to get stuck now.
+
+#### Decisions Made
+- Have a set research topic.
+
+#### Action Items for Next Meeting
+- Present research topic to supervisor.
+
+#### Next Meeting Date
+**Scheduled:** Wednesday 19th of November at 10:10am.
