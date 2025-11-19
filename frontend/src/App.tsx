@@ -1,13 +1,13 @@
-import { BrowserRouter } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import AppRoutes from './routes/AppRoutes';
+import { BrowserRouter } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import AppRoutes from "./routes/AppRoutes";
 
 /**
  * App Component
- * 
+ *
  * Root component of the application.
  * Sets up the application structure with routing and navigation.
- * 
+ *
  * Structure:
  * - BrowserRouter: Enables client-side routing
  * - Navbar: Persistent navigation bar across all pages
@@ -16,10 +16,10 @@ import AppRoutes from './routes/AppRoutes';
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-zinc-950">
         {/* Navigation bar - displayed on all pages */}
         <Navbar />
-        
+
         {/* Main application routes */}
         <AppRoutes />
       </div>

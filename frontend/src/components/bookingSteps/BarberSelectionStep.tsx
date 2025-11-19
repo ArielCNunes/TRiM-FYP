@@ -1,5 +1,5 @@
-import type { Barber } from '../../types';
-import { StatusBanner, StepNavigation } from '../BookingComponents';
+import type { Barber } from "../../types";
+import { StatusBanner, StepNavigation } from "../BookingComponents";
 
 /**
  * BarberSelectionStep Component
@@ -19,7 +19,7 @@ export function BarberSelectionStep({
   barbers: Barber[];
   selectedBarber: Barber | null;
   loading: boolean;
-  status: { type: 'success' | 'error'; message: string } | null;
+  status: { type: "success" | "error"; message: string } | null;
   selectedServiceName?: string;
   onSelect: (barber: Barber) => void;
   onContinue: () => void;
@@ -32,14 +32,14 @@ export function BarberSelectionStep({
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2">Select a Barber</h1>
-      <p className="text-gray-600 mb-8">
-        Service: <strong>{selectedServiceName}</strong>
+      <h1 className="text-3xl font-bold mb-2 text-white">Select a Barber</h1>
+      <p className="text-zinc-400 mb-8">
+        Service: <strong className="text-white">{selectedServiceName}</strong>
       </p>
       <StatusBanner status={status} />
 
       {barbers.length === 0 ? (
-        <p className="text-center text-gray-500">No barbers available</p>
+        <p className="text-center text-zinc-500">No barbers available</p>
       ) : (
         // Barber grid: clickable cards with profile image, name, bio, email
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -49,8 +49,8 @@ export function BarberSelectionStep({
               onClick={() => onSelect(barber)}
               className={`border rounded-lg p-6 cursor-pointer transition ${
                 selectedBarber?.id === barber.id
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-200 hover:shadow-lg'
+                  ? "border-indigo-500 bg-indigo-900/20"
+                  : "border-zinc-800 bg-zinc-900 hover:border-zinc-600"
               }`}
             >
               {/* Profile photo */}
@@ -61,11 +61,11 @@ export function BarberSelectionStep({
                   className="w-full h-40 object-cover rounded-lg mb-4"
                 />
               )}
-              <h3 className="text-xl font-bold mb-2">
+              <h3 className="text-xl font-bold mb-2 text-white">
                 {barber.user.firstName} {barber.user.lastName}
               </h3>
-              {barber.bio && <p className="text-gray-600 mb-4">{barber.bio}</p>}
-              <p className="text-sm text-gray-500">{barber.user.email}</p>
+              {barber.bio && <p className="text-zinc-400 mb-4">{barber.bio}</p>}
+              <p className="text-sm text-zinc-500">{barber.user.email}</p>
             </div>
           ))}
         </div>

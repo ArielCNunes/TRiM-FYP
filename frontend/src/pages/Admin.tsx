@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useAppSelector } from "../store/hooks";
 import { useNavigate } from "react-router-dom";
-import AdminTabNavigation, { type AdminTab } from "../components/admin/AdminTabNavigation";
+import AdminTabNavigation, {
+  type AdminTab,
+} from "../components/admin/AdminTabNavigation";
 import AdminDashboard from "../components/admin/dashboard/AdminDashboard";
 import ServicesManager from "../components/admin/services/ServicesManager";
 import BarbersManager from "../components/admin/barbers/BarbersManager";
@@ -36,9 +38,9 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-zinc-950">
       <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
+        <h1 className="text-4xl font-bold mb-8 text-white">Admin Dashboard</h1>
 
         <AdminTabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 

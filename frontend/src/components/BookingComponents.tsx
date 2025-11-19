@@ -3,15 +3,19 @@
  * Displays inline success or error status messages (green/red background)
  * Returns null if no status to avoid empty DOM elements
  */
-export function StatusBanner({ status }: { status: { type: 'success' | 'error'; message: string } | null }) {
+export function StatusBanner({
+  status,
+}: {
+  status: { type: "success" | "error"; message: string } | null;
+}) {
   if (!status) return null;
 
   return (
     <div
       className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
-        status.type === 'success'
-          ? 'border-green-200 bg-green-50 text-green-700'
-          : 'border-red-200 bg-red-50 text-red-700'
+        status.type === "success"
+          ? "border-emerald-800 bg-emerald-900/20 text-emerald-300"
+          : "border-red-800 bg-red-900/20 text-red-300"
       }`}
     >
       {status.message}
@@ -27,7 +31,7 @@ export function StatusBanner({ status }: { status: { type: 'success' | 'error'; 
 export function StepNavigation({
   onBack,
   onContinue,
-  continueLabel = 'Continue',
+  continueLabel = "Continue",
   showContinue = true,
   loading = false,
 }: {
@@ -41,7 +45,7 @@ export function StepNavigation({
     <div className="mt-8 flex gap-4">
       <button
         onClick={onBack}
-        className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+        className="px-6 py-2 border border-zinc-700 rounded-md hover:bg-zinc-800 text-zinc-300"
       >
         Back
       </button>
@@ -49,7 +53,7 @@ export function StepNavigation({
         <button
           onClick={onContinue}
           disabled={loading}
-          className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+          className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 shadow-lg shadow-indigo-500/20"
         >
           {continueLabel}
         </button>

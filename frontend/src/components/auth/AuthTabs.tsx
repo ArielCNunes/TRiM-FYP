@@ -16,13 +16,13 @@ export function AuthTabs() {
   return (
     <div className="space-y-6">
       {/* Tab switcher */}
-      <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+      <div className="flex gap-2 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
         <button
           onClick={() => setActiveTab("login")}
           className={`flex-1 py-2 px-4 rounded-md font-medium transition ${
             activeTab === "login"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-zinc-800 text-white shadow-sm"
+              : "text-zinc-400 hover:text-zinc-200"
           }`}
         >
           Log In
@@ -31,8 +31,8 @@ export function AuthTabs() {
           onClick={() => setActiveTab("signup")}
           className={`flex-1 py-2 px-4 rounded-md font-medium transition ${
             activeTab === "signup"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-zinc-800 text-white shadow-sm"
+              : "text-zinc-400 hover:text-zinc-200"
           }`}
         >
           Sign Up
@@ -40,7 +40,7 @@ export function AuthTabs() {
       </div>
 
       {/* Forms */}
-      <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
+      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg shadow-xl shadow-black/20">
         {activeTab === "login" && <LoginForm />}
         {activeTab === "signup" && <SignupForm />}
       </div>

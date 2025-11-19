@@ -97,13 +97,13 @@ export function CustomerInfoStep({
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Your Information</h1>
+      <h1 className="text-3xl font-bold mb-8 text-white">Your Information</h1>
       <StatusBanner status={status} />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* First Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
             First Name *
           </label>
           <input
@@ -111,19 +111,19 @@ export function CustomerInfoStep({
             value={formData.firstName}
             onChange={(e) => handleChange("firstName", e.target.value)}
             disabled={isPreFilled || submitting}
-            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.firstName ? "border-red-500" : "border-gray-300"
-            } ${isPreFilled ? "bg-gray-50" : ""}`}
+            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-zinc-900 text-white placeholder-zinc-500 ${
+              errors.firstName ? "border-red-400" : "border-zinc-700"
+            } ${isPreFilled ? "bg-zinc-800 text-zinc-500" : ""}`}
             placeholder="John"
           />
           {errors.firstName && (
-            <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+            <p className="text-red-400 text-sm mt-1">{errors.firstName}</p>
           )}
         </div>
 
         {/* Last Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
             Last Name *
           </label>
           <input
@@ -131,19 +131,19 @@ export function CustomerInfoStep({
             value={formData.lastName}
             onChange={(e) => handleChange("lastName", e.target.value)}
             disabled={isPreFilled || submitting}
-            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.lastName ? "border-red-500" : "border-gray-300"
-            } ${isPreFilled ? "bg-gray-50" : ""}`}
+            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-zinc-900 text-white placeholder-zinc-500 ${
+              errors.lastName ? "border-red-400" : "border-zinc-700"
+            } ${isPreFilled ? "bg-zinc-800 text-zinc-500" : ""}`}
             placeholder="Doe"
           />
           {errors.lastName && (
-            <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+            <p className="text-red-400 text-sm mt-1">{errors.lastName}</p>
           )}
         </div>
 
         {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
             Email *
           </label>
           <input
@@ -151,13 +151,13 @@ export function CustomerInfoStep({
             value={formData.email}
             onChange={(e) => handleChange("email", e.target.value)}
             disabled={isPreFilled || submitting}
-            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            } ${isPreFilled ? "bg-gray-50" : ""}`}
+            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-zinc-900 text-white placeholder-zinc-500 ${
+              errors.email ? "border-red-400" : "border-zinc-700"
+            } ${isPreFilled ? "bg-zinc-800 text-zinc-500" : ""}`}
             placeholder="john@example.com"
           />
           {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            <p className="text-red-400 text-sm mt-1">{errors.email}</p>
           )}
         </div>
 
@@ -173,8 +173,8 @@ export function CustomerInfoStep({
 
         {/* Info Banner for Pre-filled Users */}
         {isPreFilled && (
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <p className="text-sm text-blue-700">
+          <div className="bg-indigo-900/20 border border-indigo-800 rounded-md p-4">
+            <p className="text-sm text-indigo-300">
               Your information is pre-filled from your account. You cannot edit
               it here.
             </p>
@@ -187,14 +187,14 @@ export function CustomerInfoStep({
             type="button"
             onClick={onBack}
             disabled={submitting}
-            className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+            className="px-6 py-2 border border-zinc-700 rounded-md hover:bg-zinc-800 text-zinc-300 disabled:opacity-50"
           >
             Back
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="flex-1 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
           >
             {submitting ? (
               <>

@@ -96,7 +96,7 @@ export default function BarberBookingsManager({
         <div className="flex items-center gap-2">
           <label
             htmlFor="booking-filter"
-            className="text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-zinc-300"
           >
             Show:
           </label>
@@ -108,14 +108,14 @@ export default function BarberBookingsManager({
                 e.target.value as "active" | "completed" | "cancelled"
               )
             }
-            className="px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="px-3 py-2 border border-zinc-700 rounded-md bg-zinc-900 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="active">Active Bookings</option>
             <option value="completed">Completed Bookings</option>
             <option value="cancelled">Cancelled/No-Show</option>
           </select>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-zinc-500">
           {filteredBookings.length}{" "}
           {filteredBookings.length === 1 ? "booking" : "bookings"}
         </div>
@@ -123,7 +123,7 @@ export default function BarberBookingsManager({
 
       {/* Bookings List */}
       {filteredBookings.length === 0 ? (
-        <p className="text-center text-gray-500 py-8">
+        <p className="text-center text-zinc-500 py-8">
           {filterView === "active" &&
             "No active bookings found. Bookings will appear here once customers make appointments."}
           {filterView === "completed" && "No completed bookings found."}
@@ -135,14 +135,14 @@ export default function BarberBookingsManager({
           {filteredBookings.map((booking) => (
             <div
               key={booking.id}
-              className="p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+              className="p-4 border border-zinc-700 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
             >
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-white">
                     {booking.service.name}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-zinc-400">
                     with {booking.customer.firstName}{" "}
                     {booking.customer.lastName}
                   </p>
@@ -151,31 +151,31 @@ export default function BarberBookingsManager({
               </div>
 
               <div className="space-y-1 mb-3">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-zinc-400">
                   {new Date(booking.bookingDate).toLocaleDateString()} at{" "}
                   {booking.startTime}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-zinc-400">
                   Duration: {booking.service.durationMinutes} min
                 </p>
               </div>
 
               {/* Payment Information */}
-              <div className="pt-3 border-t border-gray-300">
+              <div className="pt-3 border-t border-zinc-600">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase font-semibold">
+                    <p className="text-xs text-zinc-500 uppercase font-semibold">
                       Payment Status
                     </p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-white">
                       {formatPaymentStatus(booking.paymentStatus)}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-500 uppercase font-semibold">
+                    <p className="text-xs text-zinc-500 uppercase font-semibold">
                       Total Price
                     </p>
-                    <p className="text-lg font-bold text-blue-600">
+                    <p className="text-lg font-bold text-indigo-400">
                       €{booking.service.price.toFixed(2)}
                     </p>
                   </div>
@@ -186,14 +186,14 @@ export default function BarberBookingsManager({
                   booking.status === "CONFIRMED") &&
                   booking.outstandingBalance !== undefined &&
                   booking.outstandingBalance > 0 && (
-                    <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
+                    <div className="mt-3 p-3 bg-orange-900/20 border border-orange-800 rounded-md">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="text-xs text-orange-700 font-semibold">
+                          <p className="text-xs text-orange-300 font-semibold">
                             OUTSTANDING BALANCE
                           </p>
                         </div>
-                        <p className="text-xl font-bold text-orange-600">
+                        <p className="text-xl font-bold text-orange-400">
                           €{booking.outstandingBalance.toFixed(2)}
                         </p>
                       </div>
@@ -206,8 +206,8 @@ export default function BarberBookingsManager({
                   (booking.outstandingBalance === undefined ||
                     booking.outstandingBalance === 0) &&
                   booking.paymentStatus === "FULLY_PAID" && (
-                    <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-md text-center">
-                      <p className="text-sm font-medium text-green-700">
+                    <div className="mt-3 p-2 bg-emerald-900/20 border border-emerald-800 rounded-md text-center">
+                      <p className="text-sm font-medium text-emerald-300">
                         Paid in Full
                       </p>
                     </div>
@@ -217,7 +217,7 @@ export default function BarberBookingsManager({
               {/* Action Buttons - Only show for active bookings */}
               {(booking.status === "PENDING" ||
                 booking.status === "CONFIRMED") && (
-                <div className="mt-4 pt-4 border-t border-gray-300">
+                <div className="mt-4 pt-4 border-t border-zinc-600">
                   <div className="grid grid-cols-2 gap-3">
                     <BookingActionButton
                       bookingId={booking.id}

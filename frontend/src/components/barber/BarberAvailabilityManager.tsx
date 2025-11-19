@@ -159,25 +159,25 @@ export default function BarberAvailabilityManager({
           key={day}
           className={`border rounded-lg transition-all ${
             availability[day].enabled
-              ? "border-blue-200 bg-blue-50"
-              : "border-gray-200 bg-gray-50"
+              ? "border-indigo-800 bg-indigo-900/20"
+              : "border-zinc-700 bg-zinc-800"
           }`}
         >
           {/* Day header with toggle */}
-          <div className="flex items-center justify-between p-3 border-b border-gray-200">
+          <div className="flex items-center justify-between p-3 border-b border-zinc-700">
             <label className="flex items-center gap-3 cursor-pointer flex-1">
               <input
                 type="checkbox"
                 checked={availability[day].enabled}
                 onChange={() => handleToggle(day)}
-                className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="w-5 h-5 rounded border-zinc-600 text-indigo-600 focus:ring-indigo-500 bg-zinc-900"
               />
-              <span className="font-semibold text-gray-900 capitalize text-lg">
+              <span className="font-semibold text-white capitalize text-lg">
                 {day}
               </span>
             </label>
             {!availability[day].enabled && (
-              <span className="text-sm text-gray-500 italic">Day off</span>
+              <span className="text-sm text-zinc-500 italic">Day off</span>
             )}
           </div>
 
@@ -186,7 +186,7 @@ export default function BarberAvailabilityManager({
             <div className="p-4">
               <div className="flex items-center gap-4">
                 <div className="flex-1">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                  <label className="block text-xs font-medium text-zinc-400 mb-1">
                     Start Time
                   </label>
                   <select
@@ -194,7 +194,7 @@ export default function BarberAvailabilityManager({
                     onChange={(e) =>
                       handleTimeChange(day, "start", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-zinc-600 rounded-md bg-zinc-900 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   >
                     {timeOptions.map((time) => (
                       <option key={time.value} value={time.value}>
@@ -204,10 +204,10 @@ export default function BarberAvailabilityManager({
                   </select>
                 </div>
 
-                <div className="text-gray-400 pt-6">→</div>
+                <div className="text-zinc-500 pt-6">→</div>
 
                 <div className="flex-1">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                  <label className="block text-xs font-medium text-zinc-400 mb-1">
                     End Time
                   </label>
                   <select
@@ -215,7 +215,7 @@ export default function BarberAvailabilityManager({
                     onChange={(e) =>
                       handleTimeChange(day, "end", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-zinc-600 rounded-md bg-zinc-900 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   >
                     {timeOptions.map((time) => (
                       <option key={time.value} value={time.value}>
@@ -233,7 +233,7 @@ export default function BarberAvailabilityManager({
       <button
         onClick={handleSave}
         disabled={loading}
-        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-md transition mt-4"
+        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-700 text-white font-semibold py-3 rounded-md transition mt-4 shadow-lg shadow-indigo-500/20"
       >
         {loading ? "Saving..." : "Save Availability"}
       </button>

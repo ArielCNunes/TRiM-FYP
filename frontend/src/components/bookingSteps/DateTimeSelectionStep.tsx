@@ -1,4 +1,4 @@
-import { StatusBanner, StepNavigation } from '../BookingComponents';
+import { StatusBanner, StepNavigation } from "../BookingComponents";
 
 /**
  * DateTimeSelectionStep Component
@@ -22,7 +22,7 @@ export function DateTimeSelectionStep({
   availableSlots: string[];
   selectedTime: string;
   loading: boolean;
-  status: { type: 'success' | 'error'; message: string } | null;
+  status: { type: "success" | "error"; message: string } | null;
   selectedBarberName?: string;
   minDate: string;
   onDateChange: (date: string) => void;
@@ -32,33 +32,37 @@ export function DateTimeSelectionStep({
 }) {
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2">Select Date & Time</h1>
-      <p className="text-gray-600 mb-8">
-        Barber: <strong>{selectedBarberName}</strong>
+      <h1 className="text-3xl font-bold mb-2 text-white">Select Date & Time</h1>
+      <p className="text-zinc-400 mb-8">
+        Barber: <strong className="text-white">{selectedBarberName}</strong>
       </p>
       <StatusBanner status={status} />
 
       <div className="space-y-6">
         {/* Date picker: constrained to future dates (minDate = tomorrow) */}
         <div>
-          <label className="block text-lg font-semibold mb-2">Date</label>
+          <label className="block text-lg font-semibold mb-2 text-zinc-300">
+            Date
+          </label>
           <input
             type="date"
             min={minDate}
             value={selectedDate}
             onChange={(e) => onDateChange(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg p-3"
+            className="w-full border border-zinc-700 rounded-lg p-3 bg-zinc-900 text-white focus:border-indigo-500 focus:outline-none"
           />
         </div>
 
         {/* Time slots: appears only after date selection, shows loading or available times */}
         {selectedDate && (
           <div>
-            <label className="block text-lg font-semibold mb-2">Available Times</label>
+            <label className="block text-lg font-semibold mb-2 text-zinc-300">
+              Available Times
+            </label>
             {loading ? (
-              <p className="text-gray-500">Loading available slots...</p>
+              <p className="text-zinc-500">Loading available slots...</p>
             ) : availableSlots.length === 0 ? (
-              <p className="text-gray-500">No available slots for this date</p>
+              <p className="text-zinc-500">No available slots for this date</p>
             ) : (
               // Time slot buttons: selectable grid with highlight for selected time
               <div className="grid grid-cols-4 gap-2">
@@ -68,8 +72,8 @@ export function DateTimeSelectionStep({
                     onClick={() => onTimeSelect(slot)}
                     className={`border rounded-lg p-3 text-center font-semibold transition ${
                       selectedTime === slot
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'border-gray-300 hover:border-blue-600'
+                        ? "bg-indigo-600 text-white border-indigo-600"
+                        : "bg-zinc-900 text-zinc-300 border-zinc-700 hover:border-indigo-500 hover:text-white"
                     }`}
                   >
                     {slot}

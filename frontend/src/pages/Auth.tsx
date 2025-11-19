@@ -8,13 +8,15 @@ import { AuthTabs } from "../components/auth";
  */
 export default function Auth() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-zinc-950">
       <div className="max-w-md mx-auto px-4 py-12">
         {/* Logo and heading */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">TRiM</h1>
-          <p className="text-gray-600 mb-2">Book your haircut with us!</p>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
+            TRiM
+          </h1>
+          <p className="text-zinc-400 mb-2">Book your haircut with us!</p>
+          <p className="text-sm text-zinc-500">
             Log in to manage your bookings and view appointment history
           </p>
         </div>

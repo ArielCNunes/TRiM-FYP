@@ -44,16 +44,18 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
   };
 
   return (
-    <div className="mb-8 p-6 bg-white rounded-lg shadow">
-      <h3 className="text-xl font-bold mb-4">Create New Barber</h3>
+    <div className="mb-8 p-6 bg-zinc-900 rounded-lg shadow border border-zinc-800">
+      <h3 className="text-xl font-bold mb-4 text-white">Create New Barber</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">First Name</label>
+            <label className="block text-sm font-medium mb-1 text-zinc-300">
+              First Name
+            </label>
             <input
               type="text"
               required
-              className="w-full border rounded-md p-2"
+              className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={formData.firstName}
               onChange={(e) =>
                 setFormData({ ...formData, firstName: e.target.value })
@@ -62,11 +64,13 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Last Name</label>
+            <label className="block text-sm font-medium mb-1 text-zinc-300">
+              Last Name
+            </label>
             <input
               type="text"
               required
-              className="w-full border rounded-md p-2"
+              className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={formData.lastName}
               onChange={(e) =>
                 setFormData({ ...formData, lastName: e.target.value })
@@ -76,11 +80,13 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
+          <label className="block text-sm font-medium mb-1 text-zinc-300">
+            Email
+          </label>
           <input
             type="email"
             required
-            className="w-full border rounded-md p-2"
+            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             value={formData.email}
             onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })
@@ -98,12 +104,14 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
         />
 
         <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
+          <label className="block text-sm font-medium mb-1 text-zinc-300">
+            Password
+          </label>
           <input
             type="password"
             required
             minLength={8}
-            className="w-full border rounded-md p-2"
+            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             value={formData.password}
             onChange={(e) =>
               setFormData({ ...formData, password: e.target.value })
@@ -113,9 +121,11 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Bio</label>
+          <label className="block text-sm font-medium mb-1 text-zinc-300">
+            Bio
+          </label>
           <textarea
-            className="w-full border rounded-md p-2"
+            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             rows={3}
             value={formData.bio}
             onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
@@ -126,14 +136,14 @@ export default function BarberForm({ onSuccess, onCancel }: BarberFormProps) {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+            className="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 transition"
           >
             {loading ? "Creating..." : "Create Barber"}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 bg-gray-200 text-gray-700 py-2 rounded-md hover:bg-gray-300"
+            className="px-6 bg-zinc-800 text-zinc-300 py-2 rounded-md hover:bg-zinc-700 transition border border-zinc-700"
           >
             Cancel
           </button>

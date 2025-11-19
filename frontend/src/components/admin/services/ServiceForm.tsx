@@ -39,7 +39,8 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
       });
       onSuccess();
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to create service";
+      const message =
+        error.response?.data?.message || "Failed to create service";
       throw new Error(message);
     } finally {
       setLoading(false);
@@ -47,31 +48,29 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
   };
 
   return (
-    <div className="mb-8 p-6 bg-white rounded-lg shadow">
-      <h3 className="text-xl font-bold mb-4">Create New Service</h3>
+    <div className="mb-8 p-6 bg-zinc-900 rounded-lg shadow border border-zinc-800">
+      <h3 className="text-xl font-bold mb-4 text-white">Create New Service</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm font-medium mb-1 text-zinc-300">
             Service Name
           </label>
           <input
             type="text"
             required
-            className="w-full border rounded-md p-2"
+            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             value={formData.name}
-            onChange={(e) =>
-              setFormData({ ...formData, name: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm font-medium mb-1 text-zinc-300">
             Description
           </label>
           <textarea
             required
-            className="w-full border rounded-md p-2"
+            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             rows={3}
             value={formData.description}
             onChange={(e) =>
@@ -82,7 +81,7 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-medium mb-1 text-zinc-300">
               Duration (minutes)
             </label>
             <input
@@ -90,7 +89,7 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
               required
               min="15"
               step="15"
-              className="w-full border rounded-md p-2"
+              className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={formData.durationMinutes}
               onChange={(e) =>
                 setFormData({
@@ -102,7 +101,7 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-medium mb-1 text-zinc-300">
               Price (€)
             </label>
             <input
@@ -110,7 +109,7 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
               required
               min="0"
               step="0.01"
-              className="w-full border rounded-md p-2"
+              className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={formData.price}
               onChange={(e) =>
                 setFormData({
@@ -123,7 +122,7 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm font-medium mb-1 text-zinc-300">
             Deposit Percentage (%)
           </label>
           <input
@@ -132,7 +131,7 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
             min="0"
             max="100"
             step="1"
-            className="w-full border rounded-md p-2"
+            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             value={formData.depositPercentage}
             onChange={(e) =>
               setFormData({
@@ -141,7 +140,7 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
               })
             }
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-zinc-500 mt-1">
             Percentage of the total price required as deposit (0-100%)
           </p>
         </div>
@@ -150,14 +149,14 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+            className="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 transition"
           >
             {loading ? "Creating..." : "Create Service"}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 bg-gray-200 text-gray-700 py-2 rounded-md hover:bg-gray-300"
+            className="px-6 bg-zinc-800 text-zinc-300 py-2 rounded-md hover:bg-zinc-700 transition border border-zinc-700"
           >
             Cancel
           </button>

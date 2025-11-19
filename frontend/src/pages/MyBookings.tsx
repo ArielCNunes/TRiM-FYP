@@ -144,8 +144,8 @@ export default function MyBookings() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* Page header */}
-      <h1 className="text-4xl font-bold mb-2">My Bookings</h1>
-      <p className="text-gray-600 mb-8">
+      <h1 className="text-4xl font-bold mb-2 text-white">My Bookings</h1>
+      <p className="text-zinc-400 mb-8">
         Your upcoming appointments, sorted by date
       </p>
 
@@ -153,8 +153,8 @@ export default function MyBookings() {
         <div
           className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
             status.type === "success"
-              ? "border-green-200 bg-green-50 text-green-700"
-              : "border-red-200 bg-red-50 text-red-700"
+              ? "border-emerald-800 bg-emerald-900/20 text-emerald-300"
+              : "border-red-800 bg-red-900/20 text-red-300"
           }`}
         >
           {status.message}
@@ -164,15 +164,15 @@ export default function MyBookings() {
       {loading ? (
         /* Loading state */
         <div className="text-center py-12">
-          <p className="text-gray-600">Loading your bookings...</p>
+          <p className="text-zinc-400">Loading your bookings...</p>
         </div>
       ) : bookings.length === 0 ? (
         /* Empty state encouraging user to create a booking */
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-600 mb-4">You have no upcoming bookings</p>
+        <div className="text-center py-12 bg-zinc-900 rounded-lg border border-zinc-800">
+          <p className="text-zinc-400 mb-4">You have no upcoming bookings</p>
           <button
             onClick={() => navigate("/booking")}
-            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+            className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500 shadow-lg shadow-indigo-500/20"
           >
             Book Now
           </button>
@@ -183,16 +183,16 @@ export default function MyBookings() {
           {bookings.map((booking) => (
             <div
               key={booking.id}
-              className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
+              className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm hover:border-zinc-700 transition overflow-hidden"
             >
               {/* Header section with date - most important info */}
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-blue-200">
+              <div className="bg-gradient-to-r from-indigo-900/40 to-indigo-900/20 px-6 py-4 border-b border-indigo-900/30">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-blue-600 font-medium mb-1">
+                    <p className="text-sm text-indigo-400 font-medium mb-1">
                       Appointment Date
                     </p>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-white">
                       {new Date(booking.bookingDate).toLocaleDateString(
                         "en-US",
                         {
@@ -203,7 +203,7 @@ export default function MyBookings() {
                         }
                       )}
                     </p>
-                    <p className="text-lg font-semibold text-gray-700 mt-1">
+                    <p className="text-lg font-semibold text-zinc-300 mt-1">
                       {booking.startTime.substring(0, 5)}
                     </p>
                   </div>
@@ -222,23 +222,23 @@ export default function MyBookings() {
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                   {/* Service */}
                   <div>
-                    <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                    <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                       Service
                     </p>
-                    <p className="text-lg font-semibold text-gray-900">
+                    <p className="text-lg font-semibold text-white">
                       {booking.service.name}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-zinc-400 mt-1">
                       {booking.service.durationMinutes} minutes
                     </p>
                   </div>
 
                   {/* Barber */}
                   <div>
-                    <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                    <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                       Barber
                     </p>
-                    <p className="text-lg font-semibold text-gray-900">
+                    <p className="text-lg font-semibold text-white">
                       {booking.barber.user.firstName}{" "}
                       {booking.barber.user.lastName}
                     </p>
@@ -246,24 +246,24 @@ export default function MyBookings() {
 
                   {/* Total Price */}
                   <div>
-                    <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                    <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                       Total Price
                     </p>
-                    <p className="text-2xl font-bold text-blue-600">
+                    <p className="text-2xl font-bold text-indigo-400">
                       €{booking.service.price.toFixed(2)}
                     </p>
                   </div>
 
                   {/* Payment Status */}
                   <div>
-                    <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                    <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                       Payment Status
                     </p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-white">
                       {formatPaymentStatus(booking.paymentStatus)}
                     </p>
                     {booking.depositAmount !== undefined && (
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-zinc-400 mt-1">
                         Deposit: €{booking.depositAmount.toFixed(2)}
                       </p>
                     )}
@@ -273,13 +273,13 @@ export default function MyBookings() {
                   {booking.outstandingBalance !== undefined &&
                     booking.outstandingBalance > 0 && (
                       <div>
-                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                           Outstanding
                         </p>
-                        <p className="text-2xl font-bold text-orange-600">
+                        <p className="text-2xl font-bold text-orange-400">
                           €{booking.outstandingBalance.toFixed(2)}
                         </p>
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="text-xs text-zinc-400 mt-1">
                           Pay at shop
                         </p>
                       </div>
@@ -289,10 +289,10 @@ export default function MyBookings() {
                   {(booking.outstandingBalance === undefined ||
                     booking.outstandingBalance === 0) && (
                     <div>
-                      <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                      <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                         Balance
                       </p>
-                      <p className="text-lg font-medium text-green-600">
+                      <p className="text-lg font-medium text-emerald-400">
                         Paid in Full
                       </p>
                     </div>
@@ -301,18 +301,18 @@ export default function MyBookings() {
               </div>
 
               {/* Action footer */}
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+              <div className="px-6 py-4 bg-zinc-900/50 border-t border-zinc-800 flex justify-end gap-3">
                 <button
                   onClick={() => handleReschedule(booking)}
                   disabled={cancelling === booking.id}
-                  className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition"
+                  className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 transition shadow-lg shadow-indigo-500/20"
                 >
                   Reschedule
                 </button>
                 <button
                   onClick={() => handleCancel(booking.id)}
                   disabled={cancelling === booking.id}
-                  className="px-6 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 disabled:bg-gray-400 transition"
+                  className="px-6 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-500 disabled:bg-zinc-700 transition shadow-lg shadow-red-500/20"
                 >
                   {cancelling === booking.id
                     ? "Cancelling..."
@@ -329,7 +329,7 @@ export default function MyBookings() {
         <div className="mt-12">
           <button
             onClick={() => setShowPastBookings(!showPastBookings)}
-            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition flex items-center justify-between"
+            className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold py-3 px-6 rounded-lg transition flex items-center justify-between border border-zinc-700"
           >
             <span className="text-lg">
               Past Bookings ({pastBookings.length})
@@ -356,16 +356,16 @@ export default function MyBookings() {
               {pastBookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="bg-gray-50 border border-gray-300 rounded-lg shadow-sm overflow-hidden opacity-75"
+                  className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm overflow-hidden opacity-75"
                 >
                   {/* Header section with date */}
-                  <div className="bg-gradient-to-r from-gray-100 to-gray-200 px-6 py-4 border-b border-gray-300">
+                  <div className="bg-gradient-to-r from-zinc-800 to-zinc-900 px-6 py-4 border-b border-zinc-800">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600 font-medium mb-1">
+                        <p className="text-sm text-zinc-400 font-medium mb-1">
                           Appointment Date
                         </p>
-                        <p className="text-2xl font-bold text-gray-700">
+                        <p className="text-2xl font-bold text-zinc-300">
                           {new Date(booking.bookingDate).toLocaleDateString(
                             "en-US",
                             {
@@ -376,7 +376,7 @@ export default function MyBookings() {
                             }
                           )}
                         </p>
-                        <p className="text-lg font-semibold text-gray-600 mt-1">
+                        <p className="text-lg font-semibold text-zinc-400 mt-1">
                           {booking.startTime.substring(0, 5)}
                         </p>
                       </div>
@@ -395,23 +395,23 @@ export default function MyBookings() {
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                       {/* Service */}
                       <div>
-                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                           Service
                         </p>
-                        <p className="text-lg font-semibold text-gray-700">
+                        <p className="text-lg font-semibold text-zinc-300">
                           {booking.service.name}
                         </p>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-zinc-400 mt-1">
                           {booking.service.durationMinutes} minutes
                         </p>
                       </div>
 
                       {/* Barber */}
                       <div>
-                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                           Barber
                         </p>
-                        <p className="text-lg font-semibold text-gray-700">
+                        <p className="text-lg font-semibold text-zinc-300">
                           {booking.barber.user.firstName}{" "}
                           {booking.barber.user.lastName}
                         </p>
@@ -419,24 +419,24 @@ export default function MyBookings() {
 
                       {/* Total Price */}
                       <div>
-                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                           Total Price
                         </p>
-                        <p className="text-2xl font-bold text-gray-600">
+                        <p className="text-2xl font-bold text-zinc-400">
                           €{booking.service.price.toFixed(2)}
                         </p>
                       </div>
 
                       {/* Payment Status */}
                       <div>
-                        <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                           Payment Status
                         </p>
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className="text-sm font-medium text-zinc-300">
                           {formatPaymentStatus(booking.paymentStatus)}
                         </p>
                         {booking.depositAmount !== undefined && (
-                          <p className="text-xs text-gray-600 mt-1">
+                          <p className="text-xs text-zinc-400 mt-1">
                             Deposit: €{booking.depositAmount.toFixed(2)}
                           </p>
                         )}
@@ -446,13 +446,13 @@ export default function MyBookings() {
                       {booking.outstandingBalance !== undefined &&
                         booking.outstandingBalance > 0 && (
                           <div>
-                            <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                            <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                               Outstanding
                             </p>
-                            <p className="text-2xl font-bold text-orange-600">
+                            <p className="text-2xl font-bold text-orange-400/70">
                               €{booking.outstandingBalance.toFixed(2)}
                             </p>
-                            <p className="text-xs text-gray-600 mt-1">Unpaid</p>
+                            <p className="text-xs text-zinc-400 mt-1">Unpaid</p>
                           </div>
                         )}
 
@@ -460,10 +460,10 @@ export default function MyBookings() {
                       {(booking.outstandingBalance === undefined ||
                         booking.outstandingBalance === 0) && (
                         <div>
-                          <p className="text-xs uppercase text-gray-500 font-semibold mb-2">
+                          <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                             Balance
                           </p>
-                          <p className="text-lg font-medium text-green-600">
+                          <p className="text-lg font-medium text-emerald-400/70">
                             {booking.status === "COMPLETED"
                               ? "Paid in Full"
                               : "N/A"}

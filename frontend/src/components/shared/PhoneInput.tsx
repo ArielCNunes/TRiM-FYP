@@ -58,12 +58,12 @@ export function PhoneInput({
   return (
     <div>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-zinc-300 mb-2">
           {label} {required && "*"}
         </label>
       )}
       <div className="flex">
-        <span className="flex items-center px-3 py-2 border border-r-0 border-gray-300 rounded-l-md bg-gray-50 text-gray-700 font-medium">
+        <span className="flex items-center px-3 py-2 border border-r-0 border-zinc-700 rounded-l-md bg-zinc-800 text-zinc-300 font-medium">
           +353
         </span>
         <input
@@ -71,13 +71,13 @@ export function PhoneInput({
           value={localNumber}
           onChange={handleLocalNumberChange}
           disabled={disabled}
-          className={`flex-1 px-4 py-2 border rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            error ? "border-red-500" : "border-gray-300"
-          } ${disabled ? "bg-gray-50" : ""}`}
+          className={`flex-1 px-4 py-2 border rounded-r-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-zinc-900 text-white placeholder-zinc-500 ${
+            error ? "border-red-400" : "border-zinc-700"
+          } ${disabled ? "bg-zinc-800 text-zinc-500" : ""}`}
           placeholder="87 123 4567"
         />
       </div>
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
     </div>
   );
 }

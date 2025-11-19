@@ -62,20 +62,24 @@ export function SaveAccountDecisionStep({
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">🎉 Booking Confirmed!</h1>
+      <h1 className="text-3xl font-bold mb-8 text-white">
+        🎉 Booking Confirmed!
+      </h1>
       <StatusBanner status={status} />
 
       {/* Confirmation Message */}
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
-        <p className="text-green-800 font-medium">
+      <div className="bg-emerald-900/20 border border-emerald-800 rounded-lg p-6 mb-8">
+        <p className="text-emerald-300 font-medium">
           Your booking has been confirmed! A confirmation email has been sent to{" "}
           <span className="font-bold">{customerEmail}</span>
         </p>
       </div>
 
       {/* Save Account Decision */}
-      <div className="border border-gray-200 rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-bold mb-6">Save Your Account?</h2>
+      <div className="border border-zinc-800 rounded-lg p-6 mb-8 bg-zinc-900">
+        <h2 className="text-xl font-bold mb-6 text-white">
+          Save Your Account?
+        </h2>
 
         {/* Option 1: Save Account */}
         <div className="mb-6">
@@ -90,9 +94,10 @@ export function SaveAccountDecisionStep({
               disabled={submitting}
             />
             <div className="flex-1">
-              <p className="font-medium text-gray-800">Save My Account</p>
-              <p className="text-sm text-gray-600">
-                Create a password to save your account. You can use it to log in and view your bookings anytime.
+              <p className="font-medium text-white">Save My Account</p>
+              <p className="text-sm text-zinc-400">
+                Create a password to save your account. You can use it to log in
+                and view your bookings anytime.
               </p>
             </div>
           </label>
@@ -100,10 +105,13 @@ export function SaveAccountDecisionStep({
 
         {/* Password Fields - Show Only if "Save" Selected */}
         {selectedOption === "save" && (
-          <form onSubmit={handleSaveAccount} className="bg-gray-50 rounded-lg p-4 mb-6 space-y-4">
+          <form
+            onSubmit={handleSaveAccount}
+            className="bg-zinc-800/50 rounded-lg p-4 mb-6 space-y-4 border border-zinc-700"
+          >
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
                 Password *
               </label>
               <input
@@ -112,7 +120,7 @@ export function SaveAccountDecisionStep({
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (errors.password) {
-                    setErrors(prev => {
+                    setErrors((prev) => {
                       const newErrors = { ...prev };
                       delete newErrors.password;
                       return newErrors;
@@ -120,19 +128,19 @@ export function SaveAccountDecisionStep({
                   }
                 }}
                 disabled={submitting}
-                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.password ? "border-red-500" : "border-gray-300"
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-zinc-900 text-white placeholder-zinc-500 ${
+                  errors.password ? "border-red-400" : "border-zinc-700"
                 }`}
                 placeholder="Min. 8 characters"
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                <p className="text-red-400 text-sm mt-1">{errors.password}</p>
               )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
                 Confirm Password *
               </label>
               <input
@@ -141,7 +149,7 @@ export function SaveAccountDecisionStep({
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
                   if (errors.confirmPassword) {
-                    setErrors(prev => {
+                    setErrors((prev) => {
                       const newErrors = { ...prev };
                       delete newErrors.confirmPassword;
                       return newErrors;
@@ -149,13 +157,15 @@ export function SaveAccountDecisionStep({
                   }
                 }}
                 disabled={submitting}
-                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-zinc-900 text-white placeholder-zinc-500 ${
+                  errors.confirmPassword ? "border-red-400" : "border-zinc-700"
                 }`}
                 placeholder="Confirm password"
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.confirmPassword}
+                </p>
               )}
             </div>
 
@@ -163,7 +173,7 @@ export function SaveAccountDecisionStep({
             <button
               type="submit"
               disabled={submitting}
-              className="w-full px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-500 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
             >
               {submitting ? (
                 <>
@@ -190,9 +200,10 @@ export function SaveAccountDecisionStep({
               disabled={submitting}
             />
             <div className="flex-1">
-              <p className="font-medium text-gray-800">Not Now</p>
-              <p className="text-sm text-gray-600">
-                Continue as a guest. You can access your booking via the email link sent to you.
+              <p className="font-medium text-white">Not Now</p>
+              <p className="text-sm text-zinc-400">
+                Continue as a guest. You can access your booking via the email
+                link sent to you.
               </p>
             </div>
           </label>
@@ -205,7 +216,7 @@ export function SaveAccountDecisionStep({
           <button
             onClick={onSkip}
             disabled={submitting}
-            className="flex-1 px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50"
+            className="flex-1 px-6 py-2 bg-zinc-700 text-white rounded-md hover:bg-zinc-600 disabled:opacity-50"
           >
             Continue as Guest
           </button>

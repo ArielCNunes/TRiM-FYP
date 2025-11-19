@@ -5,7 +5,10 @@ interface AdminTabNavigationProps {
   onTabChange: (tab: AdminTab) => void;
 }
 
-export default function AdminTabNavigation({ activeTab, onTabChange }: AdminTabNavigationProps) {
+export default function AdminTabNavigation({
+  activeTab,
+  onTabChange,
+}: AdminTabNavigationProps) {
   const tabs: { id: AdminTab; label: string }[] = [
     { id: "dashboard", label: "Dashboard" },
     { id: "services", label: "Services" },
@@ -13,15 +16,15 @@ export default function AdminTabNavigation({ activeTab, onTabChange }: AdminTabN
   ];
 
   return (
-    <div className="flex gap-4 mb-8 border-b">
+    <div className="flex gap-4 mb-8 border-b border-zinc-800">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
           className={`px-6 py-3 font-semibold transition ${
             activeTab === tab.id
-              ? "border-b-2 border-blue-600 text-blue-600"
-              : "text-gray-600 hover:text-gray-900"
+              ? "border-b-2 border-indigo-500 text-indigo-400"
+              : "text-zinc-400 hover:text-white"
           }`}
         >
           {tab.label}

@@ -8,8 +8,8 @@ export default function StatusMessage({ type, message }: StatusMessageProps) {
     <div
       className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
         type === "success"
-          ? "border-green-200 bg-green-50 text-green-700"
-          : "border-red-200 bg-red-50 text-red-700"
+          ? "border-emerald-800 bg-emerald-900/20 text-emerald-300"
+          : "border-red-800 bg-red-900/20 text-red-300"
       }`}
     >
       {message}

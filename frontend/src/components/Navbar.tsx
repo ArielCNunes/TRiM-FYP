@@ -25,14 +25,16 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-zinc-900/90 backdrop-blur-sm border-b border-zinc-800 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo and navigation links section */}
           <div className="flex">
             {/* Logo */}
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-bold text-primary-600">TRiM</span>
+              <span className="text-2xl font-bold text-white tracking-tight">
+                TRiM
+              </span>
             </Link>
 
             {/* Navigation links */}
@@ -41,7 +43,7 @@ export default function Navbar() {
               {(!user || user.role === "CUSTOMER") && (
                 <Link
                   to="/booking"
-                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-primary-600"
+                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
                 >
                   Book Appointment
                 </Link>
@@ -54,7 +56,7 @@ export default function Navbar() {
                   {user?.role === "CUSTOMER" && (
                     <Link
                       to="/my-bookings"
-                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
+                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
                     >
                       My Bookings
                     </Link>
@@ -64,7 +66,7 @@ export default function Navbar() {
                   {user?.role === "BARBER" && (
                     <Link
                       to="/barber"
-                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
+                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
                     >
                       Dashboard
                     </Link>
@@ -74,7 +76,7 @@ export default function Navbar() {
                   {user?.role === "ADMIN" && (
                     <Link
                       to="/admin"
-                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
+                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
                     >
                       Admin Dashboard
                     </Link>
@@ -89,13 +91,13 @@ export default function Navbar() {
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 {/* Display user's full name */}
-                <span className="text-sm text-gray-700 font-bold">
+                <span className="text-sm text-zinc-300 font-medium">
                   {user?.firstName} {user?.lastName}
                 </span>
                 {/* Logout button */}
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+                  className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-md text-zinc-300 bg-zinc-800 hover:bg-zinc-700 hover:text-white transition-all"
                 >
                   Logout
                 </button>
@@ -103,7 +105,7 @@ export default function Navbar() {
             ) : (
               <Link
                 to="/auth"
-                className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all"
               >
                 Sign in / Sign up
               </Link>

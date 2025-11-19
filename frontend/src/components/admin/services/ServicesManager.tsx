@@ -37,10 +37,10 @@ export default function ServicesManager() {
   return (
     <div>
       <div className="mb-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Services</h2>
+        <h2 className="text-2xl font-bold text-white">Services</h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20"
         >
           {showForm ? "Cancel" : "Add Service"}
         </button>

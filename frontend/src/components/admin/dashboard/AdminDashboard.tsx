@@ -36,10 +36,10 @@ export default function AdminDashboard() {
   if (error || !stats) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600">{error || "Failed to load statistics"}</p>
+        <p className="text-red-400">{error || "Failed to load statistics"}</p>
         <button
           onClick={fetchStats}
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500"
         >
           Retry
         </button>

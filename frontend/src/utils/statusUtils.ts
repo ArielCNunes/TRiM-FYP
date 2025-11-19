@@ -8,17 +8,17 @@
 export const getBookingStatusStyles = (status: string): string => {
   switch (status) {
     case "COMPLETED":
-      return "bg-green-100 text-green-800";
+      return "bg-emerald-900/30 text-emerald-300 border border-emerald-800";
     case "CONFIRMED":
-      return "bg-blue-100 text-blue-800";
+      return "bg-indigo-900/30 text-indigo-300 border border-indigo-800";
     case "PENDING":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-yellow-900/30 text-yellow-300 border border-yellow-800";
     case "CANCELLED":
-      return "bg-red-100 text-red-800";
+      return "bg-red-900/30 text-red-300 border border-red-800";
     case "NO_SHOW":
-      return "bg-gray-100 text-gray-800";
+      return "bg-zinc-800 text-zinc-300 border border-zinc-700";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "bg-zinc-800 text-zinc-300 border border-zinc-700";
   }
 };
 
@@ -30,17 +30,17 @@ export const getBookingActionButtonStyles = (
   loading: boolean,
   actionType: "complete" | "no-show"
 ): string => {
-  if (loading) return "bg-gray-400";
+  if (loading) return "bg-zinc-700";
 
-  if (status === "COMPLETED") return "bg-green-600";
-  if (status === "NO_SHOW") return "bg-gray-600";
-  if (status === "CANCELLED") return "bg-red-400";
+  if (status === "COMPLETED") return "bg-emerald-600";
+  if (status === "NO_SHOW") return "bg-zinc-600";
+  if (status === "CANCELLED") return "bg-red-500";
 
   // Default active button colors
-  if (actionType === "complete") return "bg-blue-600 hover:bg-blue-700";
-  if (actionType === "no-show") return "bg-orange-600 hover:bg-orange-700";
+  if (actionType === "complete") return "bg-indigo-600 hover:bg-indigo-500";
+  if (actionType === "no-show") return "bg-orange-600 hover:bg-orange-500";
 
-  return "bg-gray-400";
+  return "bg-zinc-700";
 };
 
 /**
@@ -69,15 +69,15 @@ export const formatPaymentStatus = (status: string): string => {
 export const getPaymentStatusStyles = (status: string): string => {
   switch (status) {
     case "FULLY_PAID":
-      return "bg-green-100 text-green-800";
+      return "bg-emerald-900/30 text-emerald-300 border border-emerald-800";
     case "DEPOSIT_PAID":
-      return "bg-blue-100 text-blue-800";
+      return "bg-indigo-900/30 text-indigo-300 border border-indigo-800";
     case "PENDING":
     case "DEPOSIT_PENDING":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-yellow-900/30 text-yellow-300 border border-yellow-800";
     case "REFUNDED":
-      return "bg-purple-100 text-purple-800";
+      return "bg-purple-900/30 text-purple-300 border border-purple-800";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "bg-zinc-800 text-zinc-300 border border-zinc-700";
   }
 };

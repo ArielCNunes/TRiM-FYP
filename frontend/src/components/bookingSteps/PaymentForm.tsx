@@ -67,33 +67,33 @@ export function PaymentForm({
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Payment</h1>
+      <h1 className="text-3xl font-bold mb-8 text-white">Payment</h1>
 
-      <div className="border border-gray-200 rounded-lg p-6 mb-6">
+      <div className="border border-zinc-800 rounded-lg p-6 mb-6 bg-zinc-900">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="mb-4">
-            <p className="text-gray-600 mb-2">Amount to pay now:</p>
-            <p className="text-3xl font-bold text-blue-600">
+            <p className="text-zinc-400 mb-2">Amount to pay now:</p>
+            <p className="text-3xl font-bold text-indigo-400">
               €{depositAmount.toFixed(2)}
             </p>
           </div>
 
-          <div className="border-t border-gray-200 pt-6">
+          <div className="border-t border-zinc-800 pt-6">
             <PaymentElement
               options={{ layout: "tabs", paymentMethodOrder: ["card"] }}
             />
           </div>
 
           {errorMessage && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-red-600 text-sm">{errorMessage}</p>
+            <div className="p-4 bg-red-900/20 border border-red-800 rounded-md">
+              <p className="text-red-400 text-sm">{errorMessage}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={!stripe || isProcessing}
-            className="w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 disabled:bg-gray-400 font-semibold text-lg transition"
+            className="w-full bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 font-semibold text-lg transition shadow-lg shadow-indigo-500/20"
           >
             {isProcessing ? (
               <span className="flex items-center justify-center">
@@ -124,7 +124,7 @@ export function PaymentForm({
             )}
           </button>
 
-          <p className="text-xs text-gray-500 text-center mt-4">
+          <p className="text-xs text-zinc-500 text-center mt-4">
             Your payment information is securely processed by Stripe.
           </p>
         </form>

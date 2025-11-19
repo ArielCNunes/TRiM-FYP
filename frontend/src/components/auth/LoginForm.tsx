@@ -84,7 +84,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-1">
+        <label className="block text-sm font-medium text-zinc-300 mb-1">
           Email
         </label>
         <input
@@ -95,15 +95,15 @@ export function LoginForm() {
             if (errors.email) setErrors({ ...errors, email: undefined });
           }}
           placeholder="your@email.com"
-          className="w-full bg-gray-50 text-gray-900 px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:outline-none"
+          className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
         />
         {errors.email && (
-          <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+          <p className="text-red-400 text-sm mt-1">{errors.email}</p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-1">
+        <label className="block text-sm font-medium text-zinc-300 mb-1">
           Password
         </label>
         <div className="relative">
@@ -116,25 +116,25 @@ export function LoginForm() {
                 setErrors({ ...errors, password: undefined });
             }}
             placeholder="••••••••"
-            className="w-full bg-gray-50 text-gray-900 px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:outline-none"
+            className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-2.5 text-gray-600 hover:text-gray-900"
+            className="absolute right-3 top-2.5 text-zinc-400 hover:text-white text-sm"
           >
             {showPassword ? "Hide" : "Show"}
           </button>
         </div>
         {errors.password && (
-          <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+          <p className="text-red-400 text-sm mt-1">{errors.password}</p>
         )}
       </div>
 
       <div className="text-right">
         <Link
           to="/forgot-password"
-          className="text-sm text-blue-600 hover:text-blue-700"
+          className="text-sm text-indigo-400 hover:text-indigo-300"
         >
           Forgot password?
         </Link>
@@ -143,7 +143,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 rounded-md transition"
+        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-700 disabled:text-zinc-400 text-white font-medium py-2 rounded-md transition shadow-lg shadow-indigo-500/20"
       >
         {loading ? "Logging in..." : "Log In"}
       </button>

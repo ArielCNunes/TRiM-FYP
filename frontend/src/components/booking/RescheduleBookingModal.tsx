@@ -134,10 +134,10 @@ export default function RescheduleBookingModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div className="bg-zinc-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-zinc-800">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-lg">
+        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 rounded-t-lg">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-white">
               Reschedule Appointment
@@ -145,7 +145,7 @@ export default function RescheduleBookingModal({
             <button
               onClick={onClose}
               disabled={submitting}
-              className="text-white hover:text-gray-200 transition"
+              className="text-white hover:text-zinc-200 transition"
             >
               <svg
                 className="w-6 h-6"
@@ -165,14 +165,14 @@ export default function RescheduleBookingModal({
         </div>
 
         {/* Current Booking Details */}
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-          <p className="text-sm font-semibold text-gray-600 mb-2">
+        <div className="px-6 py-4 bg-zinc-800/50 border-b border-zinc-700">
+          <p className="text-sm font-semibold text-zinc-400 mb-2">
             Current Appointment
           </p>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-gray-600">Date:</span>{" "}
-              <span className="font-semibold text-gray-900">
+              <span className="text-zinc-400">Date:</span>{" "}
+              <span className="font-semibold text-white">
                 {new Date(booking.bookingDate).toLocaleDateString("en-US", {
                   weekday: "short",
                   month: "short",
@@ -182,20 +182,20 @@ export default function RescheduleBookingModal({
               </span>
             </div>
             <div>
-              <span className="text-gray-600">Time:</span>{" "}
-              <span className="font-semibold text-gray-900">
+              <span className="text-zinc-400">Time:</span>{" "}
+              <span className="font-semibold text-white">
                 {booking.startTime.substring(0, 5)}
               </span>
             </div>
             <div>
-              <span className="text-gray-600">Service:</span>{" "}
-              <span className="font-semibold text-gray-900">
+              <span className="text-zinc-400">Service:</span>{" "}
+              <span className="font-semibold text-white">
                 {booking.service.name}
               </span>
             </div>
             <div>
-              <span className="text-gray-600">Barber:</span>{" "}
-              <span className="font-semibold text-gray-900">
+              <span className="text-zinc-400">Barber:</span>{" "}
+              <span className="font-semibold text-white">
                 {booking.barber.user.firstName} {booking.barber.user.lastName}
               </span>
             </div>
@@ -206,14 +206,14 @@ export default function RescheduleBookingModal({
         <form onSubmit={handleSubmit} className="px-6 py-6">
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-700 font-medium">{error}</p>
+            <div className="mb-4 p-4 bg-red-900/20 border border-red-800 rounded-md">
+              <p className="text-sm text-red-300 font-medium">{error}</p>
             </div>
           )}
 
           {/* Date Selection */}
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-zinc-300 mb-2">
               Select New Date
             </label>
             <input
@@ -222,11 +222,11 @@ export default function RescheduleBookingModal({
               onChange={(e) => setSelectedDate(e.target.value)}
               min={getMinDate()}
               max={getMaxDate()}
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
               disabled={submitting}
               required
             />
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-zinc-500">
               Select a new date for your appointment.
             </p>
           </div>
@@ -234,19 +234,19 @@ export default function RescheduleBookingModal({
           {/* Time Slots Selection */}
           {selectedDate && (
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-zinc-300 mb-2">
                 Select New Time
               </label>
 
               {loadingSlots ? (
                 <div className="flex items-center justify-center py-8">
                   <LoadingSpinner />
-                  <span className="ml-3 text-gray-600">
+                  <span className="ml-3 text-zinc-400">
                     Loading available times...
                   </span>
                 </div>
               ) : availableSlots.length > 0 ? (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto p-2 border border-gray-200 rounded-md">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto p-2 border border-zinc-700 rounded-md bg-zinc-800/30">
                   {availableSlots.map((slot) => (
                     <button
                       key={slot}
@@ -254,8 +254,8 @@ export default function RescheduleBookingModal({
                       onClick={() => setSelectedTime(slot)}
                       className={`px-3 py-2 rounded-md text-sm font-medium transition ${
                         selectedTime === slot
-                          ? "bg-blue-600 text-white ring-2 ring-blue-500 ring-offset-2"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-indigo-600 text-white ring-2 ring-indigo-500 ring-offset-2 ring-offset-zinc-900"
+                          : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700 border border-zinc-700"
                       }`}
                       disabled={submitting}
                     >
@@ -265,11 +265,11 @@ export default function RescheduleBookingModal({
                 </div>
               ) : (
                 !loadingSlots && (
-                  <div className="text-center py-6 bg-gray-50 rounded-md border border-gray-200">
-                    <p className="text-gray-600">
+                  <div className="text-center py-6 bg-zinc-800/50 rounded-md border border-zinc-700">
+                    <p className="text-zinc-400">
                       No available time slots for this date
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-zinc-500 mt-1">
                       Please select a different date
                     </p>
                   </div>
@@ -280,11 +280,11 @@ export default function RescheduleBookingModal({
 
           {/* Selected New Time Display */}
           {selectedDate && selectedTime && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-sm font-semibold text-green-700 mb-1">
+            <div className="mb-6 p-4 bg-emerald-900/20 border border-emerald-800 rounded-md">
+              <p className="text-sm font-semibold text-emerald-300 mb-1">
                 New Appointment Details
               </p>
-              <p className="text-green-800">
+              <p className="text-emerald-200">
                 <span className="font-semibold">
                   {new Date(selectedDate).toLocaleDateString("en-US", {
                     weekday: "long",
@@ -302,19 +302,19 @@ export default function RescheduleBookingModal({
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+          <div className="flex gap-3 justify-end pt-4 border-t border-zinc-800">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition disabled:opacity-50"
+              className="px-6 py-2 border border-zinc-700 text-zinc-300 font-medium rounded-md hover:bg-zinc-800 transition disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting || !selectedDate || !selectedTime}
-              className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-lg shadow-indigo-500/20"
             >
               {submitting ? (
                 <>
