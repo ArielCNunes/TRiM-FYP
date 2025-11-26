@@ -169,3 +169,30 @@
 
 #### Next Meeting Date
 **Scheduled:** Wednesday 26th of November at 10:10am.
+
+---
+
+### Meeting 7 - Wednesday 26th of November
+**Duration:** 10 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Update supervisor on project/research progress.
+
+#### Progress Demonstrated
+- Presented a more concrete approach to the project.
+
+#### Technical Discussion
+- Discussed some Row Level Security and ADAPT database design and how we could implement both and then measure trade offs.
+
+#### Supervisor Feedback
+- Research looks solid - but make sure there's also a valid practical element.
+
+#### Decisions Made
+- Keep working at the implementing features.
+
+#### Action Items for Next Meeting
+- Update on progress.
+
+#### Next Meeting Date
+**Scheduled:** Wednesday 3th of December at 10:10am.
