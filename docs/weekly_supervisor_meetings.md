@@ -142,3 +142,30 @@
 
 #### Next Meeting Date
 **Scheduled:** Wednesday 19th of November at 10:10am.
+
+---
+
+### Meeting 6 - Wednesday 19th of November
+**Duration:** 10 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Update supervisor on project/research progress.
+
+#### Progress Demonstrated
+- N/A
+
+#### Technical Discussion
+- Discussed some research papers and how they could be used in the project.
+
+#### Supervisor Feedback
+- Bring something concrete at next meeting so we know exactly what we're doing.
+
+#### Decisions Made
+- N/A
+
+#### Action Items for Next Meeting
+- Present actual implementation to supervisor.
+
+#### Next Meeting Date
+**Scheduled:** Wednesday 26th of November at 10:10am.
