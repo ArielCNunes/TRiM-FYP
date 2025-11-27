@@ -1,4 +1,4 @@
-type AdminTab = "dashboard" | "services" | "barbers";
+type AdminTab = "dashboard" | "categories" | "services" | "barbers";
 
 interface AdminTabNavigationProps {
   activeTab: AdminTab;
@@ -11,6 +11,7 @@ export default function AdminTabNavigation({
 }: AdminTabNavigationProps) {
   const tabs: { id: AdminTab; label: string }[] = [
     { id: "dashboard", label: "Dashboard" },
+    { id: "categories", label: "Categories" },
     { id: "services", label: "Services" },
     { id: "barbers", label: "Barbers" },
   ];
@@ -21,11 +22,10 @@ export default function AdminTabNavigation({
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`px-6 py-3 font-semibold transition ${
-            activeTab === tab.id
+          className={`px-6 py-3 font-semibold transition ${activeTab === tab.id
               ? "border-b-2 border-indigo-500 text-indigo-400"
               : "text-zinc-400 hover:text-white"
-          }`}
+            }`}
         >
           {tab.label}
         </button>

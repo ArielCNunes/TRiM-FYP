@@ -5,6 +5,8 @@ import type {
   RegisterRequest,
   User,
   Service,
+  ServiceCategory,
+  CategoryWithServices,
   Barber,
   BookingRequest,
   BookingResponse,
@@ -41,13 +43,44 @@ export const authApi = {
     api.get<{ valid: boolean }>(`/auth/validate-reset-token?token=${token}`),
 };
 
+/** Service category endpoints. */
+export const categoriesApi = {
+  /** Fetch all categories. */
+  getAll: () => api.get<ServiceCategory[]>("/categories"),
+
+  /** Fetch all categories with their services. */
+  getWithServices: () =>
+    api.get<CategoryWithServices[]>("/categories/with-services"),
+
+  /** Get a single category by ID. */
+  getById: (id: number) => api.get<ServiceCategory>(`/categories/${id}`),
+
+  /** Create a new category (admin only). */
+  create: (name: string) => api.post<ServiceCategory>("/categories", { name }),
+
+  /** Update a category (admin only). */
+  update: (id: number, name: string) =>
+    api.put<ServiceCategory>(`/categories/${id}`, { name }),
+
+  /** Delete a category (admin only). */
+  delete: (id: number) => api.delete(`/categories/${id}`),
+};
+
 /** Service catalogue endpoints. */
 export const servicesApi = {
   /** Fetch all active services. */
   getActive: () => api.get<Service[]>("/services/active"),
 
   /** Create a new service entry. */
-  create: (service: any) => api.post<Service>("/services", service),
+  create: (service: {
+    name: string;
+    description: string;
+    durationMinutes: number;
+    price: number;
+    depositPercentage: number;
+    active: boolean;
+    categoryId: number;
+  }) => api.post<Service>("/services", service),
 };
 
 /** Barber management endpoints. */

@@ -115,7 +115,7 @@ export default function BookingFlow() {
 
   const handlePaymentSuccess = (paymentIntentId: string) => {
     bookingFlow.handlePaymentSuccess(paymentIntentId);
-    
+
     // If guest booking, show save account decision
     if (!isLoggedIn && bookingFlow.guestUserId) {
       bookingFlow.setCurrentStep('saveaccount');
@@ -142,6 +142,7 @@ export default function BookingFlow() {
   if (bookingFlow.currentStep === 'service') {
     return (
       <ServiceSelectionStep
+        categories={bookingFlow.categories}
         services={bookingFlow.services}
         selectedService={bookingFlow.selectedService}
         loading={bookingFlow.loadingServices}

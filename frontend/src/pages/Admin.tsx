@@ -5,6 +5,7 @@ import AdminTabNavigation, {
   type AdminTab,
 } from "../components/admin/AdminTabNavigation";
 import AdminDashboard from "../components/admin/dashboard/AdminDashboard";
+import CategoriesManager from "../components/admin/categories/CategoriesManager";
 import ServicesManager from "../components/admin/services/ServicesManager";
 import BarbersManager from "../components/admin/barbers/BarbersManager";
 
@@ -45,6 +46,7 @@ export default function Admin() {
         <AdminTabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         {activeTab === "dashboard" && <AdminDashboard />}
+        {activeTab === "categories" && <CategoriesManager />}
         {activeTab === "services" && <ServicesManager />}
         {activeTab === "barbers" && <BarbersManager />}
       </div>

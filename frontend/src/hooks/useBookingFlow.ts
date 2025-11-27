@@ -1,16 +1,28 @@
 import { useState, useEffect } from "react";
 import {
-  servicesApi,
+  categoriesApi,
   barbersApi,
   availabilityApi,
   bookingsApi,
   paymentsApi,
   authApi,
 } from "../api/endpoints";
-import type { Service, Barber, BookingRequest } from "../types";
+import type {
+  Service,
+  Barber,
+  BookingRequest,
+  CategoryWithServices,
+} from "../types";
 
 /** Booking wizard steps: service → barber → datetime → customerinfo → confirmation → payment → saveaccount */
-type Step = "service" | "barber" | "datetime" | "customerinfo" | "confirmation" | "payment" | "saveaccount";
+type Step =
+  | "service"
+  | "barber"
+  | "datetime"
+  | "customerinfo"
+  | "confirmation"
+  | "payment"
+  | "saveaccount";
 
 interface CustomerInfo {
   firstName: string;
@@ -26,6 +38,7 @@ interface CustomerInfo {
 export function useBookingFlow() {
   // Current step and all step data
   const [currentStep, setCurrentStep] = useState<Step>("service");
+  const [categories, setCategories] = useState<CategoryWithServices[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [loadingServices, setLoadingServices] = useState(true);
@@ -74,11 +87,20 @@ export function useBookingFlow() {
     }
   }, [selectedDate, selectedBarber, selectedService]);
 
-  /** Fetch all active services */
+  /** Fetch all active services grouped by category */
   const fetchServices = async () => {
     try {
-      const response = await servicesApi.getActive();
-      setServices(response.data);
+      const response = await categoriesApi.getWithServices();
+      setCategories(response.data);
+      // Flatten services for backward compatibility
+      const allServices = response.data.flatMap((cat) =>
+        cat.services.map((s) => ({
+          ...s,
+          categoryId: cat.id,
+          categoryName: cat.name,
+        }))
+      );
+      setServices(allServices);
       setStatus(null);
     } catch (error) {
       setStatus({ type: "error", message: "Failed to load services" });
@@ -170,7 +192,9 @@ export function useBookingFlow() {
    * Create a booking for a guest customer
    * This creates a guest user account and booking in one call
    */
-  const createGuestBooking = async (customerInfo: CustomerInfo): Promise<number | null> => {
+  const createGuestBooking = async (
+    customerInfo: CustomerInfo
+  ): Promise<number | null> => {
     if (!selectedService || !selectedBarber) {
       setStatus({ type: "error", message: "Missing booking details" });
       return null;
@@ -192,13 +216,13 @@ export function useBookingFlow() {
 
       // Call new guest booking endpoint
       const response = await bookingsApi.createGuest(guestBookingRequest);
-      
+
       setStatus(null);
       setCreatedBookingId(response.data.bookingId);
       setGuestUserId(response.data.customerId);
       setDepositAmount(response.data.depositAmount);
       setOutstandingBalance(response.data.outstandingBalance);
-      
+
       return response.data.bookingId;
     } catch (error: any) {
       const message =
@@ -214,7 +238,10 @@ export function useBookingFlow() {
    * Save a guest account by setting a password
    * Converts guest user to registered user
    */
-  const saveGuestAccount = async (userId: number, password: string): Promise<boolean> => {
+  const saveGuestAccount = async (
+    userId: number,
+    password: string
+  ): Promise<boolean> => {
     setSubmitting(true);
     try {
       const saveAccountRequest = {
@@ -223,16 +250,15 @@ export function useBookingFlow() {
       };
 
       await authApi.saveAccount(saveAccountRequest);
-      
+
       setStatus({
         type: "success",
         message: "Account saved successfully! Redirecting...",
       });
-      
+
       return true;
     } catch (error: any) {
-      const message =
-        error.response?.data?.message || "Failed to save account";
+      const message = error.response?.data?.message || "Failed to save account";
       setStatus({ type: "error", message: String(message) });
       return false;
     } finally {
@@ -277,6 +303,7 @@ export function useBookingFlow() {
     setCurrentStep,
 
     // Step 1: Service selection
+    categories,
     services,
     selectedService,
     setSelectedService,

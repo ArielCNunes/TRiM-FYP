@@ -46,6 +46,18 @@ export interface PasswordResetResponse {
   message: string;
 }
 
+// Service Category Types
+export interface ServiceCategory {
+  id: number;
+  name: string;
+}
+
+export interface CategoryWithServices {
+  id: number;
+  name: string;
+  services: Service[];
+}
+
 // Service Types
 export interface Service {
   id: number;
@@ -55,6 +67,8 @@ export interface Service {
   price: number;
   depositPercentage: number;
   active: boolean;
+  categoryId?: number;
+  categoryName?: string;
 }
 
 // Barber Types
