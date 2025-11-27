@@ -71,6 +71,9 @@ export const servicesApi = {
   /** Fetch all active services. */
   getActive: () => api.get<Service[]>("/services/active"),
 
+  /** Fetch all services (including inactive). */
+  getAll: () => api.get<Service[]>("/services"),
+
   /** Create a new service entry. */
   create: (service: {
     name: string;
@@ -81,6 +84,23 @@ export const servicesApi = {
     active: boolean;
     categoryId: number;
   }) => api.post<Service>("/services", service),
+
+  /** Update an existing service. */
+  update: (
+    id: number,
+    service: {
+      name: string;
+      description: string;
+      durationMinutes: number;
+      price: number;
+      depositPercentage: number;
+      active: boolean;
+      categoryId: number;
+    }
+  ) => api.put<Service>(`/services/${id}`, service),
+
+  /** Deactivate a service (soft delete). */
+  deactivate: (id: number) => api.patch(`/services/${id}/deactivate`),
 };
 
 /** Barber management endpoints. */

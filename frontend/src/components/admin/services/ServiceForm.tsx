@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react";
 import { servicesApi, categoriesApi } from "../../../api/endpoints";
-import type { ServiceCategory } from "../../../types";
+import type { Service, ServiceCategory } from "../../../types";
 
 interface ServiceFormProps {
+  editingService?: Service | null;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
+export default function ServiceForm({
+  editingService,
+  onSuccess,
+  onCancel,
+}: ServiceFormProps) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [formData, setFormData] = useState({
@@ -24,16 +30,29 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    if (editingService) {
+      setFormData({
+        name: editingService.name,
+        description: editingService.description || "",
+        durationMinutes: editingService.durationMinutes,
+        price: editingService.price,
+        depositPercentage: editingService.depositPercentage,
+        categoryId: editingService.categoryId || 0,
+      });
+    }
+  }, [editingService]);
+
   const fetchCategories = async () => {
     try {
       const response = await categoriesApi.getAll();
       setCategories(response.data);
-      // Set default category if available
-      if (response.data.length > 0) {
+      // Set default category if available and not editing
+      if (response.data.length > 0 && !editingService) {
         setFormData((prev) => ({ ...prev, categoryId: response.data[0].id }));
       }
-    } catch (error) {
-      console.error("Failed to fetch categories", error);
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
     } finally {
       setLoadingCategories(false);
     }
@@ -42,9 +61,10 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
-      await servicesApi.create({
+      const serviceData = {
         name: formData.name,
         description: formData.description,
         durationMinutes: parseInt(String(formData.durationMinutes)),
@@ -52,7 +72,13 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
         depositPercentage: parseInt(String(formData.depositPercentage)),
         active: true,
         categoryId: formData.categoryId,
-      });
+      };
+
+      if (editingService) {
+        await servicesApi.update(editingService.id, serviceData);
+      } else {
+        await servicesApi.create(serviceData);
+      }
 
       setFormData({
         name: "",
@@ -63,10 +89,11 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
         categoryId: categories.length > 0 ? categories[0].id : 0,
       });
       onSuccess();
-    } catch (error: any) {
+    } catch (err: any) {
       const message =
-        error.response?.data?.message || "Failed to create service";
-      throw new Error(message);
+        err.response?.data?.message ||
+        `Failed to ${editingService ? "update" : "create"} service`;
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -97,7 +124,16 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
 
   return (
     <div className="mb-8 p-6 bg-zinc-900 rounded-lg shadow border border-zinc-800">
-      <h3 className="text-xl font-bold mb-4 text-white">Create New Service</h3>
+      <h3 className="text-xl font-bold mb-4 text-white">
+        {editingService ? "Edit Service" : "Create New Service"}
+      </h3>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-900/50 border border-red-800 rounded text-red-300 text-sm">
+          {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1 text-zinc-300">
@@ -219,7 +255,13 @@ export default function ServiceForm({ onSuccess, onCancel }: ServiceFormProps) {
             disabled={loading}
             className="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 transition"
           >
-            {loading ? "Creating..." : "Create Service"}
+            {loading
+              ? editingService
+                ? "Updating..."
+                : "Creating..."
+              : editingService
+                ? "Update Service"
+                : "Create Service"}
           </button>
           <button
             type="button"

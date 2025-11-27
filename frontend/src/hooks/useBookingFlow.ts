@@ -91,9 +91,14 @@ export function useBookingFlow() {
   const fetchServices = async () => {
     try {
       const response = await categoriesApi.getWithServices();
-      setCategories(response.data);
+      // Filter out inactive services from each category
+      const categoriesWithActiveServices = response.data.map((cat) => ({
+        ...cat,
+        services: cat.services.filter((s) => s.active !== false),
+      }));
+      setCategories(categoriesWithActiveServices);
       // Flatten services for backward compatibility
-      const allServices = response.data.flatMap((cat) =>
+      const allServices = categoriesWithActiveServices.flatMap((cat) =>
         cat.services.map((s) => ({
           ...s,
           categoryId: cat.id,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { categoriesApi } from "../../../api/endpoints";
-import type { CategoryWithServices } from "../../../types";
+import { categoriesApi, servicesApi } from "../../../api/endpoints";
+import type { CategoryWithServices, Service } from "../../../types";
 import StatusMessage from "../../shared/StatusMessage";
 import EmptyState from "../../shared/EmptyState";
 import ServiceForm from "./ServiceForm";
@@ -9,6 +9,7 @@ import ServiceCard from "./ServiceCard";
 export default function ServicesManager() {
   const [categories, setCategories] = useState<CategoryWithServices[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<{
     type: "success" | "error";
@@ -23,7 +24,12 @@ export default function ServicesManager() {
     try {
       setLoading(true);
       const response = await categoriesApi.getWithServices();
-      setCategories(response.data);
+      // Filter out inactive services from each category
+      const categoriesWithActiveServices = response.data.map((category) => ({
+        ...category,
+        services: category.services.filter((service) => service.active !== false),
+      }));
+      setCategories(categoriesWithActiveServices);
       setStatus(null);
     } catch (error) {
       setStatus({ type: "error", message: "Failed to load services" });
@@ -34,8 +40,36 @@ export default function ServicesManager() {
 
   const handleSuccess = () => {
     setShowForm(false);
-    setStatus({ type: "success", message: "Service created successfully" });
+    setStatus({
+      type: "success",
+      message: editingService
+        ? "Service updated successfully"
+        : "Service created successfully",
+    });
+    setEditingService(null);
     fetchServices();
+  };
+
+  const handleEdit = (service: Service) => {
+    setEditingService(service);
+    setShowForm(true);
+  };
+
+  const handleDeactivate = async (id: number) => {
+    try {
+      await servicesApi.deactivate(id);
+      setStatus({ type: "success", message: "Service deactivated successfully" });
+      fetchServices();
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Failed to deactivate service";
+      setStatus({ type: "error", message });
+    }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingService(null);
   };
 
   const totalServices = categories.reduce(
@@ -56,17 +90,21 @@ export default function ServicesManager() {
       <div className="mb-6 flex justify-between items-center">
         <h2 className="text-2xl font-bold text-white">Services</h2>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setEditingService(null);
+            setShowForm(!showForm);
+          }}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20"
         >
-          {showForm ? "Cancel" : "Add Service"}
+          {showForm && !editingService ? "Cancel" : "Add Service"}
         </button>
       </div>
 
       {showForm && (
         <ServiceForm
+          editingService={editingService}
           onSuccess={handleSuccess}
-          onCancel={() => setShowForm(false)}
+          onCancel={handleCancel}
         />
       )}
 
@@ -93,7 +131,13 @@ export default function ServicesManager() {
                   {category.services.map((service) => (
                     <ServiceCard
                       key={service.id}
-                      service={{ ...service, categoryName: category.name }}
+                      service={{
+                        ...service,
+                        categoryName: category.name,
+                        categoryId: category.id,
+                      }}
+                      onEdit={handleEdit}
+                      onDeactivate={handleDeactivate}
                     />
                   ))}
                 </div>
