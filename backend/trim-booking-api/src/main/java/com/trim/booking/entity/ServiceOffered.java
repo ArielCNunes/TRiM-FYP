@@ -38,6 +38,10 @@ public class ServiceOffered {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private ServiceCategory category;
+
     // Constructors
     public ServiceOffered() {
     }
@@ -98,4 +102,7 @@ public class ServiceOffered {
     public void setDepositPercentage(Integer depositPercentage) {
         this.depositPercentage = depositPercentage;
     }
+
+    public ServiceCategory getCategory() { return category; }
+    public void setCategory(ServiceCategory category) { this.category = category; }
 }

@@ -1,7 +1,10 @@
 package com.trim.booking.service.barber;
 
+import com.trim.booking.dto.service.ServiceRequest;
+import com.trim.booking.entity.ServiceCategory;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.exception.ResourceNotFoundException;
+import com.trim.booking.repository.ServiceCategoryRepository;
 import com.trim.booking.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +13,28 @@ import java.util.Optional;
 
 @Service
 public class ServicesOfferedService {
-    // Service layer for managing services offered
-    private final ServiceRepository serviceRepository;
 
-    public ServicesOfferedService(ServiceRepository serviceRepository) {
+    private final ServiceRepository serviceRepository;
+    private final ServiceCategoryRepository categoryRepository;
+
+    public ServicesOfferedService(ServiceRepository serviceRepository, ServiceCategoryRepository categoryRepository) {
         this.serviceRepository = serviceRepository;
+        this.categoryRepository = categoryRepository;
     }
 
-    public ServiceOffered createService(ServiceOffered service) {
+    public ServiceOffered createService(ServiceRequest request) {
+        ServiceCategory category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
+
+        ServiceOffered service = new ServiceOffered();
+        service.setName(request.getName());
+        service.setDescription(request.getDescription());
+        service.setDurationMinutes(request.getDurationMinutes());
+        service.setPrice(request.getPrice());
+        service.setDepositPercentage(request.getDepositPercentage());
+        service.setActive(request.getActive());
+        service.setCategory(category);
+
         return serviceRepository.save(service);
     }
 
@@ -33,18 +50,22 @@ public class ServicesOfferedService {
         return serviceRepository.findById(id);
     }
 
-    public ServiceOffered updateService(Long id, ServiceOffered updatedService) {
-        // Update only allowed fields
-        return serviceRepository.findById(id)
-                .map(service -> {
-                    service.setName(updatedService.getName());
-                    service.setDescription(updatedService.getDescription());
-                    service.setDurationMinutes(updatedService.getDurationMinutes());
-                    service.setPrice(updatedService.getPrice());
-                    service.setActive(updatedService.getActive());
-                    return serviceRepository.save(service);
-                })
+    public ServiceOffered updateService(Long id, ServiceRequest request) {
+        ServiceOffered service = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
+
+        ServiceCategory category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
+
+        service.setName(request.getName());
+        service.setDescription(request.getDescription());
+        service.setDurationMinutes(request.getDurationMinutes());
+        service.setPrice(request.getPrice());
+        service.setDepositPercentage(request.getDepositPercentage());
+        service.setActive(request.getActive());
+        service.setCategory(category);
+
+        return serviceRepository.save(service);
     }
 
     public void deleteService(Long id) {
@@ -52,7 +73,6 @@ public class ServicesOfferedService {
     }
 
     public void deactivateService(Long id) {
-        // Soft delete by setting active to false
         serviceRepository.findById(id)
                 .map(service -> {
                     service.setActive(false);

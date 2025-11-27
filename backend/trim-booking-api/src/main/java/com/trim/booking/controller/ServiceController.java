@@ -1,6 +1,7 @@
 package com.trim.booking.controller;
 
-import com.trim.booking.entity.ServiceOffered;
+import com.trim.booking.dto.service.ServiceRequest;
+import com.trim.booking.dto.service.ServiceResponse;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.service.barber.ServicesOfferedService;
 import jakarta.validation.Valid;
@@ -22,34 +23,42 @@ public class ServiceController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ServiceOffered> createService(@Valid @RequestBody ServiceOffered service) {
-        ServiceOffered created = servicesOfferedService.createService(service);
+    public ResponseEntity<ServiceResponse> createService(@Valid @RequestBody ServiceRequest request) {
+        ServiceResponse created = new ServiceResponse(servicesOfferedService.createService(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping
-    public ResponseEntity<List<ServiceOffered>> getAllServices() {
-        return ResponseEntity.ok(servicesOfferedService.getAllServices());
+    public ResponseEntity<List<ServiceResponse>> getAllServices() {
+        List<ServiceResponse> services = servicesOfferedService.getAllServices()
+                .stream()
+                .map(ServiceResponse::new)
+                .toList();
+        return ResponseEntity.ok(services);
     }
 
     @GetMapping("/active")
-    public ResponseEntity<List<ServiceOffered>> getActiveServices() {
-        return ResponseEntity.ok(servicesOfferedService.getActiveServices());
+    public ResponseEntity<List<ServiceResponse>> getActiveServices() {
+        List<ServiceResponse> services = servicesOfferedService.getActiveServices()
+                .stream()
+                .map(ServiceResponse::new)
+                .toList();
+        return ResponseEntity.ok(services);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ServiceOffered> getServiceById(@PathVariable Long id) {
+    public ResponseEntity<ServiceResponse> getServiceById(@PathVariable Long id) {
         return servicesOfferedService.getServiceById(id)
-                .map(ResponseEntity::ok)
+                .map(service -> ResponseEntity.ok(new ServiceResponse(service)))
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ServiceOffered> updateService(
+    public ResponseEntity<ServiceResponse> updateService(
             @PathVariable Long id,
-            @Valid @RequestBody ServiceOffered service) {
-        ServiceOffered updated = servicesOfferedService.updateService(id, service);
+            @Valid @RequestBody ServiceRequest request) {
+        ServiceResponse updated = new ServiceResponse(servicesOfferedService.updateService(id, request));
         return ResponseEntity.ok(updated);
     }
 
