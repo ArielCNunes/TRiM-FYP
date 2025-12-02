@@ -37,17 +37,37 @@ export default function Admin() {
   }
 
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+
+  // Handle category click - switch to services tab and filter by category
+  const handleCategoryClick = (categoryId: number) => {
+    setSelectedCategoryId(categoryId);
+    setActiveTab("services");
+  };
+
+  // Clear filter when switching tabs manually
+  const handleTabChange = (tab: AdminTab) => {
+    if (tab !== "services") {
+      setSelectedCategoryId(null);
+    }
+    setActiveTab(tab);
+  };
 
   return (
     <div className="min-h-screen bg-zinc-950">
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="text-4xl font-bold mb-8 text-white">Admin Dashboard</h1>
 
-        <AdminTabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        <AdminTabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
         {activeTab === "dashboard" && <AdminDashboard />}
-        {activeTab === "categories" && <CategoriesManager />}
-        {activeTab === "services" && <ServicesManager />}
+        {activeTab === "categories" && <CategoriesManager onCategoryClick={handleCategoryClick} />}
+        {activeTab === "services" && (
+          <ServicesManager
+            filterByCategoryId={selectedCategoryId}
+            onClearFilter={() => setSelectedCategoryId(null)}
+          />
+        )}
         {activeTab === "barbers" && <BarbersManager />}
       </div>
     </div>

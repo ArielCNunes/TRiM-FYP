@@ -16,12 +16,15 @@ export default function CategoryForm({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [name, setName] = useState("");
+    const [active, setActive] = useState(true);
 
     useEffect(() => {
         if (editingCategory) {
             setName(editingCategory.name);
+            setActive(editingCategory.active);
         } else {
             setName("");
+            setActive(true);
         }
     }, [editingCategory]);
 
@@ -32,11 +35,12 @@ export default function CategoryForm({
 
         try {
             if (editingCategory) {
-                await categoriesApi.update(editingCategory.id, name.trim());
+                await categoriesApi.update(editingCategory.id, { name: name.trim(), active });
             } else {
                 await categoriesApi.create(name.trim());
             }
             setName("");
+            setActive(true);
             onSuccess();
         } catch (err: any) {
             const message =
@@ -74,6 +78,30 @@ export default function CategoryForm({
                         placeholder="e.g., Haircuts, Beard Care, Treatments"
                     />
                 </div>
+
+                {editingCategory && (
+                    <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-md border border-zinc-700">
+                        <div>
+                            <label className="text-sm font-medium text-zinc-300">
+                                Active
+                            </label>
+                            <p className="text-xs text-zinc-500">
+                                Inactive categories won't show in the booking flow
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setActive(!active)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? "bg-indigo-600" : "bg-zinc-600"
+                                }`}
+                        >
+                            <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${active ? "translate-x-6" : "translate-x-1"
+                                    }`}
+                            />
+                        </button>
+                    </div>
+                )}
 
                 <div className="flex gap-2">
                     <button

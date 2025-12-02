@@ -50,11 +50,13 @@ export interface PasswordResetResponse {
 export interface ServiceCategory {
   id: number;
   name: string;
+  active: boolean;
 }
 
 export interface CategoryWithServices {
   id: number;
   name: string;
+  active: boolean;
   services: Service[];
 }
 

@@ -59,11 +59,12 @@ export const categoriesApi = {
   create: (name: string) => api.post<ServiceCategory>("/categories", { name }),
 
   /** Update a category (admin only). */
-  update: (id: number, name: string) =>
-    api.put<ServiceCategory>(`/categories/${id}`, { name }),
+  update: (id: number, data: { name: string; active: boolean }) =>
+    api.put<ServiceCategory>(`/categories/${id}`, data),
 
-  /** Delete a category (admin only). */
-  delete: (id: number) => api.delete(`/categories/${id}`),
+  /** Deactivate a category (admin only). */
+  deactivate: (id: number) =>
+    api.patch<ServiceCategory>(`/categories/${id}/deactivate`),
 };
 
 /** Service catalogue endpoints. */

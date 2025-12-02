@@ -24,6 +24,7 @@ export default function ServiceForm({
     price: 0,
     depositPercentage: 50,
     categoryId: 0,
+    active: true,
   });
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function ServiceForm({
         price: editingService.price,
         depositPercentage: editingService.depositPercentage,
         categoryId: editingService.categoryId || 0,
+        active: editingService.active,
       });
     }
   }, [editingService]);
@@ -70,7 +72,7 @@ export default function ServiceForm({
         durationMinutes: parseInt(String(formData.durationMinutes)),
         price: parseFloat(String(formData.price)),
         depositPercentage: parseInt(String(formData.depositPercentage)),
-        active: true,
+        active: formData.active,
         categoryId: formData.categoryId,
       };
 
@@ -87,6 +89,7 @@ export default function ServiceForm({
         price: 0,
         depositPercentage: 50,
         categoryId: categories.length > 0 ? categories[0].id : 0,
+        active: true,
       });
       onSuccess();
     } catch (err: any) {
@@ -247,6 +250,28 @@ export default function ServiceForm({
           <p className="text-xs text-zinc-500 mt-1">
             Percentage of the total price required as deposit (0-100%)
           </p>
+        </div>
+
+        <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-md border border-zinc-700">
+          <div>
+            <label className="text-sm font-medium text-zinc-300">
+              Active
+            </label>
+            <p className="text-xs text-zinc-500">
+              Inactive services won't appear in the booking flow
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, active: !formData.active })}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.active ? "bg-indigo-600" : "bg-zinc-600"
+              }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.active ? "translate-x-6" : "translate-x-1"
+                }`}
+            />
+          </button>
         </div>
 
         <div className="flex gap-2">

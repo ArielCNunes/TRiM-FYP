@@ -6,7 +6,11 @@ import EmptyState from "../../shared/EmptyState";
 import CategoryForm from "./CategoryForm";
 import CategoryCard from "./CategoryCard";
 
-export default function CategoriesManager() {
+interface CategoriesManagerProps {
+    onCategoryClick?: (categoryId: number) => void;
+}
+
+export default function CategoriesManager({ onCategoryClick }: CategoriesManagerProps) {
     const [categories, setCategories] = useState<CategoryWithServices[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editingCategory, setEditingCategory] = useState<ServiceCategory | null>(null);
@@ -50,14 +54,14 @@ export default function CategoriesManager() {
         setShowForm(true);
     };
 
-    const handleDelete = async (id: number) => {
+    const handleDeactivate = async (id: number) => {
         try {
-            await categoriesApi.delete(id);
-            setStatus({ type: "success", message: "Category deleted successfully" });
+            await categoriesApi.deactivate(id);
+            setStatus({ type: "success", message: "Category deactivated successfully" });
             fetchCategories();
         } catch (error: any) {
             const message =
-                error.response?.data?.message || "Failed to delete category";
+                error.response?.data?.message || "Failed to deactivate category";
             setStatus({ type: "error", message });
         }
     };
@@ -106,8 +110,10 @@ export default function CategoriesManager() {
                         key={category.id}
                         category={category}
                         servicesCount={category.services.length}
+                        activeServicesCount={category.services.filter(s => s.active).length}
                         onEdit={handleEdit}
-                        onDelete={handleDelete}
+                        onDeactivate={handleDeactivate}
+                        onClick={onCategoryClick}
                     />
                 ))}
             </div>
