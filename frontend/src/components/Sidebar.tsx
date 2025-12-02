@@ -46,6 +46,15 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Backdrop overlay - closes sidebar when clicked */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30 transition-opacity duration-300"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Toggle button - always visible */}
       <button
         onClick={toggleSidebar}
