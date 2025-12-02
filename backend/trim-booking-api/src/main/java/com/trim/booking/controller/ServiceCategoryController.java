@@ -50,10 +50,9 @@ public class ServiceCategoryController {
         return ResponseEntity.ok(categoryService.updateCategory(id, request.getName()));
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ServiceCategory> deactivateCategory(@PathVariable Long id) {
+        return ResponseEntity.ok(categoryService.deactivateCategory(id));
     }
 }

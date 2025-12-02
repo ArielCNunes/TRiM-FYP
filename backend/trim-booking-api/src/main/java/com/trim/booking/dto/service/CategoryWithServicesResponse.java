@@ -10,11 +10,13 @@ import java.util.stream.Collectors;
 public class CategoryWithServicesResponse {
     private Long id;
     private String name;
+    private Boolean active;
     private List<ServiceSummary> services;
 
     public CategoryWithServicesResponse(ServiceCategory category) {
         this.id = category.getId();
         this.name = category.getName();
+        this.active = category.getActive();
         this.services = category.getServices().stream()
                 .map(ServiceSummary::new)
                 .collect(Collectors.toList());
@@ -23,6 +25,7 @@ public class CategoryWithServicesResponse {
     // Getters
     public Long getId() { return id; }
     public String getName() { return name; }
+    public Boolean getActive() { return active; }
     public List<ServiceSummary> getServices() { return services; }
 
     // Nested class for service summary

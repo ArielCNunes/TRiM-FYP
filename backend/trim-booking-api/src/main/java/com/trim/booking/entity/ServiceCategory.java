@@ -16,6 +16,9 @@ public class ServiceCategory {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private Boolean active = true;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ServiceOffered> services = new ArrayList<>();
@@ -24,6 +27,7 @@ public class ServiceCategory {
 
     public ServiceCategory(String name) {
         this.name = name;
+        this.active = true;
     }
 
     // Getters and setters
@@ -32,6 +36,9 @@ public class ServiceCategory {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public Boolean getActive() { return active; }
+    public void setActive(Boolean active) { this.active = active; }
 
     public List<ServiceOffered> getServices() { return services; }
     public void setServices(List<ServiceOffered> services) { this.services = services; }

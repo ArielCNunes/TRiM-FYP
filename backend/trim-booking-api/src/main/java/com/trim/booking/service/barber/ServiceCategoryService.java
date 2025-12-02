@@ -2,6 +2,7 @@ package com.trim.booking.service.barber;
 
 import com.trim.booking.dto.service.CategoryWithServicesResponse;
 import com.trim.booking.entity.ServiceCategory;
+import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.ServiceCategoryRepository;
 import org.springframework.stereotype.Service;
@@ -46,8 +47,18 @@ public class ServiceCategoryService {
         return categoryRepository.save(category);
     }
 
-    public void deleteCategory(Long id) {
+    public ServiceCategory deactivateCategory(Long id) {
         ServiceCategory category = getCategoryById(id);
-        categoryRepository.delete(category);
+
+        // Check if any services in this category are still active
+        boolean hasActiveServices = category.getServices().stream()
+                .anyMatch(service -> service.getActive());
+
+        if (hasActiveServices) {
+            throw new BadRequestException("Cannot deactivate category with active services. Please deactivate all services first.");
+        }
+
+        category.setActive(false);
+        return categoryRepository.save(category);
     }
 }
