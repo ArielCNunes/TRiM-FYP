@@ -1,5 +1,6 @@
 package com.trim.booking.service.barber;
 
+import com.trim.booking.dto.service.CategoryRequest;
 import com.trim.booking.dto.service.CategoryWithServicesResponse;
 import com.trim.booking.entity.ServiceCategory;
 import com.trim.booking.exception.BadRequestException;
@@ -41,9 +42,12 @@ public class ServiceCategoryService {
         return categoryRepository.save(category);
     }
 
-    public ServiceCategory updateCategory(Long id, String name) {
+    public ServiceCategory updateCategory(Long id, CategoryRequest request) {
         ServiceCategory category = getCategoryById(id);
-        category.setName(name);
+        category.setName(request.getName());
+        if (request.getActive() != null) {
+            category.setActive(request.getActive());
+        }
         return categoryRepository.save(category);
     }
 

@@ -47,7 +47,7 @@ public class ServiceCategoryController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ServiceCategory> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, request.getName()));
+        return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
     @PatchMapping("/{id}/deactivate")
