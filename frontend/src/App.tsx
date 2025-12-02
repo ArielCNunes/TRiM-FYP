@@ -1,5 +1,5 @@
 import { BrowserRouter } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Sidebar";
 import AppRoutes from "./routes/AppRoutes";
 
 /**
@@ -10,18 +10,20 @@ import AppRoutes from "./routes/AppRoutes";
  *
  * Structure:
  * - BrowserRouter: Enables client-side routing
- * - Navbar: Persistent navigation bar across all pages
+ * - Sidebar: Floating sidebar navigation displayed on all pages
  * - AppRoutes: Main routing configuration for all application pages
  */
 function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-zinc-950">
-        {/* Navigation bar - displayed on all pages */}
+        {/* Floating sidebar navigation - displayed on all pages */}
         <Navbar />
 
-        {/* Main application routes */}
-        <AppRoutes />
+        {/* Main application routes - full width since sidebar is floating/overlay */}
+        <main className="min-h-screen">
+          <AppRoutes />
+        </main>
       </div>
     </BrowserRouter>
   );
