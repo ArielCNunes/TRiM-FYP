@@ -106,11 +106,33 @@ export const servicesApi = {
 
 /** Barber management endpoints. */
 export const barbersApi = {
+  /** Fetch all barbers (including inactive). */
+  getAll: () => api.get<Barber[]>("/barbers"),
+
   /** Fetch all active barbers. */
   getActive: () => api.get<Barber[]>("/barbers/active"),
 
+  /** Get a single barber by ID. */
+  getById: (id: number) => api.get<Barber>(`/barbers/${id}`),
+
   /** Create a new barber profile. */
   create: (barber: any) => api.post<Barber>("/barbers", barber),
+
+  /** Update an existing barber. */
+  update: (
+    id: number,
+    barber: {
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      phone?: string;
+      bio?: string;
+      profileImageUrl?: string;
+    }
+  ) => api.put<Barber>(`/barbers/${id}`, barber),
+
+  /** Deactivate a barber (soft delete). */
+  deactivate: (id: number) => api.patch<void>(`/barbers/${id}/deactivate`),
 
   /** Get barber availability */
   getAvailability: (barberId: number) =>
