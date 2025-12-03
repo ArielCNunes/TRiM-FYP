@@ -1,10 +1,12 @@
 package com.trim.booking.service.barber;
 
 import com.trim.booking.entity.BarberAvailability;
+import com.trim.booking.entity.BarberBreak;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberAvailabilityRepository;
+import com.trim.booking.repository.BarberBreakRepository;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
@@ -21,16 +23,19 @@ public class AvailabilityService {
     private final BarberAvailabilityRepository barberAvailabilityRepository;
     private final BookingRepository bookingRepository;
     private final ServiceRepository serviceRepository;
+    private final BarberBreakRepository barberBreakRepository;
 
     // Show slots every 15 minutes
     private static final int SLOT_INTERVAL_MINUTES = 15;
 
     public AvailabilityService(BarberAvailabilityRepository barberAvailabilityRepository,
                                BookingRepository bookingRepository,
-                               ServiceRepository serviceRepository) {
+                               ServiceRepository serviceRepository,
+                               BarberBreakRepository barberBreakRepository) {
         this.barberAvailabilityRepository = barberAvailabilityRepository;
         this.bookingRepository = bookingRepository;
         this.serviceRepository = serviceRepository;
+        this.barberBreakRepository = barberBreakRepository;
     }
 
     /**
@@ -39,10 +44,12 @@ public class AvailabilityService {
      * Algorithm:
      * 1. Get barber's working hours for that day of week
      * 2. Get all existing bookings for that barber on that date
-     * 3. Generate time slots at 15-minute intervals
-     * 4. Filter out slots that conflict with existing bookings
-     * 5. Filter out slots with insufficient time for the service
-     * 6. Filter out past slots if date is today
+     * 3. Get all breaks for the barber
+     * 4. Generate time slots at 15-minute intervals
+     * 5. Filter out slots that conflict with existing bookings
+     * 6. Filter out slots that conflict with barber breaks
+     * 7. Filter out slots with insufficient time for the service
+     * 8. Filter out past slots if date is today
      *
      * @param barberId  The ID of the barber
      * @param date      The date to check availability
@@ -71,6 +78,9 @@ public class AvailabilityService {
         // Step 3: Get all existing bookings for this barber on this date
         List<Booking> existingBookings = bookingRepository.findByBarberIdAndBookingDate(barberId, date);
 
+        // Get all breaks for the barber
+        List<BarberBreak> barberBreaks = barberBreakRepository.findByBarberId(barberId);
+
         // Step 4: Generate all possible time slots
         List<LocalTime> availableSlots = new ArrayList<>();
         LocalTime currentSlot = workStart;
@@ -86,6 +96,11 @@ public class AvailabilityService {
 
             // Check if this slot conflicts with any existing booking
             boolean isSlotAvailable = isSlotAvailable(currentSlot, slotEnd, existingBookings);
+
+            // Check if this slot conflicts with any breaks
+            if (isSlotAvailable) {
+                isSlotAvailable = isSlotAvailableWithBreaks(currentSlot, slotEnd, barberBreaks);
+            }
 
             // If today, filter out past times
             if (date.equals(LocalDate.now()) && currentSlot.isBefore(LocalTime.now())) {
@@ -132,6 +147,35 @@ public class AvailabilityService {
             // Overlap formula: (proposedStart < bookingEnd) AND (proposedEnd > bookingStart)
             boolean hasOverlap = proposedStart.isBefore(bookingEnd) &&
                     proposedEnd.isAfter(bookingStart);
+
+            if (hasOverlap) {
+                return false; // Conflict found
+            }
+        }
+        return true; // No conflicts, slot is available
+    }
+
+    /**
+     * Check if a proposed time slot conflicts with barber breaks.
+     * <p>
+     * A conflict occurs if the proposed slot overlaps with any break.
+     * Overlap means: proposed start < break end AND proposed end > break start
+     *
+     * @param proposedStart Start time of the proposed slot
+     * @param proposedEnd   End time of the proposed slot
+     * @param barberBreaks  List of breaks for the barber
+     * @return true if slot is available (no conflicts), false if there's a conflict
+     */
+    private boolean isSlotAvailableWithBreaks(LocalTime proposedStart, LocalTime proposedEnd,
+                                              List<BarberBreak> barberBreaks) {
+        for (BarberBreak breakPeriod : barberBreaks) {
+            LocalTime breakStart = breakPeriod.getStartTime();
+            LocalTime breakEnd = breakPeriod.getEndTime();
+
+            // Check for overlap
+            // Overlap formula: (proposedStart < breakEnd) AND (proposedEnd > breakStart)
+            boolean hasOverlap = proposedStart.isBefore(breakEnd) &&
+                    proposedEnd.isAfter(breakStart);
 
             if (hasOverlap) {
                 return false; // Conflict found
