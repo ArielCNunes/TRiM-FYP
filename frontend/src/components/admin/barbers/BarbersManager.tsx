@@ -5,12 +5,14 @@ import StatusMessage from "../../shared/StatusMessage";
 import EmptyState from "../../shared/EmptyState";
 import BarberForm from "./BarberForm";
 import BarberCard from "./BarberCard";
+import BarberAvailabilityManager from "../../barber/BarberAvailabilityManager";
 
 export default function BarbersManager() {
   const [activeBarbers, setActiveBarbers] = useState<Barber[]>([]);
   const [inactiveBarbers, setInactiveBarbers] = useState<Barber[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingBarber, setEditingBarber] = useState<Barber | null>(null);
+  const [availabilityBarber, setAvailabilityBarber] = useState<Barber | null>(null);
   const [showInactive, setShowInactive] = useState(false);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<{
@@ -73,6 +75,10 @@ export default function BarbersManager() {
     setEditingBarber(null);
   };
 
+  const handleManageAvailability = (barber: Barber) => {
+    setAvailabilityBarber(barber);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -118,6 +124,7 @@ export default function BarbersManager() {
                 barber={barber}
                 onEdit={handleEdit}
                 onDeactivate={handleDeactivate}
+                onManageAvailability={handleManageAvailability}
               />
             ))}
           </div>
@@ -177,6 +184,49 @@ export default function BarbersManager() {
             </div>
           )}
         </>
+      )}
+
+      {/* Availability Modal */}
+      {availabilityBarber && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 rounded-lg shadow-xl border border-zinc-800 w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+              <div>
+                <h3 className="text-xl font-bold text-white">
+                  Manage Availability
+                </h3>
+                <p className="text-sm text-zinc-400">
+                  {availabilityBarber.user.firstName} {availabilityBarber.user.lastName}
+                </p>
+              </div>
+              <button
+                onClick={() => setAvailabilityBarber(null)}
+                className="text-zinc-400 hover:text-white transition p-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <BarberAvailabilityManager barberId={availabilityBarber.id} />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
