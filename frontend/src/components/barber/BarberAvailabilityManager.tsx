@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { barbersApi } from "../../api/endpoints";
+import BarberBreaksManager from "./BarberBreaksManager";
 
 /**
  * Availability Manager - Allows barbers to manage their working hours for each day
@@ -21,6 +22,7 @@ export default function BarberAvailabilityManager({
     sunday: { start: "09:00", end: "17:00", enabled: false, id: null },
   });
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"hours" | "breaks">("hours");
 
   const days = [
     "monday",
@@ -152,9 +154,57 @@ export default function BarberAvailabilityManager({
     }
   };
 
+  // Calculate earliest start and latest end time for break validation
+  const getWorkingHoursBounds = () => {
+    let earliest = "22:00";
+    let latest = "06:00";
+    
+    days.forEach((day) => {
+      if (availability[day].enabled) {
+        if (availability[day].start < earliest) {
+          earliest = availability[day].start;
+        }
+        if (availability[day].end > latest) {
+          latest = availability[day].end;
+        }
+      }
+    });
+    
+    return { earliest, latest };
+  };
+
+  const { earliest: workStartTime, latest: workEndTime } = getWorkingHoursBounds();
+
   return (
-    <div className="space-y-3">
-      {days.map((day) => (
+    <div className="space-y-4">
+      {/* Tabs */}
+      <div className="flex border-b border-zinc-700">
+        <button
+          onClick={() => setActiveTab("hours")}
+          className={`px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === "hours"
+              ? "text-indigo-400 border-b-2 border-indigo-400"
+              : "text-zinc-400 hover:text-zinc-300"
+          }`}
+        >
+          Working Hours
+        </button>
+        <button
+          onClick={() => setActiveTab("breaks")}
+          className={`px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === "breaks"
+              ? "text-emerald-400 border-b-2 border-emerald-400"
+              : "text-zinc-400 hover:text-zinc-300"
+          }`}
+        >
+          Breaks
+        </button>
+      </div>
+
+      {/* Working Hours Tab */}
+      {activeTab === "hours" && (
+        <div className="space-y-3">
+          {days.map((day) => (
         <div
           key={day}
           className={`border rounded-lg transition-all ${
@@ -237,6 +287,17 @@ export default function BarberAvailabilityManager({
       >
         {loading ? "Saving..." : "Save Availability"}
       </button>
+        </div>
+      )}
+
+      {/* Breaks Tab */}
+      {activeTab === "breaks" && (
+        <BarberBreaksManager
+          barberId={barberId}
+          workStartTime={workStartTime}
+          workEndTime={workEndTime}
+        />
+      )}
     </div>
   );
 }

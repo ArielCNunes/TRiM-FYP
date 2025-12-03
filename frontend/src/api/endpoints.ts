@@ -8,6 +8,7 @@ import type {
   ServiceCategory,
   CategoryWithServices,
   Barber,
+  BarberBreak,
   BookingRequest,
   BookingResponse,
   DashboardStats,
@@ -150,6 +151,30 @@ export const barbersApi = {
   /** Update existing availability */
   updateAvailability: (id: number, data: any) =>
     api.put(`/barber-availability/${id}`, data),
+};
+
+/** Barber breaks endpoints. */
+export const barberBreaksApi = {
+  /** Get all breaks for a barber. */
+  getByBarberId: (barberId: number) =>
+    api.get<BarberBreak[]>(`/barber-breaks/barber/${barberId}`),
+
+  /** Create a new break. */
+  create: (data: {
+    barberId: number;
+    startTime: string;
+    endTime: string;
+    label?: string;
+  }) => api.post<BarberBreak>("/barber-breaks", data),
+
+  /** Update an existing break. */
+  update: (
+    id: number,
+    data: { startTime: string; endTime: string; label?: string }
+  ) => api.put<BarberBreak>(`/barber-breaks/${id}`, data),
+
+  /** Delete a break. */
+  delete: (id: number) => api.delete(`/barber-breaks/${id}`),
 };
 
 /** Availability lookup endpoints. */

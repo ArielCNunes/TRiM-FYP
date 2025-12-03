@@ -90,6 +90,15 @@ export interface Barber {
   active: boolean;
 }
 
+// Barber Break Types
+export interface BarberBreak {
+  id: number;
+  barberId: number;
+  startTime: string;
+  endTime: string;
+  label?: string;
+}
+
 // Booking Types
 export interface BookingRequest {
   customerId: number;
