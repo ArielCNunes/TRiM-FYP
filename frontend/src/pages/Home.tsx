@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
 import { Settings, Users, Calendar, Clock, Scissors, Star } from "lucide-react";
+import AdminCalendar from "../components/admin/calendar/AdminCalendar";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -9,54 +10,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-950">
-      {/* Admin View */}
+      {/* Admin View - Calendar is the main feature */}
       {user?.role === "ADMIN" && (
-        <div className="max-w-7xl mx-auto px-6 py-20">
-          <div className="text-center mb-16">
-            <h1 className="text-6xl font-bold mb-6 text-white">TRiM Admin</h1>
-            <p className="text-xl text-zinc-400 mb-8">
-              Manage your barbershop operations
-            </p>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-white">Shop Calendar</h1>
+              <p className="text-zinc-400">View and manage all bookings</p>
+            </div>
+            <button
+              onClick={() => navigate("/admin")}
+              className="bg-zinc-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-zinc-700 transition flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              Admin Settings
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            {/* Services Management */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 hover:border-zinc-700 transition">
-              <div className="flex items-center mb-4">
-                <div className="bg-indigo-900/30 p-3 rounded-lg">
-                  <Settings className="w-8 h-8 text-indigo-400" />
-                </div>
-                <h2 className="text-2xl font-bold text-white ml-4">Services</h2>
-              </div>
-              <p className="text-zinc-400 mb-6">Create and manage services</p>
-              <button
-                onClick={() => navigate("/admin")}
-                className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-500 transition"
-              >
-                Manage Services
-              </button>
-            </div>
-
-            {/* Barbers Management */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 hover:border-zinc-700 transition">
-              <div className="flex items-center mb-4">
-                <div className="bg-emerald-900/30 p-3 rounded-lg">
-                  <Users className="w-8 h-8 text-emerald-400" />
-                </div>
-                <h2 className="text-2xl font-bold text-white ml-4">Barbers</h2>
-              </div>
-              <p className="text-zinc-400 mb-6">
-                Add new barbers, manage profiles, and configure their
-                availability
-              </p>
-              <button
-                onClick={() => navigate("/admin")}
-                className="w-full bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-500 transition"
-              >
-                Manage Barbers
-              </button>
-            </div>
-          </div>
+          <AdminCalendar />
         </div>
       )}
 

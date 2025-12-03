@@ -211,6 +211,10 @@ export const bookingsApi = {
       outstandingBalance: number;
     }>("/auth/guest-booking", data),
 
+  /** Fetch all bookings (admin only) with optional filters. */
+  getAll: (params?: { status?: string; date?: string }) =>
+    api.get<BookingResponse[]>("/bookings/all", { params }),
+
   /** Fetch bookings for the authenticated customer. */
   getCustomerBookings: (customerId: number) =>
     api.get<BookingResponse[]>(`/bookings/customer/${customerId}`),
