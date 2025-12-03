@@ -78,9 +78,13 @@ public class BarberService {
         return barberRepository.findById(id);
     }
 
-    public Barber updateBarber(Long id, String bio, String profileImageUrl) {
+    public Barber updateBarber(Long id, String firstName, String lastName, String email, String phone, String bio, String profileImageUrl) {
         return barberRepository.findById(id)
                 .map(barber -> {
+                    if (firstName != null) barber.getUser().setFirstName(firstName);
+                    if (lastName != null) barber.getUser().setLastName(lastName);
+                    if (email != null) barber.getUser().setEmail(email);
+                    if (phone != null) barber.getUser().setPhone(phone);
                     if (bio != null) barber.setBio(bio);
                     if (profileImageUrl != null) barber.setProfileImageUrl(profileImageUrl);
                     return barberRepository.save(barber);

@@ -44,6 +44,10 @@ public class BarberController {
             @Valid @RequestBody UpdateBarberRequest request) {
         Barber updated = barberService.updateBarber(
                 id,
+                request.getFirstName(),
+                request.getLastName(),
+                request.getEmail(),
+                request.getPhone(),
                 request.getBio(),
                 request.getProfileImageUrl()
         );
