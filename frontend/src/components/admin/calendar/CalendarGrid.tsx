@@ -13,7 +13,7 @@ interface CalendarGridProps {
 // Shop hours configuration
 const SHOP_START_HOUR = 6; // 6 AM
 const SHOP_END_HOUR = 22; // 10 PM
-const SLOT_HEIGHT = 60; // pixels per hour
+const SLOT_HEIGHT = 90; // pixels per hour
 
 // Helper to convert time string (HH:mm) to minutes from midnight
 const timeToMinutes = (time: string): number => {
@@ -217,8 +217,8 @@ export default function CalendarGrid({
                                                 key={`break-${barber.id}-${breakIndex}`}
                                                 className="absolute left-1 right-1 bg-zinc-700/40 border border-dashed border-zinc-500 rounded pointer-events-none overflow-hidden flex items-center"
                                                 style={{
-                                                    top: top,
-                                                    height: Math.max(height, 20),
+                                                    top: top + 2,
+                                                    height: Math.max(height - 4, 30),
                                                     zIndex: 5,
                                                 }}
                                                 title={`${barber.user.firstName}'s break: ${breakItem.label || "Break"}`}
@@ -247,10 +247,10 @@ export default function CalendarGrid({
                                         <div
                                             key={booking.id}
                                             onClick={() => onBookingClick(booking)}
-                                            className={`absolute left-1 right-1 border-l-4 ${color.border} ${statusStyle} rounded cursor-pointer transition-colors overflow-hidden flex items-center`}
+                                            className={`absolute left-1 right-1 ${statusStyle} rounded cursor-pointer transition-colors overflow-hidden flex items-center`}
                                             style={{
                                                 top: top + 2,
-                                                height: height - 4,
+                                                height: Math.max(height - 4, 30),
                                                 zIndex: 10,
                                             }}
                                         >

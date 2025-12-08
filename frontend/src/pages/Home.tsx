@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
-import { Settings, Calendar, Clock, Scissors, Star } from "lucide-react";
+import { Settings, Calendar, Scissors, Star } from "lucide-react";
 import AdminCalendar from "../components/admin/calendar/AdminCalendar";
+import BarberCalendar from "../components/barber/BarberCalendar";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -33,57 +34,22 @@ export default function Home() {
 
       {/* Barber View */}
       {user?.role === "BARBER" && (
-        <div className="max-w-7xl mx-auto px-6 py-20">
-          <div className="text-center mb-16">
-            <h1 className="text-6xl font-bold mb-6 text-white">
-              Welcome, {user.firstName}!
-            </h1>
-            <p className="text-xl text-zinc-400 mb-8">Your barber dashboard</p>
+        <div className="w-full px-8 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-white">My Schedule</h1>
+              <p className="text-zinc-400">View and manage your bookings</p>
+            </div>
+            <button
+              onClick={() => navigate("/barber")}
+              className="bg-zinc-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-zinc-700 transition flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              Manage Availability
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            {/* Today's Schedule */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 hover:border-zinc-700 transition">
-              <div className="flex items-center mb-4">
-                <div className="bg-indigo-900/30 p-3 rounded-lg">
-                  <Calendar className="w-8 h-8 text-indigo-400" />
-                </div>
-                <h2 className="text-2xl font-bold text-white ml-4">
-                  Today's Schedule
-                </h2>
-              </div>
-              <p className="text-zinc-400 mb-6">
-                View and manage your appointments for today
-              </p>
-              <button
-                onClick={() => navigate("/barber")}
-                className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-500 transition"
-              >
-                View Schedule
-              </button>
-            </div>
-
-            {/* Availability */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 hover:border-zinc-700 transition">
-              <div className="flex items-center mb-4">
-                <div className="bg-emerald-900/30 p-3 rounded-lg">
-                  <Clock className="w-8 h-8 text-emerald-400" />
-                </div>
-                <h2 className="text-2xl font-bold text-white ml-4">
-                  Availability
-                </h2>
-              </div>
-              <p className="text-zinc-400 mb-6">
-                Set your working hours and manage your schedule
-              </p>
-              <button
-                onClick={() => navigate("/barber")}
-                className="w-full bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-500 transition"
-              >
-                Manage Availability
-              </button>
-            </div>
-          </div>
+          <BarberCalendar />
         </div>
       )}
 

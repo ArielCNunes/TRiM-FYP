@@ -151,11 +151,10 @@ export default function MyBookings() {
 
       {status && (
         <div
-          className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
-            status.type === "success"
+          className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${status.type === "success"
               ? "border-emerald-800 bg-emerald-900/20 text-emerald-300"
               : "border-red-800 bg-red-900/20 text-red-300"
-          }`}
+            }`}
         >
           {status.message}
         </div>
@@ -276,10 +275,10 @@ export default function MyBookings() {
                         <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                           Outstanding
                         </p>
-                        <p className="text-2xl font-bold text-orange-400">
+                        <p className="text-lg font-medium text-zinc-300">
                           €{booking.outstandingBalance.toFixed(2)}
                         </p>
-                        <p className="text-xs text-zinc-400 mt-1">
+                        <p className="text-xs text-zinc-500 mt-1">
                           Pay at shop
                         </p>
                       </div>
@@ -288,15 +287,15 @@ export default function MyBookings() {
                   {/* Show nothing in 5th column if fully paid */}
                   {(booking.outstandingBalance === undefined ||
                     booking.outstandingBalance === 0) && (
-                    <div>
-                      <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
-                        Balance
-                      </p>
-                      <p className="text-lg font-medium text-emerald-400">
-                        Paid in Full
-                      </p>
-                    </div>
-                  )}
+                      <div>
+                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                          Balance
+                        </p>
+                        <p className="text-lg font-medium text-emerald-400">
+                          Paid in Full
+                        </p>
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -335,9 +334,8 @@ export default function MyBookings() {
               Past Bookings ({pastBookings.length})
             </span>
             <svg
-              className={`w-5 h-5 transform transition-transform ${
-                showPastBookings ? "rotate-180" : ""
-              }`}
+              className={`w-5 h-5 transform transition-transform ${showPastBookings ? "rotate-180" : ""
+                }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -449,27 +447,27 @@ export default function MyBookings() {
                             <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
                               Outstanding
                             </p>
-                            <p className="text-2xl font-bold text-orange-400/70">
+                            <p className="text-lg font-medium text-zinc-400">
                               €{booking.outstandingBalance.toFixed(2)}
                             </p>
-                            <p className="text-xs text-zinc-400 mt-1">Unpaid</p>
+                            <p className="text-xs text-zinc-500 mt-1">Unpaid</p>
                           </div>
                         )}
 
                       {/* Show nothing in 5th column if fully paid */}
                       {(booking.outstandingBalance === undefined ||
                         booking.outstandingBalance === 0) && (
-                        <div>
-                          <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
-                            Balance
-                          </p>
-                          <p className="text-lg font-medium text-emerald-400/70">
-                            {booking.status === "COMPLETED"
-                              ? "Paid in Full"
-                              : "N/A"}
-                          </p>
-                        </div>
-                      )}
+                          <div>
+                            <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                              Balance
+                            </p>
+                            <p className="text-lg font-medium text-emerald-400/70">
+                              {booking.status === "COMPLETED"
+                                ? "Paid in Full"
+                                : "N/A"}
+                            </p>
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>

@@ -178,27 +178,17 @@ export default function BarberBookingsManager({
                     <p className="text-lg font-bold text-indigo-400">
                       €{booking.service.price.toFixed(2)}
                     </p>
+                    {/* Outstanding Balance - Below total price */}
+                    {(booking.status === "PENDING" ||
+                      booking.status === "CONFIRMED") &&
+                      booking.outstandingBalance !== undefined &&
+                      booking.outstandingBalance > 0 && (
+                        <p className="text-xs text-zinc-400 mt-1">
+                          Outstanding: €{booking.outstandingBalance.toFixed(2)}
+                        </p>
+                      )}
                   </div>
                 </div>
-
-                {/* Outstanding Balance Alert - Only show for active bookings */}
-                {(booking.status === "PENDING" ||
-                  booking.status === "CONFIRMED") &&
-                  booking.outstandingBalance !== undefined &&
-                  booking.outstandingBalance > 0 && (
-                    <div className="mt-3 p-3 bg-orange-900/20 border border-orange-800 rounded-md">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-xs text-orange-300 font-semibold">
-                            OUTSTANDING BALANCE
-                          </p>
-                        </div>
-                        <p className="text-xl font-bold text-orange-400">
-                          €{booking.outstandingBalance.toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  )}
 
                 {/* Fully Paid Indicator - Only show for active bookings */}
                 {(booking.status === "PENDING" ||
@@ -217,29 +207,29 @@ export default function BarberBookingsManager({
               {/* Action Buttons - Only show for active bookings */}
               {(booking.status === "PENDING" ||
                 booking.status === "CONFIRMED") && (
-                <div className="mt-4 pt-4 border-t border-zinc-600">
-                  <div className="grid grid-cols-2 gap-3">
-                    <BookingActionButton
-                      bookingId={booking.id}
-                      bookingStatus={booking.status}
-                      actionType="complete"
-                      onSuccess={handleBookingUpdate}
-                      onError={(error: string) => {
-                        console.error("Error marking complete:", error);
-                      }}
-                    />
-                    <BookingActionButton
-                      bookingId={booking.id}
-                      bookingStatus={booking.status}
-                      actionType="no-show"
-                      onSuccess={handleBookingUpdate}
-                      onError={(error: string) => {
-                        console.error("Error marking no-show:", error);
-                      }}
-                    />
+                  <div className="mt-4 pt-4 border-t border-zinc-600">
+                    <div className="grid grid-cols-2 gap-3">
+                      <BookingActionButton
+                        bookingId={booking.id}
+                        bookingStatus={booking.status}
+                        actionType="complete"
+                        onSuccess={handleBookingUpdate}
+                        onError={(error: string) => {
+                          console.error("Error marking complete:", error);
+                        }}
+                      />
+                      <BookingActionButton
+                        bookingId={booking.id}
+                        bookingStatus={booking.status}
+                        actionType="no-show"
+                        onSuccess={handleBookingUpdate}
+                        onError={(error: string) => {
+                          console.error("Error marking no-show:", error);
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           ))}
         </div>

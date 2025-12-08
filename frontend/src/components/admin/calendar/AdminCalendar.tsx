@@ -186,6 +186,10 @@ export default function AdminCalendar() {
                 <BookingDetailModal
                     booking={selectedBooking}
                     onClose={() => setSelectedBooking(null)}
+                    canChangeStatus={true}
+                    onStatusChange={() => {
+                        loadBookingsForWeek();
+                    }}
                 />
             )}
         </div>

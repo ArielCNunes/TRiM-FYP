@@ -1,8 +1,12 @@
+import { useState } from "react";
 import type { BookingResponse } from "../../../types";
+import { bookingsApi } from "../../../api/endpoints";
 
 interface BookingDetailModalProps {
     booking: BookingResponse;
     onClose: () => void;
+    onStatusChange?: () => void;
+    canChangeStatus?: boolean;
 }
 
 // Format time for display (HH:mm -> 12-hour format)
@@ -59,7 +63,44 @@ const getPaymentBadge = (status: string) => {
 export default function BookingDetailModal({
     booking,
     onClose,
+    onStatusChange,
+    canChangeStatus = false,
 }: BookingDetailModalProps) {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleMarkComplete = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await bookingsApi.markComplete(booking.id);
+            onStatusChange?.();
+            onClose();
+        } catch (err) {
+            setError("Failed to mark booking as complete");
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleMarkNoShow = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await bookingsApi.markNoShow(booking.id);
+            onStatusChange?.();
+            onClose();
+        } catch (err) {
+            setError("Failed to mark booking as no-show");
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const canShowActions = canChangeStatus && booking.status.toUpperCase() === "CONFIRMED";
+
     return (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
             <div className="bg-zinc-900 rounded-lg shadow-xl border border-zinc-800 w-full max-w-md overflow-hidden">
@@ -189,6 +230,33 @@ export default function BookingDetailModal({
                             Created: {new Date(booking.createdAt).toLocaleDateString()}
                         </span>
                     </div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mt-3 p-2 bg-red-600/20 border border-red-500 rounded text-red-400 text-sm text-center">
+                            {error}
+                        </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    {canShowActions && (
+                        <div className="mt-4 pt-4 border-t border-zinc-800 flex gap-3">
+                            <button
+                                onClick={handleMarkComplete}
+                                disabled={isLoading}
+                                className="flex-1 py-2 px-4 bg-green-600 hover:bg-green-700 disabled:bg-green-800 disabled:cursor-not-allowed text-white rounded-lg font-medium transition"
+                            >
+                                {isLoading ? "Updating..." : "Mark Complete"}
+                            </button>
+                            <button
+                                onClick={handleMarkNoShow}
+                                disabled={isLoading}
+                                className="flex-1 py-2 px-4 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-800 disabled:cursor-not-allowed text-white rounded-lg font-medium transition"
+                            >
+                                {isLoading ? "Updating..." : "Mark No-Show"}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

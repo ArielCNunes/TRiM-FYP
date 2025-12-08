@@ -182,8 +182,8 @@ export default function BarberAvailabilityManager({
         <button
           onClick={() => setActiveTab("hours")}
           className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "hours"
-              ? "text-indigo-400 border-b-2 border-indigo-400"
-              : "text-zinc-400 hover:text-zinc-300"
+            ? "text-indigo-400 border-b-2 border-indigo-400"
+            : "text-zinc-400 hover:text-zinc-300"
             }`}
         >
           Working Hours
@@ -191,8 +191,8 @@ export default function BarberAvailabilityManager({
         <button
           onClick={() => setActiveTab("breaks")}
           className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "breaks"
-              ? "text-emerald-400 border-b-2 border-emerald-400"
-              : "text-zinc-400 hover:text-zinc-300"
+            ? "text-emerald-400 border-b-2 border-emerald-400"
+            : "text-zinc-400 hover:text-zinc-300"
             }`}
         >
           Breaks
@@ -206,8 +206,8 @@ export default function BarberAvailabilityManager({
             <div
               key={day}
               className={`border rounded-lg transition-all ${availability[day].enabled
-                  ? "border-indigo-800 bg-indigo-900/20"
-                  : "border-zinc-700 bg-zinc-800"
+                ? "border-zinc-600 bg-zinc-800/50"
+                : "border-zinc-700 bg-zinc-800"
                 }`}
             >
               {/* Day header with toggle */}
