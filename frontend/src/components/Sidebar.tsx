@@ -2,6 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { logout } from "../features/auth/authSlice";
 
+interface SidebarProps {
+  isCollapsed: boolean;
+  onToggle: () => void;
+}
+
 /**
  * Sidebar Component
  *
@@ -10,7 +15,7 @@ import { logout } from "../features/auth/authSlice";
  * Handles user logout and displays user information when authenticated.
  * Can be toggled open/closed with a floating button.
  */
-export default function Navbar() {
+export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
   // Get authentication state and user info from Redux store
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
@@ -27,17 +32,62 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Toggle Button - visible when sidebar is hidden */}
+      {isCollapsed && (
+        <button
+          onClick={onToggle}
+          className="fixed top-4 left-4 z-50 p-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-lg border border-zinc-700 transition-all duration-300"
+          aria-label="Show sidebar"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 5l7 7-7 7M5 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+      )}
+
       {/* Fixed Sidebar */}
       <nav
-        className="fixed top-0 left-0 bottom-0 z-40 w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col"
+        className={`fixed top-0 left-0 bottom-0 z-40 w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col transition-transform duration-300 ${isCollapsed ? "-translate-x-full" : "translate-x-0"
+          }`}
       >
-        {/* Logo section */}
-        <div className="px-6 py-6 border-b border-zinc-800">
+        {/* Logo section with toggle button */}
+        <div className="px-6 py-6 border-b border-zinc-800 flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <span className="text-2xl font-bold text-white tracking-tight">
               TRiM
             </span>
           </Link>
+          <button
+            onClick={onToggle}
+            className="p-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-lg border border-zinc-700 transition-all"
+            aria-label="Hide sidebar"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+              />
+            </svg>
+          </button>
         </div>
 
         {/* Navigation links - vertical layout */}
