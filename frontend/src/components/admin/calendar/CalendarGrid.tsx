@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import type { BookingResponse, Barber, BarberBreak } from "../../../types";
-import { getBarberColor } from "./BarberFilterSidebar";
 
 interface CalendarGridProps {
     weekDates: Date[];
@@ -65,15 +64,6 @@ export default function CalendarGrid({
     onBookingClick,
 }: CalendarGridProps) {
     const timeSlots = useMemo(() => generateTimeSlots(), []);
-
-    // Create a map of barber ID to index for consistent coloring
-    const barberIndexMap = useMemo(() => {
-        const map = new Map<number, number>();
-        barbers.forEach((barber, index) => {
-            map.set(barber.id, index);
-        });
-        return map;
-    }, [barbers]);
 
     // Group bookings by date
     const bookingsByDate = useMemo(() => {
@@ -238,9 +228,6 @@ export default function CalendarGrid({
                                     const startTime = booking.startTime.substring(0, 5);
                                     const endTime = booking.endTime.substring(0, 5);
                                     const { top, height } = getBlockStyle(startTime, endTime);
-                                    const barberIndex =
-                                        barberIndexMap.get(booking.barber.id) || 0;
-                                    const color = getBarberColor(barberIndex);
                                     const statusStyle = getStatusStyle(booking.status);
 
                                     return (
