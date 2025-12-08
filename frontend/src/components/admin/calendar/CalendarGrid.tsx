@@ -215,19 +215,21 @@ export default function CalendarGrid({
                                         return (
                                             <div
                                                 key={`break-${barber.id}-${breakIndex}`}
-                                                className="absolute left-0 right-0 mx-1 bg-zinc-700/40 border border-dashed border-zinc-500 rounded text-xs pointer-events-none"
+                                                className="absolute left-0 right-0 mx-1 bg-zinc-700/40 border border-dashed border-zinc-500 rounded pointer-events-none"
                                                 style={{
                                                     top: top,
-                                                    height: height,
+                                                    minHeight: Math.max(height, 36),
                                                     zIndex: 5,
                                                 }}
                                                 title={`${barber.user.firstName}'s break: ${breakItem.label || "Break"}`}
                                             >
-                                                <div className="p-1 text-zinc-300 truncate">
-                                                    <span className="font-medium">
+                                                <div className="p-1">
+                                                    <div className="text-xs font-medium text-zinc-300 truncate">
                                                         {barber.user.firstName}
-                                                    </span>
-                                                    {breakItem.label && ` - ${breakItem.label}`}
+                                                    </div>
+                                                    <div className="text-[10px] text-zinc-400 truncate">
+                                                        {breakItem.label || "Break"}
+                                                    </div>
                                                 </div>
                                             </div>
                                         );
@@ -248,26 +250,20 @@ export default function CalendarGrid({
                                         <div
                                             key={booking.id}
                                             onClick={() => onBookingClick(booking)}
-                                            className={`absolute left-0 right-0 mx-1 border-l-4 ${color.border} ${statusStyle} rounded cursor-pointer transition-colors overflow-hidden`}
+                                            className={`absolute left-1 right-1 border-l-4 ${color.border} ${statusStyle} rounded cursor-pointer transition-colors overflow-hidden flex items-center`}
                                             style={{
                                                 top: top + 1,
-                                                height: Math.max(height - 2, 24),
+                                                height: Math.max(height - 2, 20),
+                                                zIndex: 10,
                                             }}
                                         >
-                                            <div className="p-1 h-full">
+                                            <div className="px-2 py-1 w-full">
                                                 <div className="text-xs font-medium text-white truncate">
                                                     {booking.customer.firstName} {booking.customer.lastName}
                                                 </div>
-                                                {height > 40 && (
-                                                    <div className="text-xs text-zinc-400 truncate">
-                                                        {booking.service.name}
-                                                    </div>
-                                                )}
-                                                {height > 60 && (
-                                                    <div className="text-xs text-zinc-500">
-                                                        {booking.barber.user.firstName}
-                                                    </div>
-                                                )}
+                                                <div className="text-[10px] text-zinc-400 truncate">
+                                                    {booking.service.name}
+                                                </div>
                                             </div>
                                         </div>
                                     );

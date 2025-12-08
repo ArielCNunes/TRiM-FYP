@@ -42,9 +42,7 @@ export default function AdminCalendar() {
     const [barberBreaks, setBarberBreaks] = useState<Map<number, BarberBreak[]>>(
         new Map()
     );
-    const [selectedBarberIds, setSelectedBarberIds] = useState<Set<number>>(
-        new Set()
-    );
+    const [selectedBarberId, setSelectedBarberId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedBooking, setSelectedBooking] =
         useState<BookingResponse | null>(null);
@@ -75,8 +73,10 @@ export default function AdminCalendar() {
         try {
             const response = await barbersApi.getActive();
             setBarbers(response.data);
-            // Select all barbers by default
-            setSelectedBarberIds(new Set(response.data.map((b) => b.id)));
+            // Select first barber by default
+            if (response.data.length > 0) {
+                setSelectedBarberId(response.data[0].id);
+            }
         } catch (error) {
             console.error("Failed to load barbers", error);
         }
@@ -125,43 +125,31 @@ export default function AdminCalendar() {
         setCurrentWeekStart(getWeekStart(new Date()));
     };
 
-    // Barber filter handlers
-    const toggleBarber = (barberId: number) => {
-        setSelectedBarberIds((prev) => {
-            const newSet = new Set(prev);
-            if (newSet.has(barberId)) {
-                newSet.delete(barberId);
-            } else {
-                newSet.add(barberId);
-            }
-            return newSet;
-        });
+    // Barber selection handler
+    const selectBarber = (barberId: number) => {
+        setSelectedBarberId(barberId);
     };
 
-    const selectAllBarbers = () => {
-        setSelectedBarberIds(new Set(barbers.map((b) => b.id)));
-    };
-
-    const deselectAllBarbers = () => {
-        setSelectedBarberIds(new Set());
-    };
-
-    // Filter bookings by selected barbers
+    // Filter bookings by selected barber
     const filteredBookings = useMemo(() => {
+        if (selectedBarberId === null) return [];
         return bookings.filter((booking) =>
-            selectedBarberIds.has(booking.barber.id)
+            booking.barber.id === selectedBarberId
         );
-    }, [bookings, selectedBarberIds]);
+    }, [bookings, selectedBarberId]);
+
+    // Get selected barber for display
+    const selectedBarber = useMemo(() => {
+        return barbers.find(b => b.id === selectedBarberId) || null;
+    }, [barbers, selectedBarberId]);
 
     return (
         <div className="flex gap-6">
             {/* Sidebar */}
             <BarberFilterSidebar
                 barbers={barbers}
-                selectedBarberIds={selectedBarberIds}
-                onToggleBarber={toggleBarber}
-                onSelectAll={selectAllBarbers}
-                onDeselectAll={deselectAllBarbers}
+                selectedBarberId={selectedBarberId}
+                onSelectBarber={selectBarber}
             />
 
             {/* Main Calendar Area */}
@@ -178,14 +166,18 @@ export default function AdminCalendar() {
                     <div className="flex justify-center items-center py-20">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500"></div>
                     </div>
-                ) : (
+                ) : selectedBarber ? (
                     <CalendarGrid
                         weekDates={weekDates}
                         bookings={filteredBookings}
-                        barbers={barbers.filter((b) => selectedBarberIds.has(b.id))}
+                        barbers={[selectedBarber]}
                         barberBreaks={barberBreaks}
                         onBookingClick={setSelectedBooking}
                     />
+                ) : (
+                    <div className="flex justify-center items-center py-20 text-zinc-400">
+                        Select an employee to view their schedule
+                    </div>
                 )}
             </div>
 

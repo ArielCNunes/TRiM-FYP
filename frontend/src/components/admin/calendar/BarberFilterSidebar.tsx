@@ -2,10 +2,8 @@ import type { Barber } from "../../../types";
 
 interface BarberFilterSidebarProps {
     barbers: Barber[];
-    selectedBarberIds: Set<number>;
-    onToggleBarber: (barberId: number) => void;
-    onSelectAll: () => void;
-    onDeselectAll: () => void;
+    selectedBarberId: number | null;
+    onSelectBarber: (barberId: number) => void;
 }
 
 // Color palette for barbers
@@ -26,96 +24,50 @@ export const getBarberColor = (index: number) => {
 
 export default function BarberFilterSidebar({
     barbers,
-    selectedBarberIds,
-    onToggleBarber,
-    onSelectAll,
-    onDeselectAll,
+    selectedBarberId,
+    onSelectBarber,
 }: BarberFilterSidebarProps) {
-    const allSelected = selectedBarberIds.size === barbers.length;
-    const noneSelected = selectedBarberIds.size === 0;
-
     return (
         <div className="w-64 flex-shrink-0">
             <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-4">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-white">Barbers</h3>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={onSelectAll}
-                            disabled={allSelected}
-                            className={`text-xs ${allSelected
-                                    ? "text-zinc-600"
-                                    : "text-indigo-400 hover:text-indigo-300"
-                                }`}
-                        >
-                            All
-                        </button>
-                        <span className="text-zinc-600">|</span>
-                        <button
-                            onClick={onDeselectAll}
-                            disabled={noneSelected}
-                            className={`text-xs ${noneSelected
-                                    ? "text-zinc-600"
-                                    : "text-indigo-400 hover:text-indigo-300"
-                                }`}
-                        >
-                            None
-                        </button>
-                    </div>
-                </div>
+                <h3 className="text-sm font-semibold text-white mb-4">Select Employee</h3>
 
                 <div className="space-y-2">
                     {barbers.map((barber, index) => {
                         const color = getBarberColor(index);
-                        const isSelected = selectedBarberIds.has(barber.id);
+                        const isSelected = selectedBarberId === barber.id;
+                        const initials = `${barber.user.firstName.charAt(0)}${barber.user.lastName.charAt(0)}`.toUpperCase();
 
                         return (
-                            <label
+                            <button
                                 key={barber.id}
-                                className={`flex items-center gap-3 p-2 rounded-md cursor-pointer transition ${isSelected
-                                        ? "bg-zinc-800"
-                                        : "bg-zinc-900 hover:bg-zinc-800/50"
+                                onClick={() => onSelectBarber(barber.id)}
+                                className={`w-full flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${isSelected
+                                    ? `bg-zinc-800 border-2 ${color.border}`
+                                    : "bg-zinc-900 border border-zinc-700 hover:bg-zinc-800/50 hover:border-zinc-600"
                                     }`}
                             >
-                                <input
-                                    type="checkbox"
-                                    checked={isSelected}
-                                    onChange={() => onToggleBarber(barber.id)}
-                                    className="sr-only"
-                                />
-                                <div
-                                    className={`w-4 h-4 rounded ${isSelected ? color.bg : "bg-zinc-700"
-                                        } flex items-center justify-center transition`}
-                                >
-                                    {isSelected && (
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-3 w-3 text-white"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={3}
-                                                d="M5 13l4 4L19 7"
-                                            />
-                                        </svg>
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    <div
-                                        className={`w-3 h-3 rounded-full ${color.bg} flex-shrink-0`}
+                                {/* Profile picture or initials placeholder */}
+                                {barber.profileImageUrl ? (
+                                    <img
+                                        src={barber.profileImageUrl}
+                                        alt={`${barber.user.firstName} ${barber.user.lastName}`}
+                                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                                     />
-                                    <span
-                                        className={`text-sm truncate ${isSelected ? "text-white" : "text-zinc-500"
-                                            }`}
+                                ) : (
+                                    <div
+                                        className={`w-10 h-10 rounded-full ${color.bg} flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm`}
                                     >
-                                        {barber.user.firstName} {barber.user.lastName}
-                                    </span>
-                                </div>
-                            </label>
+                                        {initials}
+                                    </div>
+                                )}
+                                <span
+                                    className={`text-sm truncate ${isSelected ? "text-white font-medium" : "text-zinc-400"
+                                        }`}
+                                >
+                                    {barber.user.firstName} {barber.user.lastName}
+                                </span>
+                            </button>
                         );
                     })}
                 </div>
