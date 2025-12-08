@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { logout } from "../features/auth/authSlice";
@@ -6,27 +5,16 @@ import { logout } from "../features/auth/authSlice";
 /**
  * Sidebar Component
  *
- * Displays a floating sidebar with role-based navigation links and authentication controls.
+ * Displays a fixed sidebar with role-based navigation links and authentication controls.
  * Shows different navigation options based on user role (CUSTOMER, BARBER, ADMIN).
  * Handles user logout and displays user information when authenticated.
  * Can be toggled open/closed with a floating button.
  */
 export default function Navbar() {
-  // Sidebar open/closed state - persisted in localStorage
-  const [isOpen, setIsOpen] = useState(() => {
-    const saved = localStorage.getItem("sidebarOpen");
-    return saved !== null ? JSON.parse(saved) : true;
-  });
-
   // Get authentication state and user info from Redux store
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  // Persist sidebar state to localStorage
-  useEffect(() => {
-    localStorage.setItem("sidebarOpen", JSON.stringify(isOpen));
-  }, [isOpen]);
 
   /**
    * Handles user logout
@@ -37,52 +25,14 @@ export default function Navbar() {
     navigate("/auth");
   };
 
-  /**
-   * Toggle sidebar visibility
-   */
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
   return (
     <>
-      {/* Backdrop overlay - closes sidebar when clicked */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-30 transition-opacity duration-300"
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Toggle button - always visible */}
-      <button
-        onClick={toggleSidebar}
-        className="fixed top-4 left-4 z-50 p-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl shadow-lg shadow-black/20 transition-all duration-300"
-        aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className={`h-6 w-6 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          {isOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          )}
-        </svg>
-      </button>
-
-      {/* Floating Sidebar */}
+      {/* Fixed Sidebar */}
       <nav
-        className={`fixed top-4 left-4 bottom-4 z-40 w-64 bg-zinc-900/95 backdrop-blur-sm border border-zinc-800 rounded-2xl shadow-xl shadow-black/30 transition-all duration-300 ease-in-out flex flex-col ${isOpen ? "translate-x-0 opacity-100" : "-translate-x-[calc(100%+2rem)] opacity-0"
-          }`}
+        className="fixed top-0 left-0 bottom-0 z-40 w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col"
       >
         {/* Logo section */}
-        <div className="pt-16 px-6 pb-4 border-b border-zinc-800">
+        <div className="px-6 py-6 border-b border-zinc-800">
           <Link to="/" className="flex items-center">
             <span className="text-2xl font-bold text-white tracking-tight">
               TRiM

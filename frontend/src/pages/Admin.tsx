@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import AdminTabNavigation, {
   type AdminTab,
 } from "../components/admin/AdminTabNavigation";
-import AdminCalendar from "../components/admin/calendar/AdminCalendar";
 import AdminDashboard from "../components/admin/dashboard/AdminDashboard";
 import CategoriesManager from "../components/admin/categories/CategoriesManager";
 import ServicesManager from "../components/admin/services/ServicesManager";
@@ -37,7 +36,7 @@ export default function Admin() {
     );
   }
 
-  const [activeTab, setActiveTab] = useState<AdminTab>("calendar");
+  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
 
   // Handle category click - switch to services tab and filter by category
@@ -61,7 +60,6 @@ export default function Admin() {
 
         <AdminTabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
-        {activeTab === "calendar" && <AdminCalendar />}
         {activeTab === "dashboard" && <AdminDashboard />}
         {activeTab === "categories" && <CategoriesManager onCategoryClick={handleCategoryClick} />}
         {activeTab === "services" && (

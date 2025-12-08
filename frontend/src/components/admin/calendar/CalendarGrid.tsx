@@ -149,7 +149,7 @@ export default function CalendarGrid({
             </div>
 
             {/* Scrollable body */}
-            <div className="overflow-y-auto max-h-[600px]">
+            <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
                 <div className="flex relative">
                     {/* Time labels column */}
                     <div className="w-16 flex-shrink-0 bg-zinc-900 border-r border-zinc-800">

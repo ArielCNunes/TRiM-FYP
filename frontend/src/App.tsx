@@ -17,11 +17,11 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-zinc-950">
-        {/* Floating sidebar navigation - displayed on all pages */}
+        {/* Fixed sidebar navigation - displayed on all pages */}
         <Navbar />
 
-        {/* Main application routes - full width since sidebar is floating/overlay */}
-        <main className="min-h-screen">
+        {/* Main application routes - offset by sidebar width */}
+        <main className="min-h-screen ml-64">
           <AppRoutes />
         </main>
       </div>

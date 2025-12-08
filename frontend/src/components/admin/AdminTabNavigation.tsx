@@ -1,4 +1,4 @@
-type AdminTab = "calendar" | "dashboard" | "categories" | "services" | "barbers";
+type AdminTab = "dashboard" | "categories" | "services" | "barbers";
 
 interface AdminTabNavigationProps {
   activeTab: AdminTab;
@@ -10,7 +10,6 @@ export default function AdminTabNavigation({
   onTabChange,
 }: AdminTabNavigationProps) {
   const tabs: { id: AdminTab; label: string }[] = [
-    { id: "calendar", label: "Calendar" },
     { id: "dashboard", label: "Dashboard" },
     { id: "categories", label: "Categories" },
     { id: "services", label: "Services" },
