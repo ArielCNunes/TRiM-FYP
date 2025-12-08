@@ -1,92 +1,51 @@
-# TRiM - A Comprehensive Software Solution For Barber Shops
+# TRiM - Barbershop Booking Platform
 
-**Final Year Project - BSc (Hons) Computing in Software Development**  
-**Student:** Ariel Nunes (G00418763)  
-**Academic Year:** 2025/2026  
-**Institution:** Atlantic Technological University Galway
+**Final Year Project** – BSc (Hons) Computing in Software Development  
+**Student:** Ariel Nunes (G00418763) | **Supervisor:** Andrew Beatty  
+**Institution:** Atlantic Technological University Galway | **Year:** 2025/2026
 
-## Project Overview
+---
 
-A comprehensive web-based booking system designed for barber shops, enabling customers to book appointments online, barbers to manage their schedules, and business owners to oversee operations.
+## Overview
 
-## Problem Statement
+TRiM is a full-stack booking system for barbershops. Customers can book appointments online (with or without an account), pay deposits via Stripe, and manage their bookings. Barbers manage their schedules and availability, while admins oversee services, staff, and business analytics.
 
-Small barber shops rely on inefficient phone-based or walk-in appointment scheduling, leading to:
-- Double bookings and scheduling conflicts
-- High no-show rates without reminder systems
-- Poor customer experience
-- Manual record-keeping challenges
+**Phase 2** will implement **multi-tenant architecture**, enabling multiple barbershops to operate on a single platform, researching database isolation patterns like Row-Level Security for secure SaaS deployment.
 
-This system solves these problems by providing a modern, automated booking platform.
+---
 
-## Key Features
+## Features
 
-### Customer Features
-- Browse services offered
-- Book appointments (select service, barber, date, time)
-- Online payment or pay-in-shop option
-- View and manage bookings
-- Receive SMS and email confirmations/reminders
+| Role | Capabilities |
+|------|--------------|
+| **Customer** | Browse services, book appointments, pay deposits online, manage bookings |
+| **Barber** | View schedule, manage availability & breaks, mark appointments complete/no-show |
+| **Admin** | Manage services & categories, manage barbers, calendar view, analytics dashboard |
 
-### Barber Features
-- Personal schedule dashboard
-- Manage availability and time off
-- View customer booking details
-- Mark appointments as completed
+**Booking Highlights:**
+- Guest checkout (no account required)
+- Real-time availability based on barber schedules and existing bookings
+- Stripe deposit payments to reduce no-shows
+- Email & SMS reminder notifications
 
-### Admin Features
-- Manage services and pricing
-- Manage barber profiles
-- View all bookings and analytics
-- Business reporting dashboard
+---
 
-## Technology Stack
+## Tech Stack
 
-### Backend
-- **Framework:** Spring Boot 3.x
-- **Security:** Spring Security + JWT Authentication
-- **Database:** PostgreSQL 15
-- **ORM:** Spring Data JPA
+| Backend | Frontend |
+|---------|----------|
+| Java 21, Spring Boot 3.5 | React 19, TypeScript |
+| Spring Security + JWT | Redux Toolkit |
+| PostgreSQL, Spring Data JPA | Tailwind CSS, Vite |
+| Stripe, Twilio, JavaMail | Axios, React Router 7 |
 
-### Frontend
-- **Framework:** React 18
-- **State Management:** Redux Toolkit
-- **Styling:** Tailwind CSS
+---
 
-### External Integrations
-- **Payments:** Stripe API
-- **SMS:** Twilio API
-- **Email:** JavaMail
+## Repository Structure
 
-### Infrastructure
-- **Containerization:** Docker + Docker Compose
-- **Deployment:** DigitalOcean
-- **Reverse Proxy:** Nginx
-- **SSL:** Let's Encrypt
-
-## Development Methodology
-
-This project follows **Agile Scrum** methodology with:
-- 2-week sprints
-- User stories prioritized using MoSCoW method
-- GitHub Projects for task management
-- Regular supervisor meetings and sprint reviews
-- Regular client meetings to review requirements
-
-## Getting Started
-
-*Documentation will be added as development progresses.*
-
-## Documentation
-
-- Project Proposal: [N/A]
-- Dissertation: [N/A]
-- User Guide: [Coming soon]
-
-## Supervisor
-
-Andrew Beatty - Lecturer in Software at ATU
-
-## License
-
-This project is developed as part of academic requirements at ATU.
+```
+TRiM-FYP/
+├── backend/trim-booking-api/   # Spring Boot API
+├── frontend/src/               # React application
+└── docs/                       # Meeting logs
+```
