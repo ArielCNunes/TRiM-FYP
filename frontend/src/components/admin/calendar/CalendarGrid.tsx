@@ -217,14 +217,14 @@ export default function CalendarGrid({
                                                 key={`break-${barber.id}-${breakIndex}`}
                                                 className="absolute left-1 right-1 bg-zinc-700/40 border border-dashed border-zinc-500 rounded pointer-events-none overflow-hidden flex items-center"
                                                 style={{
-                                                    top: top + 2,
-                                                    height: height - 4,
+                                                    top: top,
+                                                    height: Math.max(height, 20),
                                                     zIndex: 5,
                                                 }}
                                                 title={`${barber.user.firstName}'s break: ${breakItem.label || "Break"}`}
                                             >
                                                 <div className="px-2 py-1 w-full">
-                                                    <div className="text-sm font-medium text-zinc-300 truncate">
+                                                    <div className="text-xs font-medium text-zinc-300 truncate">
                                                         {breakItem.label || "Break"}
                                                     </div>
                                                 </div>
