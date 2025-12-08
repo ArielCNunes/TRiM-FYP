@@ -215,19 +215,16 @@ export default function CalendarGrid({
                                         return (
                                             <div
                                                 key={`break-${barber.id}-${breakIndex}`}
-                                                className="absolute left-0 right-0 mx-1 bg-zinc-700/40 border border-dashed border-zinc-500 rounded pointer-events-none"
+                                                className="absolute left-1 right-1 bg-zinc-700/40 border border-dashed border-zinc-500 rounded pointer-events-none overflow-hidden flex items-center"
                                                 style={{
-                                                    top: top,
-                                                    minHeight: Math.max(height, 36),
+                                                    top: top + 2,
+                                                    height: height - 4,
                                                     zIndex: 5,
                                                 }}
                                                 title={`${barber.user.firstName}'s break: ${breakItem.label || "Break"}`}
                                             >
-                                                <div className="p-1">
-                                                    <div className="text-xs font-medium text-zinc-300 truncate">
-                                                        {barber.user.firstName}
-                                                    </div>
-                                                    <div className="text-[10px] text-zinc-400 truncate">
+                                                <div className="px-2 py-1 w-full">
+                                                    <div className="text-sm font-medium text-zinc-300 truncate">
                                                         {breakItem.label || "Break"}
                                                     </div>
                                                 </div>
@@ -252,16 +249,16 @@ export default function CalendarGrid({
                                             onClick={() => onBookingClick(booking)}
                                             className={`absolute left-1 right-1 border-l-4 ${color.border} ${statusStyle} rounded cursor-pointer transition-colors overflow-hidden flex items-center`}
                                             style={{
-                                                top: top + 1,
-                                                height: Math.max(height - 2, 20),
+                                                top: top + 2,
+                                                height: height - 4,
                                                 zIndex: 10,
                                             }}
                                         >
                                             <div className="px-2 py-1 w-full">
-                                                <div className="text-xs font-medium text-white truncate">
+                                                <div className="text-sm font-medium text-white truncate">
                                                     {booking.customer.firstName} {booking.customer.lastName}
                                                 </div>
-                                                <div className="text-[10px] text-zinc-400 truncate">
+                                                <div className="text-xs text-zinc-400 truncate">
                                                     {booking.service.name}
                                                 </div>
                                             </div>

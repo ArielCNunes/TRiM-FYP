@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
-import { Settings, Users, Calendar, Clock, Scissors, Star } from "lucide-react";
+import { Settings, Calendar, Clock, Scissors, Star } from "lucide-react";
 import AdminCalendar from "../components/admin/calendar/AdminCalendar";
 
 export default function Home() {
