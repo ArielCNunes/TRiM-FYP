@@ -4,7 +4,9 @@ import {
   useStripe,
   useElements,
   PaymentElement,
+  ExpressCheckoutElement,
 } from "@stripe/react-stripe-js";
+import type { StripeExpressCheckoutElementConfirmEvent } from "@stripe/stripe-js";
 
 /**
  * PaymentForm Component
@@ -30,6 +32,39 @@ export function PaymentForm({
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showExpressCheckout, setShowExpressCheckout] = useState(true);
+
+  const handleExpressCheckoutConfirm = async (event: StripeExpressCheckoutElementConfirmEvent) => {
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/booking-success`,
+        },
+        redirect: "if_required",
+      });
+
+      if (error) {
+        setErrorMessage(error.message || "Payment failed");
+        onPaymentError(error.message || "Payment failed");
+      } else if (paymentIntent && paymentIntent.status === "succeeded") {
+        onPaymentSuccess(paymentIntent.id);
+      }
+    } catch (err: any) {
+      const message = err.message || "An unexpected error occurred";
+      setErrorMessage(message);
+      onPaymentError(message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -78,9 +113,45 @@ export function PaymentForm({
             </p>
           </div>
 
-          <div className="border-t border-zinc-800 pt-6">
+          {/* Express Checkout for Apple Pay / Google Pay */}
+          {showExpressCheckout && (
+            <div className="mb-4">
+              <ExpressCheckoutElement
+                onConfirm={handleExpressCheckoutConfirm}
+                onReady={({ availablePaymentMethods }) => {
+                  // Hide if no express payment methods available
+                  if (!availablePaymentMethods) {
+                    setShowExpressCheckout(false);
+                  }
+                }}
+                options={{
+                  paymentMethods: {
+                    applePay: "always",
+                    googlePay: "always",
+                    link: "never",
+                  },
+                }}
+              />
+              {showExpressCheckout && (
+                <div className="flex items-center my-4">
+                  <div className="flex-1 border-t border-zinc-700"></div>
+                  <span className="px-4 text-zinc-500 text-sm">or pay with card</span>
+                  <div className="flex-1 border-t border-zinc-700"></div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div>
             <PaymentElement
-              options={{ layout: "tabs", paymentMethodOrder: ["card"] }}
+              options={{
+                layout: "accordion",
+                paymentMethodOrder: ["card"],
+                wallets: {
+                  applePay: "never",
+                  googlePay: "never",
+                },
+              }}
             />
           </div>
 
