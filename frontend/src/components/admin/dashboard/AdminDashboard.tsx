@@ -21,9 +21,8 @@ export default function AdminDashboard() {
       const response = await dashboardApi.getAdminStats();
       setStats(response.data);
       setError(null);
-    } catch (err) {
+    } catch {
       setError("Failed to load dashboard statistics");
-      console.error("Error fetching stats:", err);
     } finally {
       setLoading(false);
     }

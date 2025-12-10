@@ -76,9 +76,8 @@ export default function BookingDetailModal({
             await bookingsApi.markComplete(booking.id);
             onStatusChange?.();
             onClose();
-        } catch (err) {
+        } catch {
             setError("Failed to mark booking as complete");
-            console.error(err);
         } finally {
             setIsLoading(false);
         }
@@ -91,9 +90,8 @@ export default function BookingDetailModal({
             await bookingsApi.markNoShow(booking.id);
             onStatusChange?.();
             onClose();
-        } catch (err) {
+        } catch {
             setError("Failed to mark booking as no-show");
-            console.error(err);
         } finally {
             setIsLoading(false);
         }

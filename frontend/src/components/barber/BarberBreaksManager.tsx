@@ -69,8 +69,7 @@ export default function BarberBreaksManager({
             }));
             setBreaks(normalizedBreaks);
             setError(null);
-        } catch (err) {
-            console.error("Failed to load breaks", err);
+        } catch {
             setError("Failed to load breaks");
         } finally {
             setLoading(false);

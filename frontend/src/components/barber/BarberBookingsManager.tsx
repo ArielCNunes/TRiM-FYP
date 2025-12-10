@@ -33,8 +33,8 @@ export default function BarberBookingsManager({
           new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime()
       );
       setBookings(sorted);
-    } catch (error) {
-      console.error("Failed to load bookings", error);
+    } catch {
+      // Error handled silently - bookings will remain empty
     } finally {
       setLoading(false);
     }
@@ -214,18 +214,14 @@ export default function BarberBookingsManager({
                         bookingStatus={booking.status}
                         actionType="complete"
                         onSuccess={handleBookingUpdate}
-                        onError={(error: string) => {
-                          console.error("Error marking complete:", error);
-                        }}
+                        onError={() => { }}
                       />
                       <BookingActionButton
                         bookingId={booking.id}
                         bookingStatus={booking.status}
                         actionType="no-show"
                         onSuccess={handleBookingUpdate}
-                        onError={(error: string) => {
-                          console.error("Error marking no-show:", error);
-                        }}
+                        onError={() => { }}
                       />
                     </div>
                   </div>

@@ -93,8 +93,8 @@ export default function BarberAvailabilityManager({
       });
 
       setAvailability(mapped);
-    } catch (error) {
-      console.error("Failed to load availability", error);
+    } catch {
+      // Error handled silently - availability will use defaults
     }
   };
 
@@ -146,9 +146,8 @@ export default function BarberAvailabilityManager({
           });
         }
       }
-      console.log("Availability saved successfully");
-    } catch (error: any) {
-      console.error("Failed to save:", error.response?.data || error.message);
+    } catch {
+      // Error handled silently - save operation failed
     } finally {
       setLoading(false);
     }

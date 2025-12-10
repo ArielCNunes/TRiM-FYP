@@ -80,8 +80,8 @@ export default function BarberCalendar() {
         try {
             const response = await barbersApi.getById(barberId);
             setBarber(response.data);
-        } catch (error) {
-            console.error("Failed to load barber info", error);
+        } catch {
+            // Error handled silently - barber info will remain null
         }
     };
 
@@ -102,8 +102,8 @@ export default function BarberCalendar() {
             });
 
             setBookings(weekBookings);
-        } catch (error) {
-            console.error("Failed to load bookings", error);
+        } catch {
+            // Error handled silently - bookings will remain empty
         } finally {
             setLoading(false);
         }
@@ -116,8 +116,8 @@ export default function BarberCalendar() {
             const breaksMap = new Map<number, BarberBreak[]>();
             breaksMap.set(barberId, response.data);
             setBarberBreaks(breaksMap);
-        } catch (error) {
-            console.error("Failed to load barber breaks", error);
+        } catch {
+            // Error handled silently - breaks will remain empty
         }
     };
 

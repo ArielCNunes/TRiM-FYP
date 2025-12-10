@@ -77,8 +77,8 @@ export default function AdminCalendar() {
             if (response.data.length > 0) {
                 setSelectedBarberId(response.data[0].id);
             }
-        } catch (error) {
-            console.error("Failed to load barbers", error);
+        } catch {
+            // Error handled silently - barbers will remain empty
         }
     };
 
@@ -92,8 +92,8 @@ export default function AdminCalendar() {
                 allBookings.push(...response.data);
             }
             setBookings(allBookings);
-        } catch (error) {
-            console.error("Failed to load bookings", error);
+        } catch {
+            // Error handled silently - bookings will remain empty
         } finally {
             setLoading(false);
         }
@@ -107,8 +107,8 @@ export default function AdminCalendar() {
                 breaksMap.set(barber.id, response.data);
             }
             setBarberBreaks(breaksMap);
-        } catch (error) {
-            console.error("Failed to load barber breaks", error);
+        } catch {
+            // Error handled silently - breaks will remain empty
         }
     };
 

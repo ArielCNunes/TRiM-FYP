@@ -53,8 +53,8 @@ export default function ServiceForm({
       if (response.data.length > 0 && !editingService) {
         setFormData((prev) => ({ ...prev, categoryId: response.data[0].id }));
       }
-    } catch (err) {
-      console.error("Failed to fetch categories", err);
+    } catch {
+      // Error handled silently - categories will remain empty
     } finally {
       setLoadingCategories(false);
     }
