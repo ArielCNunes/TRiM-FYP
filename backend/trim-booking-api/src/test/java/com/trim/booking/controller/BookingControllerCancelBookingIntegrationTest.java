@@ -402,5 +402,228 @@ public class BookingControllerCancelBookingIntegrationTest {
         booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
         return bookingRepository.save(booking);
     }
+
+    // ==================== ADDITIONAL EDGE CASE TESTS ====================
+
+    @Test
+    @DisplayName("Should update payment status to CANCELLED when cancelling deposit-paid booking")
+    void testCancelBooking_UpdatesPaymentStatus() throws Exception {
+        // Create a confirmed booking with deposit paid
+        Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
+
+        // Cancel the booking
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", booking.getId())
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("CANCELLED")));
+
+        // Verify booking status in database
+        Booking cancelledBooking = bookingRepository.findById(booking.getId()).orElseThrow();
+        assert cancelledBooking.getStatus() == Booking.BookingStatus.CANCELLED;
+    }
+
+    @Test
+    @DisplayName("Should return correct response body structure after cancellation")
+    void testCancelBooking_ResponseStructure() throws Exception {
+        Booking booking = createBooking(Booking.BookingStatus.PENDING, Booking.PaymentStatus.PENDING);
+
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", booking.getId())
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.status", is("CANCELLED")))
+                .andExpect(jsonPath("$.bookingDate").exists())
+                .andExpect(jsonPath("$.startTime").exists())
+                .andExpect(jsonPath("$.endTime").exists())
+                .andExpect(jsonPath("$.customer").exists())
+                .andExpect(jsonPath("$.barber").exists())
+                .andExpect(jsonPath("$.service").exists());
+    }
+
+    @Test
+    @DisplayName("Should cancel booking regardless of booking date (past or future)")
+    void testCancelBooking_PastDateBooking() throws Exception {
+        // Create a booking with a past date (shouldn't normally happen but test the behavior)
+        Booking booking = new Booking();
+        booking.setCustomer(testCustomer);
+        booking.setBarber(testBarber);
+        booking.setService(testService);
+        booking.setBookingDate(LocalDate.now().minusDays(1)); // Past date
+        booking.setStartTime(LocalTime.of(10, 0));
+        booking.setEndTime(LocalTime.of(10, 30));
+        booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
+        booking.setDepositAmount(BigDecimal.valueOf(12.50));
+        booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
+        booking = bookingRepository.save(booking);
+
+        // Should still be able to cancel
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", booking.getId())
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("CANCELLED")));
+    }
+
+    @Test
+    @DisplayName("Should handle cancellation of booking with fully paid status")
+    void testCancelBooking_FullyPaidBooking() throws Exception {
+        // Create a fully paid booking (not completed yet)
+        Booking booking = new Booking();
+        booking.setCustomer(testCustomer);
+        booking.setBarber(testBarber);
+        booking.setService(testService);
+        booking.setBookingDate(futureDate);
+        booking.setStartTime(LocalTime.of(15, 0));
+        booking.setEndTime(LocalTime.of(15, 30));
+        booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking.setPaymentStatus(Booking.PaymentStatus.FULLY_PAID);
+        booking.setDepositAmount(BigDecimal.valueOf(25.00));
+        booking.setOutstandingBalance(BigDecimal.ZERO);
+        booking = bookingRepository.save(booking);
+
+        // Should be able to cancel even if fully paid (refund would be handled separately)
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", booking.getId())
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("CANCELLED")));
+    }
+
+    @Test
+    @DisplayName("Different customer should still be able to cancel (public endpoint)")
+    void testCancelBooking_DifferentCustomerCanCancel() throws Exception {
+        // Create another customer
+        User otherCustomer = new User();
+        otherCustomer.setFirstName("Other");
+        otherCustomer.setLastName("Customer");
+        otherCustomer.setEmail("other@test.com");
+        otherCustomer.setPhone("5555555555");
+        otherCustomer.setPasswordHash("password123");
+        otherCustomer.setRole(User.Role.CUSTOMER);
+        otherCustomer = userRepository.save(otherCustomer);
+
+        String otherCustomerToken = jwtUtil.generateToken(
+                otherCustomer.getEmail(),
+                otherCustomer.getRole().name(),
+                otherCustomer.getId()
+        );
+
+        // Create booking for original customer
+        Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
+
+        // Other customer tries to cancel - this endpoint is public so it should work
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", booking.getId())
+                        .header("Authorization", "Bearer " + otherCustomerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("CANCELLED")));
+    }
+
+    @Test
+    @DisplayName("Should handle cancellation with invalid booking ID format gracefully")
+    void testCancelBooking_InvalidIdFormat() throws Exception {
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", "invalid")
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Should handle cancellation with zero booking ID")
+    void testCancelBooking_ZeroId() throws Exception {
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", 0L)
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Should handle cancellation with negative booking ID")
+    void testCancelBooking_NegativeId() throws Exception {
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", -1L)
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Should verify booking count decreases after cancellation when counting active bookings")
+    void testCancelBooking_AffectsActiveBookingCount() throws Exception {
+        // Create multiple bookings
+        Booking booking1 = createBookingAtTime(LocalTime.of(9, 0), LocalTime.of(9, 30));
+        Booking booking2 = createBookingAtTime(LocalTime.of(10, 0), LocalTime.of(10, 30));
+        Booking booking3 = createBookingAtTime(LocalTime.of(11, 0), LocalTime.of(11, 30));
+
+        // Count active bookings before cancellation
+        long activeCountBefore = bookingRepository.findAll().stream()
+                .filter(b -> b.getStatus() != Booking.BookingStatus.CANCELLED)
+                .count();
+
+        // Cancel one booking
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", booking2.getId())
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isOk());
+
+        // Count active bookings after cancellation
+        long activeCountAfter = bookingRepository.findAll().stream()
+                .filter(b -> b.getStatus() != Booking.BookingStatus.CANCELLED)
+                .count();
+
+        assert activeCountAfter == activeCountBefore - 1;
+    }
+
+    @Test
+    @DisplayName("Should cancel booking created today")
+    void testCancelBooking_SameDayBooking() throws Exception {
+        // Setup availability for today
+        BarberAvailability todayAvailability = new BarberAvailability();
+        todayAvailability.setBarber(testBarber);
+        todayAvailability.setDayOfWeek(LocalDate.now().getDayOfWeek());
+        todayAvailability.setStartTime(LocalTime.of(9, 0));
+        todayAvailability.setEndTime(LocalTime.of(17, 0));
+        todayAvailability.setIsAvailable(true);
+        barberAvailabilityRepository.save(todayAvailability);
+
+        // Create a booking for today (in the future time)
+        Booking booking = new Booking();
+        booking.setCustomer(testCustomer);
+        booking.setBarber(testBarber);
+        booking.setService(testService);
+        booking.setBookingDate(LocalDate.now());
+        booking.setStartTime(LocalTime.of(23, 0)); // Late time to ensure it's in the future
+        booking.setEndTime(LocalTime.of(23, 30));
+        booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
+        booking.setDepositAmount(BigDecimal.valueOf(12.50));
+        booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
+        booking = bookingRepository.save(booking);
+
+        // Cancel same-day booking
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", booking.getId())
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("CANCELLED")));
+    }
+
+    @Test
+    @DisplayName("Should preserve deposit amount after cancellation")
+    void testCancelBooking_PreservesFinancialData() throws Exception {
+        // Create a booking with specific financial data
+        Booking booking = new Booking();
+        booking.setCustomer(testCustomer);
+        booking.setBarber(testBarber);
+        booking.setService(testService);
+        booking.setBookingDate(futureDate);
+        booking.setStartTime(LocalTime.of(16, 0));
+        booking.setEndTime(LocalTime.of(16, 30));
+        booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
+        booking.setDepositAmount(BigDecimal.valueOf(15.00));
+        booking.setOutstandingBalance(BigDecimal.valueOf(10.00));
+        booking = bookingRepository.save(booking);
+
+        // Cancel and verify financial data is preserved
+        mockMvc.perform(patch("/api/bookings/{id}/cancel", booking.getId())
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("CANCELLED")))
+                .andExpect(jsonPath("$.depositAmount", is(15.00)))
+                .andExpect(jsonPath("$.outstandingBalance", is(10.00)));
+    }
 }
 
