@@ -22,6 +22,15 @@ export interface RegisterRequest {
   phone: string;
 }
 
+export interface AdminRegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  businessName: string;
+}
+
 export interface User {
   id: number;
   email: string;

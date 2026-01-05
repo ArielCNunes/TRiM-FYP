@@ -3,6 +3,7 @@ import type {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
+  AdminRegisterRequest,
   User,
   Service,
   ServiceCategory,
@@ -26,6 +27,10 @@ export const authApi = {
   /** Create a new user account. */
   register: (userData: RegisterRequest) =>
     api.post<User>("/auth/register", userData),
+
+  /** Create a new admin/business account. */
+  registerAdmin: (userData: AdminRegisterRequest) =>
+    api.post<User>("/auth/register-admin", userData),
 
   /** Save a guest account with password. */
   saveAccount: (data: { userId: number; password: string }) =>
