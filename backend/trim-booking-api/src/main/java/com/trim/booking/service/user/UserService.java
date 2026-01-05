@@ -1,10 +1,13 @@
 package com.trim.booking.service.user;
 
+import com.trim.booking.dto.auth.AdminRegisterRequest;
 import com.trim.booking.dto.auth.RegisterRequest;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.InvalidPhoneNumberException;
 import com.trim.booking.exception.UnauthorizedException;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.UserRepository;
 import com.trim.booking.util.PhoneNumberUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,11 +18,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final GuestUserService guestUserService;
+    private final BusinessRepository businessRepository;
 
-    public UserService(UserRepository userRepository, GuestUserService guestUserService) {
+    public UserService(UserRepository userRepository, GuestUserService guestUserService, BusinessRepository businessRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.guestUserService = guestUserService;
+        this.businessRepository = businessRepository;
     }
 
     /**
@@ -75,6 +80,50 @@ public class UserService {
 
         // Save to database
         return userRepository.save(user);
+    }
+
+    /**
+     * Register a new admin with associated business.
+     *
+     * @param request Admin registration request containing user and business details
+     * @return Registered User
+     * @throws RuntimeException if email already exists
+     */
+    public User registerAdmin(AdminRegisterRequest request) {
+        // Check if email already exists
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already registered");
+        }
+
+        // Normalize phone number
+        String normalizedPhone;
+        try {
+            normalizedPhone = PhoneNumberUtil.normalizePhoneNumber(request.getPhone(), "353");
+        } catch (InvalidPhoneNumberException e) {
+            throw new BadRequestException("Invalid phone number: " + e.getMessage());
+        }
+
+        // Create new user with ADMIN role
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setPhone(normalizedPhone);
+        user.setRole(User.Role.ADMIN);
+
+        // Save user to database
+        User savedUser = userRepository.save(user);
+
+        // Create business linked to admin user
+        Business business = new Business();
+        business.setName(request.getBusinessName());
+        business.setAdminUser(savedUser);
+
+        // Save business to database
+        businessRepository.save(business);
+
+        return savedUser;
     }
 
     /**
