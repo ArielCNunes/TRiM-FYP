@@ -98,7 +98,9 @@ export default function BarberCalendar() {
             const weekEnd = formatDate(addDays(currentWeekStart, 6));
 
             const weekBookings = allBookings.filter((booking) => {
-                return booking.bookingDate >= weekStart && booking.bookingDate <= weekEnd;
+                return booking.bookingDate >= weekStart &&
+                    booking.bookingDate <= weekEnd &&
+                    booking.status !== "CANCELLED";
             });
 
             setBookings(weekBookings);

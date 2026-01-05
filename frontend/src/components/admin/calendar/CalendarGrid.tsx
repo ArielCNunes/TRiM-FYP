@@ -99,8 +99,6 @@ export default function CalendarGrid({
                 return "bg-yellow-600/20 border-yellow-500 hover:bg-yellow-600/30";
             case "COMPLETED":
                 return "bg-zinc-600/20 border-zinc-500 hover:bg-zinc-600/30";
-            case "CANCELLED":
-                return "bg-red-600/20 border-red-500 hover:bg-red-600/30";
             case "NO_SHOW":
                 return "bg-orange-600/20 border-orange-500 hover:bg-orange-600/30";
             default:
@@ -242,7 +240,7 @@ export default function CalendarGrid({
                                             }}
                                         >
                                             <div className="px-2 py-1 w-full">
-                                                <div className="text-sm font-medium text-white truncate">
+                                                <div className="text-xs font-bold text-white truncate">
                                                     {booking.customer.firstName} {booking.customer.lastName}
                                                 </div>
                                                 <div className="text-xs text-zinc-400 truncate">

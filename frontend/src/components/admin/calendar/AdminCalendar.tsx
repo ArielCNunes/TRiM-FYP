@@ -91,7 +91,9 @@ export default function AdminCalendar() {
                 const response = await bookingsApi.getAll({ date: formatDate(date) });
                 allBookings.push(...response.data);
             }
-            setBookings(allBookings);
+            // Filter out cancelled bookings - they should not be displayed in the calendar
+            const activeBookings = allBookings.filter(booking => booking.status !== "CANCELLED");
+            setBookings(activeBookings);
         } catch {
             // Error handled silently - bookings will remain empty
         } finally {
