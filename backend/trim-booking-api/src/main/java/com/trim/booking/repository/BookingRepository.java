@@ -51,4 +51,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "AND b.expiresAt IS NOT NULL " +
             "AND b.expiresAt < CURRENT_TIMESTAMP")
     List<Booking> findExpiredPendingBookings();
+
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.customer.id = :customerId AND b.status = :status")
+    Long countByCustomerIdAndStatus(@Param("customerId") Long customerId, @Param("status") Booking.BookingStatus status);
 }

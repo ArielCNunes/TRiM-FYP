@@ -2,6 +2,7 @@ package com.trim.booking.config;
 
 import com.stripe.exception.StripeException;
 import com.trim.booking.exception.BadRequestException;
+import com.trim.booking.exception.ForbiddenException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.exception.ConflictException;
 import com.trim.booking.exception.UnauthorizedException;
@@ -120,6 +121,21 @@ public class GlobalExceptionHandler {
 
         System.err.println("Stripe error: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * Handle forbidden exceptions (403 Forbidden).
+     * Thrown when an action is forbidden due to business rules (e.g., blacklisted customer).
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Map<String, Object>> handleForbidden(ForbiddenException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("error", "Forbidden");
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     /**

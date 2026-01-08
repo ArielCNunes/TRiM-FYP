@@ -51,6 +51,15 @@ public class User {
     @Column
     private LocalDateTime resetTokenExpiry;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean blacklisted = false;
+
+    @Column(length = 500)
+    private String blacklistReason;
+
+    @Column
+    private LocalDateTime blacklistedAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -166,6 +175,30 @@ public class User {
 
     public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
         this.resetTokenExpiry = resetTokenExpiry;
+    }
+
+    public Boolean getBlacklisted() {
+        return blacklisted;
+    }
+
+    public void setBlacklisted(Boolean blacklisted) {
+        this.blacklisted = blacklisted;
+    }
+
+    public String getBlacklistReason() {
+        return blacklistReason;
+    }
+
+    public void setBlacklistReason(String blacklistReason) {
+        this.blacklistReason = blacklistReason;
+    }
+
+    public LocalDateTime getBlacklistedAt() {
+        return blacklistedAt;
+    }
+
+    public void setBlacklistedAt(LocalDateTime blacklistedAt) {
+        this.blacklistedAt = blacklistedAt;
     }
 
     // Role Enum

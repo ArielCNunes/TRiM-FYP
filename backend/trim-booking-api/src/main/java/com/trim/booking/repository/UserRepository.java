@@ -1,6 +1,8 @@
 package com.trim.booking.repository;
 
 import com.trim.booking.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> { // JPA gives
     Long countActiveCustomers();
 
     boolean existsByEmail(String email);
+
+    Page<User> findByRole(User.Role role, Pageable pageable);
 }

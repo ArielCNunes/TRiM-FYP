@@ -6,6 +6,7 @@ import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.BadRequestException;
+import com.trim.booking.exception.ForbiddenException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.service.user.GuestUserService;
@@ -58,6 +59,14 @@ public class BookingCommandService {
         User customer = validationService.validateAndGetCustomer(customerId);
         Barber barber = validationService.validateAndGetBarber(barberId);
         ServiceOffered service = validationService.validateAndGetService(serviceId);
+
+        // Step 1.5: Check if customer is blacklisted
+        if (Boolean.TRUE.equals(customer.getBlacklisted())) {
+            String reason = customer.getBlacklistReason() != null
+                    ? customer.getBlacklistReason()
+                    : "No reason provided";
+            throw new ForbiddenException("Customer is blacklisted: " + reason);
+        }
 
         // Step 2: Validate business rules
         validationService.validateBookingTimeInFuture(bookingDate, startTime);
