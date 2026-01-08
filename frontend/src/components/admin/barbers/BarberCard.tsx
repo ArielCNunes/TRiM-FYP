@@ -36,8 +36,7 @@ export default function BarberCard({
           <img
             src={barber.profileImageUrl}
             alt={`${barber.user.firstName} ${barber.user.lastName}`}
-            className={`w-12 h-12 rounded-full object-cover border-2 ${isInactive ? "border-zinc-700" : "border-indigo-500"
-              }`}
+            className="w-12 h-12 rounded-full object-cover"
           />
         ) : (
           <div

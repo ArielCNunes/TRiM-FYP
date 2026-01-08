@@ -43,7 +43,7 @@ export default function BarberFilterSidebar({
                                 key={barber.id}
                                 onClick={() => onSelectBarber(barber.id)}
                                 className={`w-full flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${isSelected
-                                    ? `bg-zinc-800 border-2 ${color.border}`
+                                    ? "bg-zinc-800 border border-zinc-600"
                                     : "bg-zinc-900 border border-zinc-700 hover:bg-zinc-800/50 hover:border-zinc-600"
                                     }`}
                             >
