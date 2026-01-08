@@ -810,5 +810,88 @@ class BookingControllerCreateBookingIntegrationTest {
                 .andExpect(jsonPath("$.startTime").value("00:00:00"))
                 .andExpect(jsonPath("$.endTime").value("00:30:00"));
     }
+
+    // ==================== BLACKLISTED CUSTOMER TESTS ====================
+
+    @Test
+    @DisplayName("Should return 403 when blacklisted customer tries to create booking")
+    void createBooking_BlacklistedCustomer_ReturnsForbidden() throws Exception {
+        // Blacklist the customer
+        customer.setBlacklisted(true);
+        customer.setBlacklistReason("Repeated no-shows");
+        customer.setBlacklistedAt(java.time.LocalDateTime.now());
+        userRepository.save(customer);
+
+        CreateBookingRequest request = new CreateBookingRequest();
+        request.setCustomerId(customer.getId());
+        request.setBarberId(barber.getId());
+        request.setServiceId(service.getId());
+        request.setBookingDate(LocalDate.now().plusDays(1));
+        request.setStartTime(LocalTime.of(10, 0));
+        request.setPaymentMethod("pay_online");
+
+        mockMvc.perform(post("/api/bookings")
+                        .header("Authorization", "Bearer " + customerToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", containsString("Customer is blacklisted")))
+                .andExpect(jsonPath("$.message", containsString("Repeated no-shows")));
+    }
+
+    @Test
+    @DisplayName("Should include blacklist reason in error message")
+    void createBooking_BlacklistedCustomer_IncludesReasonInError() throws Exception {
+        // Blacklist with specific reason
+        customer.setBlacklisted(true);
+        customer.setBlacklistReason("Abusive behavior towards staff");
+        customer.setBlacklistedAt(java.time.LocalDateTime.now());
+        userRepository.save(customer);
+
+        CreateBookingRequest request = new CreateBookingRequest();
+        request.setCustomerId(customer.getId());
+        request.setBarberId(barber.getId());
+        request.setServiceId(service.getId());
+        request.setBookingDate(LocalDate.now().plusDays(1));
+        request.setStartTime(LocalTime.of(10, 0));
+
+        mockMvc.perform(post("/api/bookings")
+                        .header("Authorization", "Bearer " + customerToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", is("Customer is blacklisted: Abusive behavior towards staff")));
+    }
+
+    @Test
+    @DisplayName("Should allow booking after customer is unblacklisted")
+    void createBooking_AfterUnblacklist_Succeeds() throws Exception {
+        // First blacklist the customer
+        customer.setBlacklisted(true);
+        customer.setBlacklistReason("Previous offense");
+        customer.setBlacklistedAt(java.time.LocalDateTime.now());
+        userRepository.save(customer);
+
+        // Then unblacklist them
+        customer.setBlacklisted(false);
+        customer.setBlacklistReason(null);
+        customer.setBlacklistedAt(null);
+        userRepository.save(customer);
+
+        CreateBookingRequest request = new CreateBookingRequest();
+        request.setCustomerId(customer.getId());
+        request.setBarberId(barber.getId());
+        request.setServiceId(service.getId());
+        request.setBookingDate(LocalDate.now().plusDays(1));
+        request.setStartTime(LocalTime.of(10, 0));
+        request.setPaymentMethod("pay_online");
+
+        mockMvc.perform(post("/api/bookings")
+                        .header("Authorization", "Bearer " + customerToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").exists());
+    }
 }
 
