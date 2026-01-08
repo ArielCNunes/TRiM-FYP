@@ -16,6 +16,9 @@ import type {
   ForgotPasswordRequest,
   ResetPasswordRequest,
   PasswordResetResponse,
+  Customer,
+  BlacklistRequest,
+  CustomerListResponse,
 } from "../types";
 
 /** Auth endpoints for login and registration. */
@@ -264,4 +267,22 @@ export const paymentsApi = {
 export const dashboardApi = {
   /** Get admin dashboard statistics. */
   getAdminStats: () => api.get<DashboardStats>("/dashboard/admin"),
+};
+
+/** Customer management endpoints (admin only). */
+export const customersApi = {
+  /** Get all customers with pagination. */
+  getAll: (page = 0, size = 20) =>
+    api.get<CustomerListResponse>(`/admin/customers?page=${page}&size=${size}`),
+
+  /** Get a single customer by ID. */
+  getById: (id: number) => api.get<Customer>(`/admin/customers/${id}`),
+
+  /** Blacklist a customer. */
+  blacklist: (id: number, data: BlacklistRequest) =>
+    api.put<Customer>(`/admin/customers/${id}/blacklist`, data),
+
+  /** Remove blacklist from a customer. */
+  unblacklist: (id: number) =>
+    api.put<Customer>(`/admin/customers/${id}/unblacklist`),
 };

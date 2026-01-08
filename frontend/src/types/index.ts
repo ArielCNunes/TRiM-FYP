@@ -157,3 +157,29 @@ export interface DashboardStats {
     status: string;
   }>;
 }
+
+// Customer Management Types
+export interface Customer {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  createdAt: string;
+  blacklisted: boolean;
+  blacklistReason?: string;
+  blacklistedAt?: string;
+  noShowCount: number;
+}
+
+export interface BlacklistRequest {
+  reason: string;
+}
+
+export interface CustomerListResponse {
+  customers: Customer[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}

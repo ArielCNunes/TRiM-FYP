@@ -184,8 +184,11 @@ export function useBookingFlow() {
       setCreatedBookingId(response.data.id);
       return response.data.id;
     } catch (error: any) {
-      const message =
-        error.response?.data?.message || "Failed to create booking";
+      const backendMessage = error.response?.data?.message || "";
+      // Generic message error message
+      const message = backendMessage.toLowerCase().includes("blacklist")
+        ? "Unable to complete booking. Please contact us for assistance."
+        : backendMessage || "Failed to create booking";
       setStatus({ type: "error", message: String(message) });
       return null;
     } finally {
@@ -230,8 +233,11 @@ export function useBookingFlow() {
 
       return response.data.bookingId;
     } catch (error: any) {
-      const message =
-        error.response?.data?.message || "Failed to create booking";
+      const backendMessage = error.response?.data?.message || "";
+      // Generic message error message
+      const message = backendMessage.toLowerCase().includes("blacklist")
+        ? "Unable to complete booking. Please contact us for assistance."
+        : backendMessage || "Failed to create booking";
       setStatus({ type: "error", message: String(message) });
       return null;
     } finally {
