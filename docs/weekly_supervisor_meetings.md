@@ -199,7 +199,7 @@
 
 ---
 
-### Meeting 7 - Wednesday 14th of January
+### Meeting 8 - Wednesday 14th of January
 **Duration:** 20 minutes  
 **Location:** Online through Teams
 
