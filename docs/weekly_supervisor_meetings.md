@@ -196,3 +196,31 @@
 
 #### Next Meeting Date
 **Scheduled:** Wednesday 3th of December at 10:10am.
+
+---
+
+### Meeting 7 - Wednesday 14th of January
+**Duration:** 20 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Update supervisor on project/research progress and go through presentation.
+
+#### Progress Demonstrated
+- Rehearsed presentation.
+
+#### Technical Discussion
+- N/A.
+
+#### Supervisor Feedback
+- Presentation looks good. Make sure to demo it.
+
+#### Decisions Made
+- N/A.
+- 
+#### Action Items for Next Meeting
+- Update on progress.
+
+#### Next Meeting Date
+**Scheduled:** Wednesday 21st of January at 10:10.
+
