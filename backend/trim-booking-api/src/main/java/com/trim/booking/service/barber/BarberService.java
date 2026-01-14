@@ -101,6 +101,15 @@ public class BarberService {
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + id));
     }
 
+    public void reactivateBarber(Long id) {
+        barberRepository.findById(id)
+                .map(barber -> {
+                    barber.setActive(true);
+                    return barberRepository.save(barber);
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + id));
+    }
+
     public void deleteBarber(Long id) {
         barberRepository.deleteById(id);
     }

@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * - Get active barbers (public)
  * - Get barber by ID (public)
  * - Deactivate barber (admin only)
+ * - Reactivate barber (admin only)
  * - Delete barber (admin only)
  * - Authorization checks
  * - Validation errors
@@ -365,6 +366,42 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should return not found when deactivating non-existent barber")
     void deactivateBarber_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(patch("/api/barbers/99999/deactivate")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNotFound());
+    }
+
+    // ==================== REACTIVATE BARBER TESTS ====================
+
+    @Test
+    @DisplayName("Should successfully reactivate barber when admin")
+    void reactivateBarber_AsAdmin_ReturnsNoContent() throws Exception {
+        // First deactivate the barber
+        barber.setActive(false);
+        barberRepository.save(barber);
+
+        mockMvc.perform(patch("/api/barbers/" + barber.getId() + "/activate")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+
+        // Verify barber is reactivated
+        mockMvc.perform(get("/api/barbers/" + barber.getId())
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.active").value(true));
+    }
+
+    @Test
+    @DisplayName("Should reject reactivate barber when not admin")
+    void reactivateBarber_AsCustomer_ReturnsForbidden() throws Exception {
+        mockMvc.perform(patch("/api/barbers/" + barber.getId() + "/activate")
+                        .header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Should return not found when reactivating non-existent barber")
+    void reactivateBarber_NonExistentId_ReturnsNotFound() throws Exception {
+        mockMvc.perform(patch("/api/barbers/99999/activate")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNotFound());
     }

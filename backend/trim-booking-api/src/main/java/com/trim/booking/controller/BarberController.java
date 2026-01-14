@@ -79,6 +79,13 @@ public class BarberController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Void> reactivateBarber(@PathVariable Long id) {
+        barberService.reactivateBarber(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBarber(@PathVariable Long id) {
         barberService.deleteBarber(id);
