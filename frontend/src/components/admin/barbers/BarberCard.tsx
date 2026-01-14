@@ -5,6 +5,7 @@ interface BarberCardProps {
   barber: Barber;
   onEdit: (barber: Barber) => void;
   onDeactivate: (id: number) => void;
+  onReactivate?: (id: number) => void;
   onManageAvailability?: (barber: Barber) => void;
   isInactive?: boolean;
 }
@@ -13,6 +14,7 @@ export default function BarberCard({
   barber,
   onEdit,
   onDeactivate,
+  onReactivate,
   onManageAvailability,
   isInactive = false,
 }: BarberCardProps) {
@@ -105,6 +107,14 @@ export default function BarberCard({
           >
             Edit
           </button>
+          {isInactive && onReactivate && (
+            <button
+              onClick={() => onReactivate(barber.id)}
+              className="text-emerald-400 hover:text-emerald-300 text-sm font-medium"
+            >
+              Reactivate
+            </button>
+          )}
           {!isInactive &&
             (!showDeactivateConfirm ? (
               <button

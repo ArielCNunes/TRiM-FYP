@@ -143,6 +143,9 @@ export const barbersApi = {
   /** Deactivate a barber (soft delete). */
   deactivate: (id: number) => api.patch<void>(`/barbers/${id}/deactivate`),
 
+  /** Reactivate a barber. */
+  reactivate: (id: number) => api.patch<void>(`/barbers/${id}/activate`),
+
   /** Get barber availability */
   getAvailability: (barberId: number) =>
     api.get(`/barber-availability/barber/${barberId}`),

@@ -70,6 +70,18 @@ export default function BarbersManager() {
     }
   };
 
+  const handleReactivate = async (id: number) => {
+    try {
+      await barbersApi.reactivate(id);
+      setStatus({ type: "success", message: "Barber reactivated successfully" });
+      fetchBarbers();
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Failed to reactivate barber";
+      setStatus({ type: "error", message });
+    }
+  };
+
   const handleCancel = () => {
     setShowForm(false);
     setEditingBarber(null);
@@ -166,7 +178,7 @@ export default function BarbersManager() {
               {showInactive && (
                 <div className="p-4 bg-zinc-900/50 border-t border-zinc-800">
                   <p className="text-xs text-zinc-500 mb-4">
-                    These barbers are hidden from the booking flow. Contact support to reactivate a barber.
+                    These barbers are hidden from the booking flow. Click "Reactivate" to restore a barber.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {inactiveBarbers.map((barber) => (
@@ -175,6 +187,7 @@ export default function BarbersManager() {
                         barber={barber}
                         onEdit={handleEdit}
                         onDeactivate={handleDeactivate}
+                        onReactivate={handleReactivate}
                         isInactive
                       />
                     ))}
