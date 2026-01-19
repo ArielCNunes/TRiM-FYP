@@ -33,6 +33,10 @@ public class BarberAvailability {
     @Column(nullable = false)
     private Boolean isAvailable = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id", nullable = false)
+    private Business business;
+
     // Constructors
     public BarberAvailability() {
     }
@@ -84,5 +88,13 @@ public class BarberAvailability {
 
     public void setIsAvailable(Boolean isAvailable) {
         this.isAvailable = isAvailable;
+    }
+
+    public Business getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(Business business) {
+        this.business = business;
     }
 }

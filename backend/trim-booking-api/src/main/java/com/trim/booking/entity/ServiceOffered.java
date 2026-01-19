@@ -44,6 +44,10 @@ public class ServiceOffered {
     @JsonIgnore
     private ServiceCategory category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id", nullable = false)
+    private Business business;
+
     // Constructors
     public ServiceOffered() {
     }
@@ -107,4 +111,7 @@ public class ServiceOffered {
 
     public ServiceCategory getCategory() { return category; }
     public void setCategory(ServiceCategory category) { this.category = category; }
+
+    public Business getBusiness() { return business; }
+    public void setBusiness(Business business) { this.business = business; }
 }

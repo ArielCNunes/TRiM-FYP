@@ -23,6 +23,10 @@ public class ServiceCategory {
     @JsonIgnore
     private List<ServiceOffered> services = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id", nullable = false)
+    private Business business;
+
     public ServiceCategory() {}
 
     public ServiceCategory(String name) {
@@ -42,4 +46,7 @@ public class ServiceCategory {
 
     public List<ServiceOffered> getServices() { return services; }
     public void setServices(List<ServiceOffered> services) { this.services = services; }
+
+    public Business getBusiness() { return business; }
+    public void setBusiness(Business business) { this.business = business; }
 }

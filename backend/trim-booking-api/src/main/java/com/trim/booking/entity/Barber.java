@@ -23,6 +23,10 @@ public class Barber {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id", nullable = false)
+    private Business business;
+
     // Constructors
     public Barber() {
     }
@@ -66,5 +70,13 @@ public class Barber {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Business getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(Business business) {
+        this.business = business;
     }
 }

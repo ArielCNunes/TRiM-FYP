@@ -17,6 +17,9 @@ public class Business {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "slug", nullable = false, unique = true)
+    private String slug;
+
     @OneToOne
     @JoinColumn(name = "admin_user_id", nullable = false, unique = true)
     private User adminUser;
@@ -27,6 +30,20 @@ public class Business {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        if (slug == null || slug.isEmpty()) {
+            slug = generateSlugFromName(name);
+        }
+    }
+
+    private String generateSlugFromName(String name) {
+        if (name == null || name.isEmpty()) {
+            return "";
+        }
+        return name.toLowerCase()
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("\\s+", "-")
+                .replaceAll("-+", "-")
+                .replaceAll("^-|-$", "");
     }
 
     // Constructors
@@ -48,6 +65,14 @@ public class Business {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public User getAdminUser() {

@@ -64,6 +64,10 @@ public class Booking {
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id", nullable = false)
+    private Business business;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -218,5 +222,13 @@ public class Booking {
 
     public void setOutstandingBalance(BigDecimal outstandingBalance) {
         this.outstandingBalance = outstandingBalance;
+    }
+
+    public Business getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(Business business) {
+        this.business = business;
     }
 }

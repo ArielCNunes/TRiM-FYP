@@ -60,6 +60,10 @@ public class User {
     @Column
     private LocalDateTime blacklistedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id", nullable = false)
+    private Business business;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -199,6 +203,14 @@ public class User {
 
     public void setBlacklistedAt(LocalDateTime blacklistedAt) {
         this.blacklistedAt = blacklistedAt;
+    }
+
+    public Business getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(Business business) {
+        this.business = business;
     }
 
     // Role Enum

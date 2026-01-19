@@ -24,6 +24,10 @@ public class BarberBreak {
     @Column
     private String label;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id", nullable = false)
+    private Business business;
+
     // Constructors
     public BarberBreak() {
     }
@@ -75,5 +79,14 @@ public class BarberBreak {
     public void setLabel(String label) {
         this.label = label;
     }
+
+    public Business getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(Business business) {
+        this.business = business;
+    }
 }
+
 
