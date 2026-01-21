@@ -224,3 +224,30 @@
 #### Next Meeting Date
 **Scheduled:** Wednesday 21st of January at 10:10.
 
+---
+
+### Meeting 9 - Wednesday 21st of January
+**Duration:** 10 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Update supervisor on project/research progress of phase 2.
+
+#### Progress Demonstrated
+- N/A
+
+#### Technical Discussion
+- Structural changes to app to allow for multi tenancy.
+
+#### Supervisor Feedback
+- Benchmarking will be needed to improve grade.
+
+#### Decisions Made
+- N/A.
+  
+#### Action Items for Next Meeting
+- Update on progress.
+
+#### Next Meeting Date
+**Scheduled:** February 3rd, 2026
+
