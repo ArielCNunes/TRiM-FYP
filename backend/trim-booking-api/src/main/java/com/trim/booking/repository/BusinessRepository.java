@@ -9,5 +9,7 @@ import java.util.Optional;
 @Repository
 public interface BusinessRepository extends JpaRepository<Business, Long> {
     Optional<Business> findByAdminUserId(Long userId);
+
+    Optional<Business> findBySlug(String slug);
 }
 
