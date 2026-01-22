@@ -53,7 +53,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Customer/Guest View */}
+      {/* Customer View */}
       {(!user || user.role === "CUSTOMER") && (
         <>
           {/* Hero Section - Landing Page */}

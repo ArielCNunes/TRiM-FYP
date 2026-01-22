@@ -103,8 +103,8 @@ export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
             Home
           </Link>
 
-          {/* Book Appointment - Always visible for guests and customers only */}
-          {(!user || user.role === "CUSTOMER") && (
+          {/* Book Appointment - Visible for customers only */}
+          {user?.role === "CUSTOMER" && (
             <Link
               to="/booking"
               className="flex items-center px-4 py-3 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-xl transition-all"

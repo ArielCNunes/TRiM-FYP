@@ -35,10 +35,6 @@ export const authApi = {
   registerAdmin: (userData: AdminRegisterRequest) =>
     api.post<User>("/auth/register-admin", userData),
 
-  /** Save a guest account with password. */
-  saveAccount: (data: { userId: number; password: string }) =>
-    api.post("/auth/save-account", data),
-
   /** Request password reset email. */
   forgotPassword: (data: ForgotPasswordRequest) =>
     api.post<PasswordResetResponse>("/auth/forgot-password", data),
@@ -106,7 +102,7 @@ export const servicesApi = {
       depositPercentage: number;
       active: boolean;
       categoryId: number;
-    }
+    },
   ) => api.put<Service>(`/services/${id}`, service),
 
   /** Deactivate a service (soft delete). */
@@ -137,7 +133,7 @@ export const barbersApi = {
       phone?: string;
       bio?: string;
       profileImageUrl?: string;
-    }
+    },
   ) => api.put<Barber>(`/barbers/${id}`, barber),
 
   /** Deactivate a barber (soft delete). */
@@ -181,7 +177,7 @@ export const barberBreaksApi = {
   /** Update an existing break. */
   update: (
     id: number,
-    data: { startTime: string; endTime: string; label?: string }
+    data: { startTime: string; endTime: string; label?: string },
   ) => api.put<BarberBreak>(`/barber-breaks/${id}`, data),
 
   /** Delete a break. */
@@ -193,7 +189,7 @@ export const availabilityApi = {
   /** Get available time slots for a barber/service/date. */
   getSlots: (barberId: number, date: string, serviceId: number) =>
     api.get<string[]>(
-      `/availability?barberId=${barberId}&date=${date}&serviceId=${serviceId}`
+      `/availability?barberId=${barberId}&date=${date}&serviceId=${serviceId}`,
     ),
 };
 
@@ -202,25 +198,6 @@ export const bookingsApi = {
   /** Create a new booking. */
   create: (booking: BookingRequest) =>
     api.post<BookingResponse>("/bookings", booking),
-
-  /** Create a guest booking without authentication. */
-  createGuest: (data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    barberId: number;
-    serviceId: number;
-    bookingDate: string;
-    startTime: string;
-    paymentMethod: string;
-  }) =>
-    api.post<{
-      bookingId: number;
-      customerId: number;
-      depositAmount: number;
-      outstandingBalance: number;
-    }>("/auth/guest-booking", data),
 
   /** Fetch all bookings (admin only) with optional filters. */
   getAll: (params?: { status?: string; date?: string }) =>
@@ -237,7 +214,7 @@ export const bookingsApi = {
   /** Update a booking's date and time (reschedule). */
   updateBooking: (
     bookingId: number,
-    data: { bookingDate: string; startTime: string }
+    data: { bookingDate: string; startTime: string },
   ) => api.put<BookingResponse>(`/bookings/${bookingId}`, data),
 
   /** Fetch bookings for a specific barber. */

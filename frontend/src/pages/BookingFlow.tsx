@@ -4,9 +4,7 @@ import { useBookingFlow } from '../hooks/useBookingFlow';
 import { ServiceSelectionStep } from '../components/bookingSteps/ServiceSelectionStep';
 import { BarberSelectionStep } from '../components/bookingSteps/BarberSelectionStep';
 import { DateTimeSelectionStep } from '../components/bookingSteps/DateTimeSelectionStep';
-import { CustomerInfoStep } from '../components/bookingSteps/CustomerInfoStep';
 import { ConfirmationStep } from '../components/bookingSteps/ConfirmationStep';
-import { SaveAccountDecisionStep } from '../components/bookingSteps/SaveAccountDecisionStep';
 import { PaymentForm } from '../components/bookingSteps/PaymentForm';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -20,19 +18,21 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 
  * Step 1: Select a service
  * Step 2: Select a barber
  * Step 3: Select date and time
- * Step 4: Enter customer information (guest only)
- * Step 5: Confirm and create booking
- * Step 6: Payment
- * Step 7: Save account decision (guest only)
+ * Step 4: Confirm and create booking
+ * Step 5: Payment
+ * 
+ * Note: Login is required to book an appointment.
  */
 export default function BookingFlow() {
   const navigate = useNavigate();
   const user = useAppSelector(state => state.auth.user);
   const bookingFlow = useBookingFlow();
 
-  // Allow access to booking flow whether authenticated or not
-  // User can be null for guests
-  const isLoggedIn = !!user;
+  // Redirect to login if not authenticated
+  if (!user) {
+    navigate('/auth');
+    return null;
+  }
 
   // Calculate minimum selectable date (tomorrow)
   const tomorrow = new Date();
@@ -45,10 +45,8 @@ export default function BookingFlow() {
       bookingFlow.setCurrentStep('service');
     } else if (bookingFlow.currentStep === 'datetime') {
       bookingFlow.setCurrentStep('barber');
-    } else if (bookingFlow.currentStep === 'customerinfo') {
-      bookingFlow.setCurrentStep('datetime');
     } else if (bookingFlow.currentStep === 'confirmation') {
-      bookingFlow.setCurrentStep(isLoggedIn ? 'datetime' : 'customerinfo');
+      bookingFlow.setCurrentStep('datetime');
     }
     bookingFlow.setStatus(null);
   };
@@ -82,26 +80,12 @@ export default function BookingFlow() {
       return;
     }
     bookingFlow.setStatus(null);
-
-    // If logged in, skip customer info step and go to confirmation
-    if (isLoggedIn) {
-      bookingFlow.setCurrentStep('confirmation');
-    } else {
-      bookingFlow.setCurrentStep('customerinfo');
-    }
-  };
-
-  const handleCustomerInfoSubmit = (customerInfo: any) => {
-    bookingFlow.setCustomerInfo(customerInfo);
     bookingFlow.setCurrentStep('confirmation');
   };
 
   const handleConfirmBooking = async () => {
-    // Determine which user ID to use
-    const userId = isLoggedIn ? user?.id : undefined;
-
-    // Create booking (guest or authenticated)
-    const bookingId = await bookingFlow.createBooking(userId);
+    // Create booking with authenticated user
+    const bookingId = await bookingFlow.createBooking(user.id);
     if (!bookingId) {
       return; // Error already set by createBooking
     }
@@ -115,25 +99,14 @@ export default function BookingFlow() {
 
   const handlePaymentSuccess = (paymentIntentId: string) => {
     bookingFlow.handlePaymentSuccess(paymentIntentId);
-
-    // If guest booking, show save account decision
-    if (!isLoggedIn && bookingFlow.guestUserId) {
-      bookingFlow.setCurrentStep('saveaccount');
-    } else {
-      // If logged-in user, redirect to bookings
-      setTimeout(() => {
-        navigate('/my-bookings');
-      }, 2000);
-    }
+    // Redirect to bookings after successful payment
+    setTimeout(() => {
+      navigate('/my-bookings');
+    }, 2000);
   };
 
   const handlePaymentError = (error: string) => {
     bookingFlow.setStatus({ type: 'error', message: error });
-  };
-
-  const handleSkipSaveAccount = () => {
-    // Guest chooses not to save account
-    navigate('/');
   };
 
   // ============================================
@@ -193,22 +166,7 @@ export default function BookingFlow() {
   }
 
   // ============================================
-  // STEP 4: CUSTOMER INFORMATION (NEW - GUEST ONLY)
-  // ============================================
-  if (bookingFlow.currentStep === 'customerinfo') {
-    return (
-      <CustomerInfoStep
-        initialData={undefined}
-        onSubmit={handleCustomerInfoSubmit}
-        status={bookingFlow.status}
-        submitting={bookingFlow.submitting}
-        onBack={handleGoBack}
-      />
-    );
-  }
-
-  // ============================================
-  // STEP 5: CONFIRMATION
+  // STEP 4: CONFIRMATION
   // ============================================
   if (bookingFlow.currentStep === 'confirmation') {
     return (
@@ -228,7 +186,7 @@ export default function BookingFlow() {
   }
 
   // ============================================
-  // STEP 6: PAYMENT
+  // STEP 5: PAYMENT
   // ============================================
   if (bookingFlow.currentStep === 'payment' && bookingFlow.clientSecret) {
     return (
@@ -243,22 +201,6 @@ export default function BookingFlow() {
           setIsProcessing={bookingFlow.setIsPaymentProcessing}
         />
       </Elements>
-    );
-  }
-
-  // ============================================
-  // STEP 7: SAVE ACCOUNT DECISION (NEW - GUEST ONLY)
-  // ============================================
-  if (bookingFlow.currentStep === 'saveaccount' && bookingFlow.guestUserId && bookingFlow.customerInfo) {
-    return (
-      <SaveAccountDecisionStep
-        customerEmail={bookingFlow.customerInfo.email}
-        guestUserId={bookingFlow.guestUserId}
-        onSave={bookingFlow.saveGuestAccount}
-        onSkip={handleSkipSaveAccount}
-        status={bookingFlow.status}
-        submitting={bookingFlow.submitting}
-      />
     );
   }
 

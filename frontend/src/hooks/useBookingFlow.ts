@@ -5,7 +5,6 @@ import {
   availabilityApi,
   bookingsApi,
   paymentsApi,
-  authApi,
 } from "../api/endpoints";
 import type {
   Service,
@@ -14,22 +13,8 @@ import type {
   CategoryWithServices,
 } from "../types";
 
-/** Booking wizard steps: service → barber → datetime → customerinfo → confirmation → payment → saveaccount */
-type Step =
-  | "service"
-  | "barber"
-  | "datetime"
-  | "customerinfo"
-  | "confirmation"
-  | "payment"
-  | "saveaccount";
-
-interface CustomerInfo {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-}
+/** Booking wizard steps: service → barber → datetime → confirmation → payment */
+type Step = "service" | "barber" | "datetime" | "confirmation" | "payment";
 
 /**
  * Custom hook managing all booking wizard state and API logic
@@ -65,16 +50,12 @@ export function useBookingFlow() {
   // Payment state
   const [depositAmount, setDepositAmount] = useState<number | null>(null);
   const [outstandingBalance, setOutstandingBalance] = useState<number | null>(
-    null
+    null,
   );
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [createdBookingId, setCreatedBookingId] = useState<number | null>(null);
-
-  // Guest booking state
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
-  const [guestUserId, setGuestUserId] = useState<number | null>(null);
 
   // Fetch services on mount, fetch slots when date changes
   useEffect(() => {
@@ -103,7 +84,7 @@ export function useBookingFlow() {
           ...s,
           categoryId: cat.id,
           categoryName: cat.name,
-        }))
+        })),
       );
       setServices(allServices);
       setStatus(null);
@@ -137,7 +118,7 @@ export function useBookingFlow() {
       const response = await availabilityApi.getSlots(
         selectedBarber.id,
         selectedDate,
-        selectedService.id
+        selectedService.id,
       );
       setAvailableSlots(response.data);
       setSelectedTime(""); // Reset selected time when date changes
@@ -151,18 +132,7 @@ export function useBookingFlow() {
   };
 
   /** Submit booking to backend API */
-  const createBooking = async (userId?: number): Promise<number | null> => {
-    // If customer info is set, use guest booking flow
-    if (customerInfo) {
-      return createGuestBooking(customerInfo);
-    }
-
-    // Otherwise, use authenticated booking flow (existing logic)
-    if (!userId) {
-      setStatus({ type: "error", message: "User not authenticated" });
-      return null;
-    }
-
+  const createBooking = async (userId: number): Promise<number | null> => {
     if (!selectedService || !selectedBarber) {
       setStatus({ type: "error", message: "Missing booking details" });
       return null;
@@ -191,87 +161,6 @@ export function useBookingFlow() {
         : backendMessage || "Failed to create booking";
       setStatus({ type: "error", message: String(message) });
       return null;
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  /**
-   * Create a booking for a guest customer
-   * This creates a guest user account and booking in one call
-   */
-  const createGuestBooking = async (
-    customerInfo: CustomerInfo
-  ): Promise<number | null> => {
-    if (!selectedService || !selectedBarber) {
-      setStatus({ type: "error", message: "Missing booking details" });
-      return null;
-    }
-
-    setSubmitting(true);
-    try {
-      const guestBookingRequest = {
-        firstName: customerInfo.firstName,
-        lastName: customerInfo.lastName,
-        email: customerInfo.email,
-        phone: customerInfo.phone,
-        barberId: selectedBarber.id,
-        serviceId: selectedService.id,
-        bookingDate: selectedDate,
-        startTime: selectedTime,
-        paymentMethod: paymentMethod || "pay_online",
-      };
-
-      // Call new guest booking endpoint
-      const response = await bookingsApi.createGuest(guestBookingRequest);
-
-      setStatus(null);
-      setCreatedBookingId(response.data.bookingId);
-      setGuestUserId(response.data.customerId);
-      setDepositAmount(response.data.depositAmount);
-      setOutstandingBalance(response.data.outstandingBalance);
-
-      return response.data.bookingId;
-    } catch (error: any) {
-      const backendMessage = error.response?.data?.message || "";
-      // Generic message error message
-      const message = backendMessage.toLowerCase().includes("blacklist")
-        ? "Unable to complete booking. Please contact us for assistance."
-        : backendMessage || "Failed to create booking";
-      setStatus({ type: "error", message: String(message) });
-      return null;
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  /**
-   * Save a guest account by setting a password
-   * Converts guest user to registered user
-   */
-  const saveGuestAccount = async (
-    userId: number,
-    password: string
-  ): Promise<boolean> => {
-    setSubmitting(true);
-    try {
-      const saveAccountRequest = {
-        userId: userId,
-        password: password,
-      };
-
-      await authApi.saveAccount(saveAccountRequest);
-
-      setStatus({
-        type: "success",
-        message: "Account saved successfully! Redirecting...",
-      });
-
-      return true;
-    } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to save account";
-      setStatus({ type: "error", message: String(message) });
-      return false;
     } finally {
       setSubmitting(false);
     }
@@ -348,11 +237,6 @@ export function useBookingFlow() {
     setIsPaymentProcessing,
     createdBookingId,
 
-    // Guest booking state
-    customerInfo,
-    setCustomerInfo,
-    guestUserId,
-
     // Status & error handling
     status,
     setStatus,
@@ -360,8 +244,6 @@ export function useBookingFlow() {
     // API handlers
     fetchBarbers,
     createBooking,
-    createGuestBooking,
-    saveGuestAccount,
     initiateDepositPayment,
     handlePaymentSuccess,
   };

@@ -34,7 +34,7 @@ export function PaymentForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showExpressCheckout, setShowExpressCheckout] = useState(true);
 
-  const handleExpressCheckoutConfirm = async (event: StripeExpressCheckoutElementConfirmEvent) => {
+  const handleExpressCheckoutConfirm = async (_event: StripeExpressCheckoutElementConfirmEvent) => {
     if (!stripe || !elements) {
       return;
     }
