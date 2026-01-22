@@ -1,5 +1,6 @@
 package com.trim.booking.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
@@ -22,6 +23,7 @@ public class Business {
 
     @OneToOne
     @JoinColumn(name = "admin_user_id", nullable = false, unique = true)
+    @JsonIgnore
     private User adminUser;
 
     @Column(nullable = false, updatable = false)

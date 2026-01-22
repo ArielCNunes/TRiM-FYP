@@ -25,6 +25,7 @@ public class ServiceCategory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id", nullable = false)
+    @JsonIgnore
     private Business business;
 
     public ServiceCategory() {}
