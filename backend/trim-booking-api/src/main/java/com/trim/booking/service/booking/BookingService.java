@@ -44,28 +44,6 @@ public class BookingService {
         return commandService.createBooking(customerId, barberId, serviceId, bookingDate, startTime, paymentMethod);
     }
 
-    /**
-     * Create a booking for a guest user.
-     * This method creates a guest user account first, then creates the booking.
-     *
-     * @param firstName     Customer's first name
-     * @param lastName      Customer's last name
-     * @param email         Customer's email
-     * @param phone         Customer's phone
-     * @param barberId      Barber ID
-     * @param serviceId     Service ID
-     * @param bookingDate   Booking date
-     * @param startTime     Start time
-     * @param paymentMethod Payment method (pay_online or pay_in_shop)
-     * @return Booking object
-     * @throws com.trim.booking.exception.ConflictException if email already exists or time slot unavailable
-     */
-    public Booking createGuestBooking(String firstName, String lastName, String email, String phone,
-                                      Long barberId, Long serviceId, LocalDate bookingDate,
-                                      LocalTime startTime, String paymentMethod) {
-        return commandService.createGuestBooking(firstName, lastName, email, phone,
-                barberId, serviceId, bookingDate, startTime, paymentMethod);
-    }
 
     /**
      * Get all bookings for a customer.

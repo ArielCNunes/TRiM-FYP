@@ -9,7 +9,6 @@ import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.ForbiddenException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
-import com.trim.booking.service.user.GuestUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,16 +26,13 @@ public class BookingCommandService {
     private final BookingRepository bookingRepository;
     private final BookingValidationService validationService;
     private final BookingConflictDetectionService conflictDetectionService;
-    private final GuestUserService guestUserService;
 
     public BookingCommandService(BookingRepository bookingRepository,
                                  BookingValidationService validationService,
-                                 BookingConflictDetectionService conflictDetectionService,
-                                 GuestUserService guestUserService) {
+                                 BookingConflictDetectionService conflictDetectionService) {
         this.bookingRepository = bookingRepository;
         this.validationService = validationService;
         this.conflictDetectionService = conflictDetectionService;
-        this.guestUserService = guestUserService;
     }
 
     /**
@@ -89,34 +85,6 @@ public class BookingCommandService {
         }
     }
 
-    /**
-     * Create a booking for a guest user.
-     * This method creates a guest user account first, then creates the booking.
-     *
-     * @param firstName     Customer's first name
-     * @param lastName      Customer's last name
-     * @param email         Customer's email
-     * @param phone         Customer's phone
-     * @param barberId      Barber ID
-     * @param serviceId     Service ID
-     * @param bookingDate   Booking date
-     * @param startTime     Start time
-     * @param paymentMethod Payment method
-     * @return Created booking
-     */
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    public Booking createGuestBooking(String firstName, String lastName,
-                                      String email, String phone,
-                                      Long barberId, Long serviceId,
-                                      LocalDate bookingDate, LocalTime startTime,
-                                      String paymentMethod) {
-        // Step 1: Create guest user via service
-        User guestCustomer = guestUserService.createGuestUser(firstName, lastName, email, phone);
-
-        // Step 2: Create booking using the guest user
-        return createBooking(guestCustomer.getId(), barberId, serviceId,
-                bookingDate, startTime, paymentMethod);
-    }
 
     /**
      * Build a booking entity with default values.

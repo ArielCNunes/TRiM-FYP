@@ -17,13 +17,11 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final GuestUserService guestUserService;
     private final BusinessRepository businessRepository;
 
-    public UserService(UserRepository userRepository, GuestUserService guestUserService, BusinessRepository businessRepository) {
+    public UserService(UserRepository userRepository, BusinessRepository businessRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
-        this.guestUserService = guestUserService;
         this.businessRepository = businessRepository;
     }
 
@@ -124,17 +122,5 @@ public class UserService {
         businessRepository.save(business);
 
         return savedUser;
-    }
-
-    /**
-     * Save a guest account by setting password.
-     * Converts guest user to registered user.
-     *
-     * @param userId User ID
-     * @param password Plain text password
-     * @return Updated user
-     */
-    public User saveGuestAccount(Long userId, String password) {
-        return guestUserService.saveGuestAccount(userId, password);
     }
 }

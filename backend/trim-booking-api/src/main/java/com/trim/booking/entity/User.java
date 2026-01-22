@@ -31,8 +31,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    // Password can be null for guest accounts (accounts created during booking)
-    @Column
+    @Column(nullable = false)
     private String passwordHash;
 
     @Column(nullable = false)

@@ -43,7 +43,7 @@ public class PasswordResetService {
         User user = userRepository.findByEmail(email).orElse(null);
 
         // If user exists, generate token and send email
-        if (user != null && user.getPasswordHash() != null) { // Only for accounts with passwords (not guest accounts)
+        if (user != null) {
             // Generate secure random token
             String resetToken = UUID.randomUUID().toString();
 
