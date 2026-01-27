@@ -60,10 +60,9 @@ public class DashboardService {
                 .collect(Collectors.toList());
         stats.setPopularServices(popularServices);
 
-        // Recent bookings (last 5)
-        List<Booking> recentBookingsList = bookingRepository.findByBusinessIdAndBookingDate(businessId, LocalDate.now())
+        // Recent bookings (last 5 by creation date)
+        List<Booking> recentBookingsList = bookingRepository.findRecentByBusinessIdOrderByCreatedAtDesc(businessId)
                 .stream()
-                .sorted((b1, b2) -> b2.getCreatedAt().compareTo(b1.getCreatedAt()))
                 .limit(5)
                 .toList();
 

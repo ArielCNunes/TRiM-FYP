@@ -65,4 +65,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.business.id = :businessId AND b.customer.id = :customerId AND b.status = :status")
     Long countByBusinessIdAndCustomerIdAndStatus(@Param("businessId") Long businessId, @Param("customerId") Long customerId, @Param("status") Booking.BookingStatus status);
+
+    // Get recent bookings ordered by creation date (for dashboard)
+    @Query("SELECT b FROM Booking b WHERE b.business.id = :businessId ORDER BY b.createdAt DESC")
+    List<Booking> findRecentByBusinessIdOrderByCreatedAtDesc(@Param("businessId") Long businessId);
 }
