@@ -3,6 +3,7 @@ package com.trim.booking.service.booking;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,6 +19,10 @@ public class BookingQueryService {
 
     public BookingQueryService(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
+    }
+
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
     }
 
     /**
@@ -40,7 +45,7 @@ public class BookingQueryService {
      * @return List of bookings
      */
     public List<Booking> getCustomerBookings(Long customerId) {
-        return bookingRepository.findByCustomerId(customerId);
+        return bookingRepository.findByBusinessIdAndCustomerId(getBusinessId(), customerId);
     }
 
     /**
@@ -50,7 +55,7 @@ public class BookingQueryService {
      * @return List of bookings
      */
     public List<Booking> getBarberBookings(Long barberId) {
-        return bookingRepository.findByBarberId(barberId);
+        return bookingRepository.findByBusinessIdAndBarberId(getBusinessId(), barberId);
     }
 
     /**
@@ -61,7 +66,7 @@ public class BookingQueryService {
      * @return List of bookings
      */
     public List<Booking> getBarberScheduleForDate(Long barberId, LocalDate date) {
-        return bookingRepository.findByBarberIdAndBookingDate(barberId, date);
+        return bookingRepository.findByBusinessIdAndBarberIdAndBookingDate(getBusinessId(), barberId, date);
     }
 
     /**
@@ -72,7 +77,7 @@ public class BookingQueryService {
      */
     public List<Booking> getUpcomingBookingsForCustomer(Long customerId) {
         LocalDate today = LocalDate.now();
-        return bookingRepository.findByCustomerId(customerId).stream()
+        return bookingRepository.findByBusinessIdAndCustomerId(getBusinessId(), customerId).stream()
                 .filter(b -> b.getBookingDate().isAfter(today) ||
                         b.getBookingDate().isEqual(today))
                 .filter(b -> b.getStatus() != Booking.BookingStatus.CANCELLED)
@@ -87,7 +92,7 @@ public class BookingQueryService {
      */
     public List<Booking> getPastBookingsForCustomer(Long customerId) {
         LocalDate today = LocalDate.now();
-        return bookingRepository.findByCustomerId(customerId).stream()
+        return bookingRepository.findByBusinessIdAndCustomerId(getBusinessId(), customerId).stream()
                 .filter(b -> b.getBookingDate().isBefore(today))
                 .toList();
     }
@@ -100,14 +105,15 @@ public class BookingQueryService {
      * @return List of bookings
      */
     public List<Booking> getAllBookings(Booking.BookingStatus status, LocalDate date) {
+        Long businessId = getBusinessId();
         if (date != null && status != null) {
-            return bookingRepository.findByBookingDateAndStatus(date, status);
+            return bookingRepository.findByBusinessIdAndBookingDateAndStatus(businessId, date, status);
         } else if (date != null) {
-            return bookingRepository.findByBookingDate(date);
+            return bookingRepository.findByBusinessIdAndBookingDate(businessId, date);
         } else if (status != null) {
-            return bookingRepository.findByStatus(status);
+            return bookingRepository.findByBusinessIdAndStatus(businessId, status);
         } else {
-            return bookingRepository.findAll();
+            return bookingRepository.findByBusinessIdAndBookingDate(businessId, LocalDate.now());
         }
     }
 }

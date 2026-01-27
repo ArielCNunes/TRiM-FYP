@@ -3,6 +3,7 @@ package com.trim.booking.service.booking;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.exception.ConflictException;
 import com.trim.booking.repository.BookingRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,6 +22,10 @@ public class BookingConflictDetectionService {
         this.bookingRepository = bookingRepository;
     }
 
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
+    }
+
     /**
      * Check if the time slot is available for booking.
      * Uses pessimistic locking to prevent race conditions.
@@ -34,7 +39,7 @@ public class BookingConflictDetectionService {
     public void validateTimeSlotAvailable(Long barberId, LocalDate bookingDate,
                                           LocalTime startTime, LocalTime endTime) {
         List<Booking> existingBookings = bookingRepository
-                .findByBarberIdAndBookingDateWithLock(barberId, bookingDate);
+                .findByBusinessIdAndBarberIdAndBookingDateWithLock(getBusinessId(), barberId, bookingDate);
 
         for (Booking existing : existingBookings) {
             // Skip cancelled bookings
@@ -83,7 +88,7 @@ public class BookingConflictDetectionService {
                                                    LocalDate bookingDate,
                                                    LocalTime startTime, LocalTime endTime) {
         List<Booking> existingBookings = bookingRepository
-                .findByBarberIdAndBookingDateWithLock(barberId, bookingDate);
+                .findByBusinessIdAndBarberIdAndBookingDateWithLock(getBusinessId(), barberId, bookingDate);
 
         for (Booking existing : existingBookings) {
             // Skip the booking being updated
@@ -121,7 +126,7 @@ public class BookingConflictDetectionService {
     public List<Booking> findConflictingBookings(Long barberId, LocalDate bookingDate,
                                                  LocalTime startTime, LocalTime endTime) {
         List<Booking> existingBookings = bookingRepository
-                .findByBarberIdAndBookingDate(barberId, bookingDate);
+                .findByBusinessIdAndBarberIdAndBookingDate(getBusinessId(), barberId, bookingDate);
 
         return existingBookings.stream()
                 .filter(b -> b.getStatus() != Booking.BookingStatus.CANCELLED)

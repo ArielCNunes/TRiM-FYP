@@ -9,6 +9,7 @@ import com.trim.booking.repository.BarberAvailabilityRepository;
 import com.trim.booking.repository.BarberBreakRepository;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.ServiceRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -38,6 +39,10 @@ public class AvailabilityService {
         this.barberBreakRepository = barberBreakRepository;
     }
 
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
+    }
+
     /**
      * Get available time slots for a barber on a specific date for a given service.
      * <p>
@@ -57,6 +62,8 @@ public class AvailabilityService {
      * @return List of available time slots
      */
     public List<String> getAvailableSlots(Long barberId, LocalDate date, Long serviceId) {
+        Long businessId = getBusinessId();
+
         // Step 1: Get the service to know its duration
         ServiceOffered service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + serviceId));
@@ -64,7 +71,7 @@ public class AvailabilityService {
         // Step 2: Get barber's working hours for this day of week
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         Optional<BarberAvailability> availabilityOpt =
-                barberAvailabilityRepository.findByBarberIdAndDayOfWeek(barberId, dayOfWeek);
+                barberAvailabilityRepository.findByBusinessIdAndBarberIdAndDayOfWeek(businessId, barberId, dayOfWeek);
 
         // If barber doesn't work this day, return empty list
         if (availabilityOpt.isEmpty() || !availabilityOpt.get().getIsAvailable()) {
@@ -76,10 +83,10 @@ public class AvailabilityService {
         LocalTime workEnd = availability.getEndTime();
 
         // Step 3: Get all existing bookings for this barber on this date
-        List<Booking> existingBookings = bookingRepository.findByBarberIdAndBookingDate(barberId, date);
+        List<Booking> existingBookings = bookingRepository.findByBusinessIdAndBarberIdAndBookingDate(businessId, barberId, date);
 
         // Get all breaks for the barber
-        List<BarberBreak> barberBreaks = barberBreakRepository.findByBarberId(barberId);
+        List<BarberBreak> barberBreaks = barberBreakRepository.findByBusinessIdAndBarberId(businessId, barberId);
 
         // Step 4: Generate all possible time slots
         List<LocalTime> availableSlots = new ArrayList<>();

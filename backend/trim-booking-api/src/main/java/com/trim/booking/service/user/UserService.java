@@ -6,9 +6,11 @@ import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.InvalidPhoneNumberException;
+import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.exception.UnauthorizedException;
 import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.UserRepository;
+import com.trim.booking.tenant.TenantContext;
 import com.trim.booking.util.PhoneNumberUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,10 @@ public class UserService {
         this.businessRepository = businessRepository;
     }
 
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
+    }
+
     /**
      * Authenticate user and return user details.
      *
@@ -34,9 +40,18 @@ public class UserService {
      * @throws UnauthorizedException if credentials invalid
      */
     public User login(String email, String password) {
-        // Find user by email
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
+        Long businessId = getBusinessId();
+
+        // Find user by email - use business context if available, otherwise search globally
+        User user;
+        if (businessId != null) {
+            user = userRepository.findByBusinessIdAndEmail(businessId, email)
+                    .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
+        } else {
+            // Fallback to global search when no business context
+            user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
+        }
 
         // Check password
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
@@ -54,10 +69,15 @@ public class UserService {
      * @throws RuntimeException if email already exists
      */
     public User registerCustomer(RegisterRequest request) {
-        // Check if email already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
+        Long businessId = getBusinessId();
+
+        // Check if email already exists within this business
+        if (userRepository.existsByBusinessIdAndEmail(businessId, request.getEmail())) {
             throw new RuntimeException("Email already registered");
         }
+
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         // Normalize phone number (defensive programming - entity will also normalize)
         String normalizedPhone;
@@ -75,6 +95,7 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setPhone(normalizedPhone);
         user.setRole(User.Role.CUSTOMER);
+        user.setBusiness(business);
 
         // Save to database
         return userRepository.save(user);
@@ -88,8 +109,8 @@ public class UserService {
      * @throws RuntimeException if email already exists
      */
     public User registerAdmin(AdminRegisterRequest request) {
-        // Check if email already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
+        // For admin registration, check globally since business doesn't exist yet
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already registered");
         }
 
@@ -101,6 +122,11 @@ public class UserService {
             throw new BadRequestException("Invalid phone number: " + e.getMessage());
         }
 
+        // Create business first
+        Business business = new Business();
+        business.setName(request.getBusinessName());
+        Business savedBusiness = businessRepository.save(business);
+
         // Create new user with ADMIN role
         User user = new User();
         user.setFirstName(request.getFirstName());
@@ -109,17 +135,14 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setPhone(normalizedPhone);
         user.setRole(User.Role.ADMIN);
+        user.setBusiness(savedBusiness);
 
         // Save user to database
         User savedUser = userRepository.save(user);
 
-        // Create business linked to admin user
-        Business business = new Business();
-        business.setName(request.getBusinessName());
-        business.setAdminUser(savedUser);
-
-        // Save business to database
-        businessRepository.save(business);
+        // Update business with admin user
+        savedBusiness.setAdminUser(savedUser);
+        businessRepository.save(savedBusiness);
 
         return savedUser;
     }

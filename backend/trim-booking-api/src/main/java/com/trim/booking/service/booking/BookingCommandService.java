@@ -3,12 +3,15 @@ package com.trim.booking.service.booking;
 import com.trim.booking.dto.booking.UpdateBookingRequest;
 import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.Booking;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.ForbiddenException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
+import com.trim.booking.repository.BusinessRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +29,20 @@ public class BookingCommandService {
     private final BookingRepository bookingRepository;
     private final BookingValidationService validationService;
     private final BookingConflictDetectionService conflictDetectionService;
+    private final BusinessRepository businessRepository;
 
     public BookingCommandService(BookingRepository bookingRepository,
                                  BookingValidationService validationService,
-                                 BookingConflictDetectionService conflictDetectionService) {
+                                 BookingConflictDetectionService conflictDetectionService,
+                                 BusinessRepository businessRepository) {
         this.bookingRepository = bookingRepository;
         this.validationService = validationService;
         this.conflictDetectionService = conflictDetectionService;
+        this.businessRepository = businessRepository;
+    }
+
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
     }
 
     /**
@@ -117,6 +127,12 @@ public class BookingCommandService {
         // Deposit amounts will be set by PaymentService
         booking.setDepositAmount(BigDecimal.ZERO);
         booking.setOutstandingBalance(service.getPrice());
+
+        // Set business association
+        Long businessId = getBusinessId();
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
+        booking.setBusiness(business);
 
         return booking;
     }

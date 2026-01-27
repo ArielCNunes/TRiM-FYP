@@ -5,11 +5,11 @@ import com.trim.booking.entity.Booking;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.UserRepository;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,25 +25,30 @@ public class DashboardService {
         this.barberRepository = barberRepository;
     }
 
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
+    }
+
     public DashboardStats getAdminDashboardStats() {
         DashboardStats stats = new DashboardStats();
+        Long businessId = getBusinessId();
 
         // Basic counts
-        stats.setTotalBookings(bookingRepository.count());
-        stats.setTodaysBookings(bookingRepository.countTodaysBookings());
-        stats.setUpcomingBookings(bookingRepository.countUpcomingBookings());
-        stats.setActiveCustomers(userRepository.countActiveCustomers());
-        stats.setActiveBarbers(barberRepository.countActiveBarbers());
+        stats.setTotalBookings((long) bookingRepository.findByBusinessIdAndBookingDate(businessId, LocalDate.now()).size());
+        stats.setTodaysBookings(bookingRepository.countTodaysBookingsByBusinessId(businessId));
+        stats.setUpcomingBookings(bookingRepository.countUpcomingBookingsByBusinessId(businessId));
+        stats.setActiveCustomers(userRepository.countByBusinessIdAndRole(businessId));
+        stats.setActiveBarbers(barberRepository.countByBusinessIdAndActiveTrue(businessId));
 
         // Revenue calculations
-        BigDecimal totalRevenue = bookingRepository.calculateTotalRevenue();
+        BigDecimal totalRevenue = bookingRepository.calculateTotalRevenueByBusinessId(businessId);
         stats.setTotalRevenue(totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
 
-        BigDecimal monthRevenue = bookingRepository.calculateThisMonthRevenue();
+        BigDecimal monthRevenue = bookingRepository.calculateThisMonthRevenueByBusinessId(businessId);
         stats.setThisMonthRevenue(monthRevenue != null ? monthRevenue : BigDecimal.ZERO);
 
         // Popular services
-        List<Object[]> popularServicesData = bookingRepository.findPopularServices();
+        List<Object[]> popularServicesData = bookingRepository.findPopularServicesByBusinessId(businessId);
         List<Map<String, Object>> popularServices = popularServicesData.stream()
                 .limit(5)
                 .map(row -> {
@@ -56,9 +61,11 @@ public class DashboardService {
         stats.setPopularServices(popularServices);
 
         // Recent bookings (last 5)
-        List<Booking> recentBookingsList = bookingRepository.findAll(
-                PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"))
-        ).getContent();
+        List<Booking> recentBookingsList = bookingRepository.findByBusinessIdAndBookingDate(businessId, LocalDate.now())
+                .stream()
+                .sorted((b1, b2) -> b2.getCreatedAt().compareTo(b1.getCreatedAt()))
+                .limit(5)
+                .toList();
 
         List<Map<String, Object>> recentBookings = recentBookingsList.stream()
                 .map(booking -> {

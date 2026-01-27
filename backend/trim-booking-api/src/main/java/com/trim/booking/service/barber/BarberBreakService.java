@@ -2,10 +2,13 @@ package com.trim.booking.service.barber;
 
 import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.BarberBreak;
+import com.trim.booking.entity.Business;
 import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberBreakRepository;
 import com.trim.booking.repository.BarberRepository;
+import com.trim.booking.repository.BusinessRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +19,18 @@ import java.util.List;
 public class BarberBreakService {
     private final BarberBreakRepository barberBreakRepository;
     private final BarberRepository barberRepository;
+    private final BusinessRepository businessRepository;
 
     public BarberBreakService(BarberBreakRepository barberBreakRepository,
-                             BarberRepository barberRepository) {
+                             BarberRepository barberRepository,
+                             BusinessRepository businessRepository) {
         this.barberBreakRepository = barberBreakRepository;
         this.barberRepository = barberRepository;
+        this.businessRepository = businessRepository;
+    }
+
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
     }
 
     /**
@@ -30,7 +40,7 @@ public class BarberBreakService {
      * @return List of all breaks for the barber
      */
     public List<BarberBreak> getBreaksByBarberId(Long barberId) {
-        return barberBreakRepository.findByBarberId(barberId);
+        return barberBreakRepository.findByBusinessIdAndBarberId(getBusinessId(), barberId);
     }
 
     /**
@@ -46,9 +56,14 @@ public class BarberBreakService {
      */
     @Transactional
     public BarberBreak createBreak(Long barberId, String startTime, String endTime, String label) {
+        Long businessId = getBusinessId();
+
         // Find barber
         Barber barber = barberRepository.findById(barberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + barberId));
+
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         // Parse times
         LocalTime start = LocalTime.parse(startTime);
@@ -61,6 +76,7 @@ public class BarberBreakService {
 
         // Create and save break
         BarberBreak barberBreak = new BarberBreak(barber, start, end, label);
+        barberBreak.setBusiness(business);
         return barberBreakRepository.save(barberBreak);
     }
 

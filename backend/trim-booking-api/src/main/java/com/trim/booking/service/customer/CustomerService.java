@@ -7,6 +7,7 @@ import com.trim.booking.entity.User;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.UserRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,10 @@ public class CustomerService {
         this.bookingRepository = bookingRepository;
     }
 
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
+    }
+
     /**
      * Get paginated list of customers with their no-show counts.
      *
@@ -36,7 +41,7 @@ public class CustomerService {
      * @return CustomerListResponse with paginated customers
      */
     public CustomerListResponse getCustomers(Pageable pageable) {
-        Page<User> customerPage = userRepository.findByRole(User.Role.CUSTOMER, pageable);
+        Page<User> customerPage = userRepository.findByBusinessIdAndRole(getBusinessId(), User.Role.CUSTOMER, pageable);
 
         List<CustomerResponse> customers = customerPage.getContent().stream()
                 .map(this::mapToCustomerResponse)
@@ -148,8 +153,8 @@ public class CustomerService {
      * Map User entity to CustomerResponse DTO.
      */
     private CustomerResponse mapToCustomerResponse(User user) {
-        Long noShowCount = bookingRepository.countByCustomerIdAndStatus(
-                user.getId(), Booking.BookingStatus.NO_SHOW);
+        Long noShowCount = bookingRepository.countByBusinessIdAndCustomerIdAndStatus(
+                getBusinessId(), user.getId(), Booking.BookingStatus.NO_SHOW);
 
         return new CustomerResponse(
                 user.getId(),

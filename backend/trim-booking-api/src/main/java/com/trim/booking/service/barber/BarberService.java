@@ -1,12 +1,15 @@
 package com.trim.booking.service.barber;
 
 import com.trim.booking.entity.Barber;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.InvalidPhoneNumberException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberRepository;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.UserRepository;
+import com.trim.booking.tenant.TenantContext;
 import com.trim.booking.util.PhoneNumberUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,12 +22,18 @@ import java.util.Optional;
 public class BarberService {
     private final BarberRepository barberRepository;
     private final UserRepository userRepository;
+    private final BusinessRepository businessRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public BarberService(BarberRepository barberRepository, UserRepository userRepository) {
+    public BarberService(BarberRepository barberRepository, UserRepository userRepository, BusinessRepository businessRepository) {
         this.barberRepository = barberRepository;
         this.userRepository = userRepository;
+        this.businessRepository = businessRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+    }
+
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
     }
 
     // All or nothing transaction to ensure both User and Barber are created
@@ -32,10 +41,15 @@ public class BarberService {
     public Barber createBarber(String firstName, String lastName, String email,
                                String phone, String password, String bio, String profileImageUrl) {
 
-        // Check if email already exists
-        if (userRepository.existsByEmail(email)) {
+        Long businessId = getBusinessId();
+
+        // Check if email already exists within this business
+        if (userRepository.existsByBusinessIdAndEmail(businessId, email)) {
             throw new RuntimeException("Email already registered");
         }
+
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         // Normalize phone number
         String normalizedPhone;
@@ -53,6 +67,7 @@ public class BarberService {
         user.setPhone(normalizedPhone);
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setRole(User.Role.BARBER);
+        user.setBusiness(business);
 
         User savedUser = userRepository.save(user);
 
@@ -62,16 +77,17 @@ public class BarberService {
         barber.setBio(bio);
         barber.setProfileImageUrl(profileImageUrl);
         barber.setActive(true);
+        barber.setBusiness(business);
 
         return barberRepository.save(barber);
     }
 
     public List<Barber> getAllBarbers() {
-        return barberRepository.findAll();
+        return barberRepository.findByBusinessId(getBusinessId());
     }
 
     public List<Barber> getActiveBarbers() {
-        return barberRepository.findByActiveTrue();
+        return barberRepository.findByBusinessIdAndActiveTrue(getBusinessId());
     }
 
     public Optional<Barber> getBarberById(Long id) {

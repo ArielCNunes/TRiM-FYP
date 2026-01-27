@@ -4,8 +4,10 @@ import com.trim.booking.dto.service.ServiceRequest;
 import com.trim.booking.entity.ServiceCategory;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.exception.ResourceNotFoundException;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.ServiceCategoryRepository;
 import com.trim.booking.repository.ServiceRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,10 +18,18 @@ public class ServicesOfferedService {
 
     private final ServiceRepository serviceRepository;
     private final ServiceCategoryRepository categoryRepository;
+    private final BusinessRepository businessRepository;
 
-    public ServicesOfferedService(ServiceRepository serviceRepository, ServiceCategoryRepository categoryRepository) {
+    public ServicesOfferedService(ServiceRepository serviceRepository,
+                                   ServiceCategoryRepository categoryRepository,
+                                   BusinessRepository businessRepository) {
         this.serviceRepository = serviceRepository;
         this.categoryRepository = categoryRepository;
+        this.businessRepository = businessRepository;
+    }
+
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
     }
 
     public ServiceOffered createService(ServiceRequest request) {
@@ -34,16 +44,18 @@ public class ServicesOfferedService {
         service.setDepositPercentage(request.getDepositPercentage());
         service.setActive(request.getActive());
         service.setCategory(category);
+        service.setBusiness(businessRepository.findById(getBusinessId())
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found")));
 
         return serviceRepository.save(service);
     }
 
     public List<ServiceOffered> getAllServices() {
-        return serviceRepository.findAll();
+        return serviceRepository.findByBusinessId(getBusinessId());
     }
 
     public List<ServiceOffered> getActiveServices() {
-        return serviceRepository.findByActiveTrue();
+        return serviceRepository.findByBusinessIdAndActiveTrue(getBusinessId());
     }
 
     public Optional<ServiceOffered> getServiceById(Long id) {

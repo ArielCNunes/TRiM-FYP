@@ -26,8 +26,7 @@ public class TenantFilter extends OncePerRequestFilter {
      * Endpoints that don't require tenant resolution.
      */
     private static final Set<String> PUBLIC_ENDPOINTS = Set.of(
-            "/api/auth/login",
-            "/api/auth/register",
+            "/api/auth/register-admin",
             "/api/auth/forgot-password",
             "/api/auth/reset-password",
             "/api/auth/validate-reset-token",
