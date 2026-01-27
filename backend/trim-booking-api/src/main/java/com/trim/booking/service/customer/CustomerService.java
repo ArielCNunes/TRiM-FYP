@@ -64,7 +64,7 @@ public class CustomerService {
      * @throws ResourceNotFoundException if customer not found
      */
     public CustomerResponse getCustomerById(Long customerId) {
-        User customer = userRepository.findById(customerId)
+        User customer = userRepository.findByIdAndBusinessId(customerId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + customerId));
 
         if (customer.getRole() != User.Role.CUSTOMER) {
@@ -84,7 +84,7 @@ public class CustomerService {
      */
     @Transactional
     public CustomerResponse blacklistCustomer(Long customerId, String reason) {
-        User customer = userRepository.findById(customerId)
+        User customer = userRepository.findByIdAndBusinessId(customerId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + customerId));
 
         if (customer.getRole() != User.Role.CUSTOMER) {
@@ -108,7 +108,7 @@ public class CustomerService {
      */
     @Transactional
     public CustomerResponse unblacklistCustomer(Long customerId) {
-        User customer = userRepository.findById(customerId)
+        User customer = userRepository.findByIdAndBusinessId(customerId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + customerId));
 
         if (customer.getRole() != User.Role.CUSTOMER) {
@@ -130,7 +130,7 @@ public class CustomerService {
      * @return true if blacklisted, false otherwise
      */
     public boolean isBlacklisted(Long customerId) {
-        User customer = userRepository.findById(customerId)
+        User customer = userRepository.findByIdAndBusinessId(customerId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + customerId));
 
         return Boolean.TRUE.equals(customer.getBlacklisted());
@@ -143,7 +143,7 @@ public class CustomerService {
      * @return Blacklist reason or null if not blacklisted
      */
     public String getBlacklistReason(Long customerId) {
-        User customer = userRepository.findById(customerId)
+        User customer = userRepository.findByIdAndBusinessId(customerId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + customerId));
 
         return customer.getBlacklistReason();

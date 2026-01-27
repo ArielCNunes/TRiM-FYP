@@ -15,6 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Business-filtered methods for multi-tenancy
     Optional<User> findByBusinessIdAndEmail(Long businessId, String email);
 
+    Optional<User> findByIdAndBusinessId(Long id, Long businessId);
+
     Page<User> findByBusinessIdAndRole(Long businessId, User.Role role, Pageable pageable);
 
     @Query("SELECT COUNT(u) FROM User u WHERE u.business.id = :businessId AND u.role = 'CUSTOMER'")

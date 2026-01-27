@@ -53,8 +53,8 @@ public class BarberAvailabilityController {
         LocalTime endTime = LocalTime.parse(request.get("endTime").toString());
         Boolean isAvailable = Boolean.valueOf(request.get("isAvailable").toString());
 
-        // Get barber
-        Barber barber = barberRepository.findById(barberId)
+        // Get barber with tenant isolation
+        Barber barber = barberRepository.findByIdAndBusinessId(barberId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + barberId));
 
         // Get business
@@ -82,7 +82,7 @@ public class BarberAvailabilityController {
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @PutMapping("/{id}")
     public ResponseEntity<BarberAvailability> updateAvailability(@PathVariable Long id, @RequestBody Map<String, Object> request) {
-        BarberAvailability availability = barberAvailabilityRepository.findById(id)
+        BarberAvailability availability = barberAvailabilityRepository.findByIdAndBusinessId(id, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Availability not found with id: " + id));
 
         // Update fields if provided
@@ -117,7 +117,7 @@ public class BarberAvailabilityController {
      */
     @GetMapping
     public ResponseEntity<List<BarberAvailability>> getAllAvailability() {
-        return ResponseEntity.ok(barberAvailabilityRepository.findAll());
+        return ResponseEntity.ok(barberAvailabilityRepository.findByBarberBusinessId(getBusinessId()));
     }
 
     /**
@@ -126,7 +126,9 @@ public class BarberAvailabilityController {
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAvailability(@PathVariable Long id) {
-        barberAvailabilityRepository.deleteById(id);
+        BarberAvailability availability = barberAvailabilityRepository.findByIdAndBusinessId(id, getBusinessId())
+                .orElseThrow(() -> new ResourceNotFoundException("Availability not found with id: " + id));
+        barberAvailabilityRepository.delete(availability);
         return ResponseEntity.noContent().build();
     }
 }

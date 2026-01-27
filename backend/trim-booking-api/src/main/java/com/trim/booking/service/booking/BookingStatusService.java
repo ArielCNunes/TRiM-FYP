@@ -3,6 +3,7 @@ package com.trim.booking.service.booking;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,10 @@ public class BookingStatusService {
 
     public BookingStatusService(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
+    }
+
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
     }
 
     /**
@@ -154,7 +159,7 @@ public class BookingStatusService {
     }
 
     private Booking getBookingOrThrow(Long bookingId) {
-        return bookingRepository.findById(bookingId)
+        return bookingRepository.findByIdAndBusinessId(bookingId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Booking not found with id: " + bookingId));
     }

@@ -9,6 +9,7 @@ import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.PaymentRepository;
 import com.trim.booking.service.notification.EmailService;
 import com.trim.booking.service.notification.SmsService;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,10 @@ public class PaymentService {
         this.smsService = smsService;
     }
 
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
+    }
+
     /**
      * Create a Stripe PaymentIntent for a deposit.
      * <p>
@@ -50,8 +55,8 @@ public class PaymentService {
      */
     @Transactional
     public Map<String, Object> createDepositPaymentIntent(Long bookingId) throws StripeException {
-        // Get booking (must exist)
-        Booking booking = bookingRepository.findById(bookingId)
+        // Get booking with tenant isolation
+        Booking booking = bookingRepository.findByIdAndBusinessId(bookingId, getBusinessId())
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         // Calculate deposit amount

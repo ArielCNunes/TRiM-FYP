@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ServiceRepository extends JpaRepository<ServiceOffered, Long> {
@@ -12,4 +13,6 @@ public interface ServiceRepository extends JpaRepository<ServiceOffered, Long> {
     List<ServiceOffered> findByBusinessId(Long businessId);
 
     List<ServiceOffered> findByBusinessIdAndActiveTrue(Long businessId);
+
+    Optional<ServiceOffered> findByIdAndBusinessId(Long id, Long businessId);
 }

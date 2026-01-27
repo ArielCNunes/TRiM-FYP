@@ -58,8 +58,8 @@ public class BarberBreakService {
     public BarberBreak createBreak(Long barberId, String startTime, String endTime, String label) {
         Long businessId = getBusinessId();
 
-        // Find barber
-        Barber barber = barberRepository.findById(barberId)
+        // Find barber with tenant isolation
+        Barber barber = barberRepository.findByIdAndBusinessId(barberId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + barberId));
 
         Business business = businessRepository.findById(businessId)
@@ -93,8 +93,8 @@ public class BarberBreakService {
      */
     @Transactional
     public BarberBreak updateBreak(Long breakId, String startTime, String endTime, String label) {
-        // Find break
-        BarberBreak barberBreak = barberBreakRepository.findById(breakId)
+        // Find break with tenant isolation
+        BarberBreak barberBreak = barberBreakRepository.findByIdAndBusinessId(breakId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Break not found with id: " + breakId));
 
         // Parse times
@@ -122,10 +122,10 @@ public class BarberBreakService {
      */
     @Transactional
     public void deleteBreak(Long breakId) {
-        if (!barberBreakRepository.existsById(breakId)) {
+        int deleted = barberBreakRepository.deleteByIdAndBusinessId(breakId, getBusinessId());
+        if (deleted == 0) {
             throw new ResourceNotFoundException("Break not found with id: " + breakId);
         }
-        barberBreakRepository.deleteById(breakId);
     }
 }
 

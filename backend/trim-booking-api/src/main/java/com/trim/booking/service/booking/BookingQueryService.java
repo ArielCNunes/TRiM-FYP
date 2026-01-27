@@ -33,7 +33,7 @@ public class BookingQueryService {
      * @throws ResourceNotFoundException if booking not found
      */
     public Booking getBookingById(Long bookingId) {
-        return bookingRepository.findById(bookingId)
+        return bookingRepository.findByIdAndBusinessId(bookingId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Booking not found with id: " + bookingId));
     }

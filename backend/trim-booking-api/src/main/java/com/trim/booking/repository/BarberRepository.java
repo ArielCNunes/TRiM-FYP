@@ -16,6 +16,8 @@ public interface BarberRepository extends JpaRepository<Barber, Long> {
 
     List<Barber> findByBusinessIdAndActiveTrue(Long businessId);
 
+    Optional<Barber> findByIdAndBusinessId(Long id, Long businessId);
+
     @Query("SELECT COUNT(b) FROM Barber b WHERE b.business.id = :businessId AND b.active = true")
     Long countByBusinessIdAndActiveTrue(@Param("businessId") Long businessId);
 

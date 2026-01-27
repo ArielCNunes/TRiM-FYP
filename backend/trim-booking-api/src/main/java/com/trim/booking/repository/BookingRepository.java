@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -26,6 +27,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByBusinessIdAndStatus(Long businessId, Booking.BookingStatus status);
 
     List<Booking> findByBusinessIdAndBookingDateAndStatus(Long businessId, LocalDate bookingDate, Booking.BookingStatus status);
+
+    Optional<Booking> findByIdAndBusinessId(Long id, Long businessId);
 
     // This query locks the rows for the specified barber and date to prevent race conditions
     @Lock(LockModeType.PESSIMISTIC_WRITE)

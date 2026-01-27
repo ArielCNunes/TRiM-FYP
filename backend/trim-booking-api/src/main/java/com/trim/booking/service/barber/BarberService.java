@@ -91,11 +91,11 @@ public class BarberService {
     }
 
     public Optional<Barber> getBarberById(Long id) {
-        return barberRepository.findById(id);
+        return barberRepository.findByIdAndBusinessId(id, getBusinessId());
     }
 
     public Barber updateBarber(Long id, String firstName, String lastName, String email, String phone, String bio, String profileImageUrl) {
-        return barberRepository.findById(id)
+        return barberRepository.findByIdAndBusinessId(id, getBusinessId())
                 .map(barber -> {
                     if (firstName != null) barber.getUser().setFirstName(firstName);
                     if (lastName != null) barber.getUser().setLastName(lastName);
@@ -109,7 +109,7 @@ public class BarberService {
     }
 
     public void deactivateBarber(Long id) {
-        barberRepository.findById(id)
+        barberRepository.findByIdAndBusinessId(id, getBusinessId())
                 .map(barber -> {
                     barber.setActive(false);
                     return barberRepository.save(barber);
@@ -118,7 +118,7 @@ public class BarberService {
     }
 
     public void reactivateBarber(Long id) {
-        barberRepository.findById(id)
+        barberRepository.findByIdAndBusinessId(id, getBusinessId())
                 .map(barber -> {
                     barber.setActive(true);
                     return barberRepository.save(barber);

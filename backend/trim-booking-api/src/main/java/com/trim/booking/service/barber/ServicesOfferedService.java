@@ -59,11 +59,11 @@ public class ServicesOfferedService {
     }
 
     public Optional<ServiceOffered> getServiceById(Long id) {
-        return serviceRepository.findById(id);
+        return serviceRepository.findByIdAndBusinessId(id, getBusinessId());
     }
 
     public ServiceOffered updateService(Long id, ServiceRequest request) {
-        ServiceOffered service = serviceRepository.findById(id)
+        ServiceOffered service = serviceRepository.findByIdAndBusinessId(id, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
 
         ServiceCategory category = categoryRepository.findById(request.getCategoryId())
@@ -85,7 +85,7 @@ public class ServicesOfferedService {
     }
 
     public void deactivateService(Long id) {
-        serviceRepository.findById(id)
+        serviceRepository.findByIdAndBusinessId(id, getBusinessId())
                 .map(service -> {
                     service.setActive(false);
                     return serviceRepository.save(service);

@@ -7,6 +7,7 @@ import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.repository.ServiceRepository;
 import com.trim.booking.repository.UserRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,6 +31,10 @@ public class BookingValidationService {
         this.serviceRepository = serviceRepository;
     }
 
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
+    }
+
     /**
      * Validate and retrieve customer by ID.
      *
@@ -38,7 +43,7 @@ public class BookingValidationService {
      * @throws ResourceNotFoundException if customer not found
      */
     public User validateAndGetCustomer(Long customerId) {
-        return userRepository.findById(customerId)
+        return userRepository.findByIdAndBusinessId(customerId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Customer not found with ID: " + customerId));
     }
@@ -51,7 +56,7 @@ public class BookingValidationService {
      * @throws ResourceNotFoundException if barber not found
      */
     public Barber validateAndGetBarber(Long barberId) {
-        return barberRepository.findById(barberId)
+        return barberRepository.findByIdAndBusinessId(barberId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Barber not found with ID: " + barberId));
     }
@@ -64,7 +69,7 @@ public class BookingValidationService {
      * @throws ResourceNotFoundException if service not found
      */
     public ServiceOffered validateAndGetService(Long serviceId) {
-        return serviceRepository.findById(serviceId)
+        return serviceRepository.findByIdAndBusinessId(serviceId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Service not found with ID: " + serviceId));
     }
