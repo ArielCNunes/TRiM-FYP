@@ -63,13 +63,27 @@ public class TenantFilter extends OncePerRequestFilter {
             // Try to extract business slug from various sources
             String slug = extractBusinessSlug(request);
 
-            if (slug != null && !slug.isEmpty()) {
-                Optional<Business> business = businessRepository.findBySlug(slug);
-                if (business.isPresent()) {
-                    TenantContext.setCurrentBusiness(business.get().getId(), slug);
-                }
+            // Reject if no slug provided
+            if (slug == null || slug.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Business context required. Please provide a valid business slug.\"}");
+                return;
             }
 
+            // Look up the business
+            Optional<Business> business = businessRepository.findBySlug(slug);
+
+            // Reject if business not found
+            if (business.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Business not found for slug: " + slug + "\"}");
+                return;
+            }
+
+            // Set tenant context and proceed
+            TenantContext.setCurrentBusiness(business.get().getId(), slug);
             filterChain.doFilter(request, response);
         } finally {
             // Always clear the context to prevent memory leaks
