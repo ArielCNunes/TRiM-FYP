@@ -10,7 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface BarberAvailabilityRepository extends JpaRepository<BarberAvailability, Long> {
-    List<BarberAvailability> findByBarberId(Long barberId);
+    // Business-filtered methods for multi-tenancy
+    List<BarberAvailability> findByBusinessIdAndBarberId(Long businessId, Long barberId);
 
-    Optional<BarberAvailability> findByBarberIdAndDayOfWeek(Long barberId, DayOfWeek dayOfWeek);
+    Optional<BarberAvailability> findByBusinessIdAndBarberIdAndDayOfWeek(Long businessId, Long barberId, DayOfWeek dayOfWeek);
 }

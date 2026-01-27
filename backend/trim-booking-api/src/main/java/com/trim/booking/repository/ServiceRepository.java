@@ -8,5 +8,8 @@ import java.util.List;
 
 @Repository
 public interface ServiceRepository extends JpaRepository<ServiceOffered, Long> {
-    List<ServiceOffered> findByActiveTrue();
+    // Business-filtered methods for multi-tenancy
+    List<ServiceOffered> findByBusinessId(Long businessId);
+
+    List<ServiceOffered> findByBusinessIdAndActiveTrue(Long businessId);
 }

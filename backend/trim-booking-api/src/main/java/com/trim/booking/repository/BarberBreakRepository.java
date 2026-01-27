@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface BarberBreakRepository extends JpaRepository<BarberBreak, Long> {
-    List<BarberBreak> findByBarberId(Long barberId);
+    // Business-filtered methods for multi-tenancy
+    List<BarberBreak> findByBusinessIdAndBarberId(Long businessId, Long barberId);
 }
 

@@ -8,7 +8,9 @@ import java.util.Optional;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    Optional<Payment> findByStripePaymentIntentId(String stripePaymentIntentId);
+    // Business-filtered methods for multi-tenancy
+    Optional<Payment> findByBusinessIdAndBookingId(Long businessId, Long bookingId);
 
-    Optional<Payment> findByBookingId(Long bookingId);
+    // Keep unchanged - Stripe IDs are globally unique
+    Optional<Payment> findByStripePaymentIntentId(String stripePaymentIntentId);
 }
