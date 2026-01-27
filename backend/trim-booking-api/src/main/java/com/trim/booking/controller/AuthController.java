@@ -6,6 +6,7 @@ import com.trim.booking.entity.User;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.service.user.PasswordResetService;
 import com.trim.booking.service.user.UserService;
+import com.trim.booking.tenant.TenantContext;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,10 @@ public class AuthController {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.passwordResetService = passwordResetService;
+    }
+
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
     }
 
     @PostMapping("/register")
@@ -55,7 +60,7 @@ public class AuthController {
         // Get barberId if user is a barber
         Long barberId = null;
         if (user.getRole().name().equals("BARBER")) {
-            barberId = barberRepository.findByUserId(user.getId())
+            barberId = barberRepository.findByBusinessIdAndUserId(getBusinessId(), user.getId())
                     .map(Barber::getId)
                     .orElse(null);
         }

@@ -2,9 +2,12 @@ package com.trim.booking.controller;
 
 import com.trim.booking.entity.BarberAvailability;
 import com.trim.booking.entity.Barber;
+import com.trim.booking.entity.Business;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberAvailabilityRepository;
 import com.trim.booking.repository.BarberRepository;
+import com.trim.booking.repository.BusinessRepository;
+import com.trim.booking.tenant.TenantContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +23,18 @@ import java.util.Map;
 public class BarberAvailabilityController {
     private final BarberAvailabilityRepository barberAvailabilityRepository;
     private final BarberRepository barberRepository;
+    private final BusinessRepository businessRepository;
 
     public BarberAvailabilityController(BarberAvailabilityRepository barberAvailabilityRepository,
-                                        BarberRepository barberRepository) {
+                                        BarberRepository barberRepository,
+                                        BusinessRepository businessRepository) {
         this.barberAvailabilityRepository = barberAvailabilityRepository;
         this.barberRepository = barberRepository;
+        this.businessRepository = businessRepository;
+    }
+
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
     }
 
     /**
@@ -36,6 +46,7 @@ public class BarberAvailabilityController {
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @PostMapping
     public ResponseEntity<BarberAvailability> setAvailability(@RequestBody Map<String, Object> request) {
+        Long businessId = getBusinessId();
         Long barberId = Long.valueOf(request.get("barberId").toString());
         DayOfWeek dayOfWeek = DayOfWeek.valueOf(request.get("dayOfWeek").toString());
         LocalTime startTime = LocalTime.parse(request.get("startTime").toString());
@@ -46,6 +57,10 @@ public class BarberAvailabilityController {
         Barber barber = barberRepository.findById(barberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + barberId));
 
+        // Get business
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
+
         // Create availability
         BarberAvailability availability = new BarberAvailability();
         availability.setBarber(barber);
@@ -53,6 +68,7 @@ public class BarberAvailabilityController {
         availability.setStartTime(startTime);
         availability.setEndTime(endTime);
         availability.setIsAvailable(isAvailable);
+        availability.setBusiness(business);
 
         BarberAvailability saved = barberAvailabilityRepository.save(availability);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -92,7 +108,7 @@ public class BarberAvailabilityController {
      */
     @GetMapping("/barber/{barberId}")
     public ResponseEntity<List<BarberAvailability>> getBarberAvailability(@PathVariable Long barberId) {
-        List<BarberAvailability> availability = barberAvailabilityRepository.findByBarberId(barberId);
+        List<BarberAvailability> availability = barberAvailabilityRepository.findByBusinessIdAndBarberId(getBusinessId(), barberId);
         return ResponseEntity.ok(availability);
     }
 

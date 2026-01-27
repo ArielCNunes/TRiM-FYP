@@ -6,6 +6,7 @@ import com.trim.booking.dto.booking.CreateBookingRequest;
 import com.trim.booking.dto.booking.UpdateBookingRequest;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.service.booking.BookingService;
+import com.trim.booking.tenant.TenantContext;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,10 @@ public class BookingController {
     public BookingController(BookingService bookingService, BookingRepository bookingRepository) {
         this.bookingService = bookingService;
         this.bookingRepository = bookingRepository;
+    }
+
+    private Long getBusinessId() {
+        return TenantContext.getCurrentBusinessId();
     }
 
     /**
@@ -91,19 +96,20 @@ public class BookingController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
         List<Booking> bookings;
+        Long businessId = getBusinessId();
 
         if (date != null && status != null) {
             // Filter by both date and status
-            bookings = bookingRepository.findByBookingDateAndStatus(date, Booking.BookingStatus.valueOf(status.toUpperCase()));
+            bookings = bookingRepository.findByBusinessIdAndBookingDateAndStatus(businessId, date, Booking.BookingStatus.valueOf(status.toUpperCase()));
         } else if (date != null) {
             // Filter by date only
-            bookings = bookingRepository.findByBookingDate(date);
+            bookings = bookingRepository.findByBusinessIdAndBookingDate(businessId, date);
         } else if (status != null) {
             // Filter by status only
-            bookings = bookingRepository.findByStatus(Booking.BookingStatus.valueOf(status.toUpperCase()));
+            bookings = bookingRepository.findByBusinessIdAndStatus(businessId, Booking.BookingStatus.valueOf(status.toUpperCase()));
         } else {
-            // No filters - return all bookings
-            bookings = bookingRepository.findAll();
+            // No filters - return today's bookings for the business
+            bookings = bookingRepository.findByBusinessIdAndBookingDate(businessId, LocalDate.now());
         }
 
         return ResponseEntity.ok(bookings);
