@@ -62,6 +62,7 @@ public class UserService {
         return user;
     }
 
+
     /**
      * Register a new customer.
      *

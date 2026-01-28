@@ -38,10 +38,40 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
+    /**
+     * Register a new admin with a new business.
+     * Returns a LoginResponse with token and businessSlug so the frontend
+     * can immediately redirect to the business subdomain without a separate login call.
+     */
     @PostMapping("/register-admin")
-    public ResponseEntity<User> registerAdmin(@Valid @RequestBody AdminRegisterRequest request) {
+    public ResponseEntity<LoginResponse> registerAdmin(@Valid @RequestBody AdminRegisterRequest request) {
         User user = userService.registerAdmin(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+
+        // Get business slug from user's business
+        Business business = businessRepository.findById(user.getBusiness().getId())
+                .orElseThrow(() -> new RuntimeException("Business not found"));
+        String businessSlug = business.getSlug();
+
+        // Generate JWT token so user is logged in immediately
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name(),
+                user.getId()
+        );
+
+        // Create response with token and business slug
+        LoginResponse response = new LoginResponse(
+                user.getId(),
+                token,
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getRole().name(),
+                null, // Admin is not a barber
+                businessSlug
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
@@ -83,6 +113,7 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
 
 
     /**
