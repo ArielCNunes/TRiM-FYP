@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { authApi } from "../../api/endpoints";
 import { useAppDispatch } from "../../store/hooks";
 import { setCredentials } from "../../features/auth/authSlice";
@@ -38,7 +37,6 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState<BusinessSignupErrors>({});
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const validateForm = () => {
@@ -76,6 +74,27 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
         return Object.keys(newErrors).length === 0;
     };
 
+    /**
+     * Build the redirect URL for the business subdomain.
+     */
+    const getBusinessSubdomainUrl = (businessSlug: string): string => {
+        const { protocol, hostname, port } = window.location;
+        const parts = hostname.split(".");
+
+        // Determine the base domain
+        let baseDomain: string;
+        if (hostname === "localhost" || parts.length === 1) {
+            baseDomain = hostname;
+        } else if (parts.length >= 2 && parts[parts.length - 1] === "localhost") {
+            baseDomain = "localhost";
+        } else {
+            baseDomain = parts.slice(-2).join(".");
+        }
+
+        const portSuffix = port ? `:${port}` : "";
+        return `${protocol}//${businessSlug}.${baseDomain}${portSuffix}/admin`;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -85,7 +104,7 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
 
         setLoading(true);
         try {
-            await authApi.registerAdmin({
+            const response = await authApi.registerAdmin({
                 businessName,
                 firstName,
                 lastName,
@@ -94,32 +113,30 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
                 password,
             });
 
-            // Auto login after registration
-            const loginResponse = await authApi.login({ email, password });
             const {
                 token,
                 id,
-                email: loginEmail,
-                firstName: loginFirstName,
-                lastName: loginLastName,
+                email: userEmail,
+                firstName: userFirstName,
+                lastName: userLastName,
                 role,
-                barberId,
-            } = loginResponse.data;
+                businessSlug,
+            } = response.data;
 
+            // Store credentials
             dispatch(
                 setCredentials({
                     id,
                     token,
-                    email: loginEmail,
-                    firstName: loginFirstName,
-                    lastName: loginLastName,
+                    email: userEmail,
+                    firstName: userFirstName,
+                    lastName: userLastName,
                     role,
-                    barberId,
                 })
             );
 
-            // Navigate to admin dashboard
-            navigate("/admin");
+            // Redirect to business subdomain admin page
+            window.location.href = getBusinessSubdomainUrl(businessSlug);
         } catch (error: any) {
             const message = error.response?.data?.message || "Registration failed";
             setErrors({ email: message });

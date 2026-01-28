@@ -4,6 +4,7 @@ import type {
   LoginResponse,
   RegisterRequest,
   AdminRegisterRequest,
+  AdminRegisterResponse,
   User,
   Service,
   ServiceCategory,
@@ -33,7 +34,7 @@ export const authApi = {
 
   /** Create a new admin/business account. */
   registerAdmin: (userData: AdminRegisterRequest) =>
-    api.post<User>("/auth/register-admin", userData),
+    api.post<AdminRegisterResponse>("/auth/register-admin", userData),
 
   /** Request password reset email. */
   forgotPassword: (data: ForgotPasswordRequest) =>

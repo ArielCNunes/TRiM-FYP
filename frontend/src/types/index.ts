@@ -12,6 +12,7 @@ export interface LoginResponse {
   lastName: string;
   role: string;
   barberId?: number; // Present for BARBER role users
+  businessSlug?: string; // Business subdomain slug for redirect after admin login
 }
 
 export interface RegisterRequest {
@@ -29,6 +30,16 @@ export interface AdminRegisterRequest {
   lastName: string;
   phone: string;
   businessName: string;
+}
+
+export interface AdminRegisterResponse {
+  token: string;
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  businessSlug: string;
 }
 
 export interface User {
