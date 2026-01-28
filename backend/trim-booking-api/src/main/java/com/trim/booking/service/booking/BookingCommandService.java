@@ -150,8 +150,8 @@ public class BookingCommandService {
      */
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public Booking updateBooking(Long bookingId, UpdateBookingRequest request) {
-        // Step 1: Fetch existing booking
-        Booking booking = bookingRepository.findById(bookingId)
+        // Step 1: Fetch existing booking with tenant validation
+        Booking booking = bookingRepository.findByIdAndBusinessId(bookingId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
 
         // Step 2: Validate booking status - can't update completed/cancelled bookings

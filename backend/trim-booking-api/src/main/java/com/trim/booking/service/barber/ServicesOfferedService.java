@@ -33,7 +33,7 @@ public class ServicesOfferedService {
     }
 
     public ServiceOffered createService(ServiceRequest request) {
-        ServiceCategory category = categoryRepository.findById(request.getCategoryId())
+        ServiceCategory category = categoryRepository.findByIdAndBusinessId(request.getCategoryId(), getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
 
         ServiceOffered service = new ServiceOffered();
@@ -66,7 +66,7 @@ public class ServicesOfferedService {
         ServiceOffered service = serviceRepository.findByIdAndBusinessId(id, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
 
-        ServiceCategory category = categoryRepository.findById(request.getCategoryId())
+        ServiceCategory category = categoryRepository.findByIdAndBusinessId(request.getCategoryId(), getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
 
         service.setName(request.getName());
@@ -81,7 +81,9 @@ public class ServicesOfferedService {
     }
 
     public void deleteService(Long id) {
-        serviceRepository.deleteById(id);
+        ServiceOffered service = serviceRepository.findByIdAndBusinessId(id, getBusinessId())
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
+        serviceRepository.delete(service);
     }
 
     public void deactivateService(Long id) {

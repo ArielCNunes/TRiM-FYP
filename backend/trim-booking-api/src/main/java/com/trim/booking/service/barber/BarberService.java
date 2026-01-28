@@ -127,6 +127,8 @@ public class BarberService {
     }
 
     public void deleteBarber(Long id) {
-        barberRepository.deleteById(id);
+        Barber barber = barberRepository.findByIdAndBusinessId(id, getBusinessId())
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + id));
+        barberRepository.delete(barber);
     }
 }
