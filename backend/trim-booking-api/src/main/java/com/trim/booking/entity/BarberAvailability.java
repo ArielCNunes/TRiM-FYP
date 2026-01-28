@@ -8,7 +8,9 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "barber_availability")
+@Table(name = "barber_availability", uniqueConstraints = {
+    @UniqueConstraint(name = "unique_barber_day_availability", columnNames = {"barber_id", "day_of_week"})
+})
 public class BarberAvailability {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
