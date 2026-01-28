@@ -15,8 +15,56 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
+/**
+ * Check URL params for auth token (used for cross-subdomain redirect).
+ * If found, store in localStorage and clean up URL.
+ */
+const extractAuthFromUrl = (): {
+  token: string;
+  user: AuthState["user"];
+} | null => {
+  const params = new URLSearchParams(window.location.search);
+  const authToken = params.get("authToken");
+  const authUserStr = params.get("authUser");
+
+  if (authToken && authUserStr) {
+    try {
+      const user = JSON.parse(authUserStr);
+
+      // Store in localStorage for persistence
+      localStorage.setItem("token", authToken);
+      localStorage.setItem("user", authUserStr);
+
+      // Clean up URL by removing auth params
+      params.delete("authToken");
+      params.delete("authUser");
+      const newUrl = params.toString()
+        ? `${window.location.pathname}?${params.toString()}`
+        : window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
+
+      return { token: authToken, user };
+    } catch {
+      // Invalid JSON, ignore
+    }
+  }
+
+  return null;
+};
+
 // Restore the persisted auth session, if any, so a page refresh does not log users out.
 const loadAuthState = (): AuthState => {
+  // First check URL for auth token (cross-subdomain redirect)
+  const urlAuth = extractAuthFromUrl();
+  if (urlAuth) {
+    return {
+      token: urlAuth.token,
+      user: urlAuth.user,
+      isAuthenticated: true,
+    };
+  }
+
+  // Fall back to localStorage
   const token = localStorage.getItem("token");
   const userStr = localStorage.getItem("user");
 
@@ -52,7 +100,7 @@ const authSlice = createSlice({
         lastName: string;
         role: string;
         barberId?: number;
-      }>
+      }>,
     ) => {
       const { token, email, firstName, lastName, role, id, barberId } =
         action.payload;
@@ -63,7 +111,7 @@ const authSlice = createSlice({
       localStorage.setItem("token", token);
       localStorage.setItem(
         "user",
-        JSON.stringify({ id, email, firstName, lastName, role, barberId })
+        JSON.stringify({ id, email, firstName, lastName, role, barberId }),
       );
     },
 

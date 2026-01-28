@@ -76,8 +76,19 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
 
     /**
      * Build the redirect URL for the business subdomain.
+     * Includes auth token and user info as URL params for cross-subdomain auth.
      */
-    const getBusinessSubdomainUrl = (businessSlug: string): string => {
+    const getBusinessSubdomainUrl = (
+        businessSlug: string,
+        authData: {
+            token: string;
+            id: number;
+            email: string;
+            firstName: string;
+            lastName: string;
+            role: string;
+        }
+    ): string => {
         const { protocol, hostname, port } = window.location;
         const parts = hostname.split(".");
 
@@ -92,7 +103,21 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
         }
 
         const portSuffix = port ? `:${port}` : "";
-        return `${protocol}//${businessSlug}.${baseDomain}${portSuffix}/admin`;
+        const baseUrl = `${protocol}//${businessSlug}.${baseDomain}${portSuffix}/admin`;
+
+        // Encode auth data as URL params for cross-subdomain transfer
+        const params = new URLSearchParams({
+            authToken: authData.token,
+            authUser: JSON.stringify({
+                id: authData.id,
+                email: authData.email,
+                firstName: authData.firstName,
+                lastName: authData.lastName,
+                role: authData.role,
+            }),
+        });
+
+        return `${baseUrl}?${params.toString()}`;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -123,7 +148,7 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
                 businessSlug,
             } = response.data;
 
-            // Store credentials
+            // Store credentials (for current origin)
             dispatch(
                 setCredentials({
                     id,
@@ -135,8 +160,15 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
                 })
             );
 
-            // Redirect to business subdomain admin page
-            window.location.href = getBusinessSubdomainUrl(businessSlug);
+            // Redirect to business subdomain admin page with auth token
+            window.location.href = getBusinessSubdomainUrl(businessSlug, {
+                token,
+                id,
+                email: userEmail,
+                firstName: userFirstName,
+                lastName: userLastName,
+                role,
+            });
         } catch (error: any) {
             const message = error.response?.data?.message || "Registration failed";
             setErrors({ email: message });
