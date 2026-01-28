@@ -2,11 +2,12 @@ package com.trim.booking.controller;
 
 import com.trim.booking.dto.auth.*;
 import com.trim.booking.entity.Barber;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
 import com.trim.booking.repository.BarberRepository;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.service.user.PasswordResetService;
 import com.trim.booking.service.user.UserService;
-import com.trim.booking.tenant.TenantContext;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +20,16 @@ public class AuthController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final BarberRepository barberRepository;
+    private final BusinessRepository businessRepository;
     private final PasswordResetService passwordResetService;
 
     public AuthController(UserService userService, JwtUtil jwtUtil, BarberRepository barberRepository,
-                          PasswordResetService passwordResetService) {
+                          BusinessRepository businessRepository, PasswordResetService passwordResetService) {
         this.barberRepository = barberRepository;
+        this.businessRepository = businessRepository;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.passwordResetService = passwordResetService;
-    }
-
-    private Long getBusinessId() {
-        return TenantContext.getCurrentBusinessId();
     }
 
     @PostMapping("/register")
@@ -50,6 +49,11 @@ public class AuthController {
         // Authenticate user
         User user = userService.login(request.getEmail(), request.getPassword());
 
+        // Get business slug from user's business
+        Business business = businessRepository.findById(user.getBusiness().getId())
+                .orElseThrow(() -> new RuntimeException("Business not found"));
+        String businessSlug = business.getSlug();
+
         // Generate JWT token
         String token = jwtUtil.generateToken(
                 user.getEmail(),
@@ -60,7 +64,7 @@ public class AuthController {
         // Get barberId if user is a barber
         Long barberId = null;
         if (user.getRole().name().equals("BARBER")) {
-            barberId = barberRepository.findByBusinessIdAndUserId(getBusinessId(), user.getId())
+            barberId = barberRepository.findByBusinessIdAndUserId(business.getId(), user.getId())
                     .map(Barber::getId)
                     .orElse(null);
         }
@@ -73,7 +77,8 @@ public class AuthController {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole().name(),
-                barberId
+                barberId,
+                businessSlug
         );
 
         return ResponseEntity.ok(response);

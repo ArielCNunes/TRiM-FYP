@@ -8,12 +8,13 @@ public class LoginResponse {
     private String lastName;
     private String role;
     private Long barberId;
+    private String businessSlug;
 
     // Constructors
     public LoginResponse() {
     }
 
-    public LoginResponse(Long id, String token, String email, String firstName, String lastName, String role, Long barberId) {
+    public LoginResponse(Long id, String token, String email, String firstName, String lastName, String role, Long barberId, String businessSlug) {
         this.id = id;
         this.token = token;
         this.email = email;
@@ -21,6 +22,7 @@ public class LoginResponse {
         this.lastName = lastName;
         this.role = role;
         this.barberId = barberId;
+        this.businessSlug = businessSlug;
     }
 
     // Getters and Setters
@@ -78,5 +80,13 @@ public class LoginResponse {
 
     public void setBarberId(Long barberId) {
         this.barberId = barberId;
+    }
+
+    public String getBusinessSlug() {
+        return businessSlug;
+    }
+
+    public void setBusinessSlug(String businessSlug) {
+        this.businessSlug = businessSlug;
     }
 }

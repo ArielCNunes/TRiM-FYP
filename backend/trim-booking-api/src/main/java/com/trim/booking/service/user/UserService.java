@@ -14,6 +14,7 @@ import com.trim.booking.tenant.TenantContext;
 import com.trim.booking.util.PhoneNumberUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -108,7 +109,13 @@ public class UserService {
      * @return Registered User
      * @throws RuntimeException if email already exists
      */
+    @Transactional(rollbackFor = Exception.class)
     public User registerAdmin(AdminRegisterRequest request) {
+        // Validate email format first
+        if (request.getEmail() == null || !request.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new BadRequestException("Invalid email format");
+        }
+
         // For admin registration, check globally since business doesn't exist yet
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already registered");

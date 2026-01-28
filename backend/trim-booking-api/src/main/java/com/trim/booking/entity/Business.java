@@ -22,7 +22,7 @@ public class Business {
     private String slug;
 
     @OneToOne
-    @JoinColumn(name = "admin_user_id", nullable = false, unique = true)
+    @JoinColumn(name = "admin_user_id", unique = true)
     @JsonIgnore
     private User adminUser;
 
