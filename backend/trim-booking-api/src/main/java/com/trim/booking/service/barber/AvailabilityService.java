@@ -65,7 +65,7 @@ public class AvailabilityService {
         Long businessId = getBusinessId();
 
         // Step 1: Get the service to know its duration
-        ServiceOffered service = serviceRepository.findById(serviceId)
+        ServiceOffered service = serviceRepository.findByIdAndBusinessId(serviceId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + serviceId));
 
         // Step 2: Get barber's working hours for this day of week
