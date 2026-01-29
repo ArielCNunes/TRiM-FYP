@@ -5,23 +5,47 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.net.Webhook;
 import com.trim.booking.service.payment.PaymentService;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {
+    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
+
     private final PaymentService paymentService;
+    private final Environment environment;
 
     @Value("${stripe.webhook.secret:}")
     private String webhookSecret;
 
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService, Environment environment) {
         this.paymentService = paymentService;
+        this.environment = environment;
+    }
+
+    @PostConstruct
+    public void validateWebhookSecret() {
+        boolean isProduction = Arrays.asList(environment.getActiveProfiles()).contains("prod");
+
+        if (webhookSecret == null || webhookSecret.isEmpty()) {
+            if (isProduction) {
+                throw new IllegalStateException("stripe.webhook.secret must be configured in production environment");
+            } else {
+                logger.warn("SECURITY WARNING: stripe.webhook.secret is not configured. " +
+                        "Webhook signature verification will be required for all requests. " +
+                        "Configure this property before deploying to production.");
+            }
+        }
     }
 
     /**
@@ -52,24 +76,26 @@ public class PaymentController {
                                                 @RequestHeader(value = "Stripe-Signature", required = false) String sigHeader) {
         Event event;
 
-        // In production with webhook secret configured, verify signature
-        if (webhookSecret != null && !webhookSecret.isEmpty() && sigHeader != null) {
-            try {
-                event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
-                System.out.println("Webhook signature verified");
-            } catch (Exception e) {
-                System.out.println("Webhook signature verification failed: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
-            }
-        } else {
-            // For testing without webhook secret (development mode)
-            try {
-                event = new Gson().fromJson(payload, Event.class);
-                System.out.println("Webhook received (test mode, no signature verification)");
-            } catch (Exception e) {
-                System.out.println("Failed to parse webhook payload: " + e.getMessage());
-                return ResponseEntity.badRequest().body("Invalid payload");
-            }
+        // Require webhook secret and signature for all environments
+        if (webhookSecret == null || webhookSecret.isEmpty()) {
+            logger.error("Webhook rejected: stripe.webhook.secret is not configured");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Webhook signature verification required");
+        }
+
+        if (sigHeader == null || sigHeader.isEmpty()) {
+            logger.warn("Webhook rejected: Missing Stripe-Signature header");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Webhook signature verification required");
+        }
+
+        // Verify webhook signature
+        try {
+            event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
+            logger.info("Webhook signature verified successfully");
+        } catch (Exception e) {
+            logger.warn("Webhook signature verification failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
         }
 
         // Handle payment success
@@ -79,13 +105,12 @@ public class PaymentController {
                 com.google.gson.JsonObject dataObject = eventJson.getAsJsonObject("data").getAsJsonObject("object");
                 String paymentIntentId = dataObject.get("id").getAsString();
 
-                System.out.println("Processing payment success for: " + paymentIntentId);
+                logger.info("Processing payment success for: {}", paymentIntentId);
                 paymentService.handlePaymentSuccess(paymentIntentId);
-                System.out.println("Deposit payment succeeded");
+                logger.info("Deposit payment succeeded for payment intent: {}", paymentIntentId);
 
             } catch (Exception e) {
-                System.err.println("Error processing webhook: " + e.getMessage());
-                e.printStackTrace();
+                logger.error("Error processing webhook: {}", e.getMessage(), e);
                 return ResponseEntity.status(500).body("Webhook processing failed");
             }
         }
