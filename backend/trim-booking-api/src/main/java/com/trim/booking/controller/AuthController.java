@@ -119,9 +119,12 @@ public class AuthController {
     /**
      * Initiate password reset process.
      * Sends an email with reset link if account exists.
+     * Requires business context to be set via subdomain.
      */
     @PostMapping("/forgot-password")
     public ResponseEntity<PasswordResetResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        // TenantFilter should have set the business context from the subdomain
+        // PasswordResetService will validate that context exists
         String message = passwordResetService.initiatePasswordReset(request.getEmail());
         return ResponseEntity.ok(new PasswordResetResponse(message));
     }

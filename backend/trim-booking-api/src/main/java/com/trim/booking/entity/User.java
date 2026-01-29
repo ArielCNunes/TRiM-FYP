@@ -50,6 +50,9 @@ public class User {
     @Column
     private LocalDateTime resetTokenExpiry;
 
+    @Column
+    private Long resetTokenBusinessId;
+
     @Column(nullable = false, columnDefinition = "boolean default false")
     private Boolean blacklisted = false;
 
@@ -179,6 +182,14 @@ public class User {
 
     public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
         this.resetTokenExpiry = resetTokenExpiry;
+    }
+
+    public Long getResetTokenBusinessId() {
+        return resetTokenBusinessId;
+    }
+
+    public void setResetTokenBusinessId(Long resetTokenBusinessId) {
+        this.resetTokenBusinessId = resetTokenBusinessId;
     }
 
     public Boolean getBlacklisted() {

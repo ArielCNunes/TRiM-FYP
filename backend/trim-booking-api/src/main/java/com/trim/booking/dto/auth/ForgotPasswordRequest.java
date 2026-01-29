@@ -12,12 +12,16 @@ public class ForgotPasswordRequest {
     @NotBlank(message = "Email is required")
     private String email;
 
+    // Optional - can be provided explicitly or resolved from subdomain
+    private String businessSlug;
+
     // Constructors
     public ForgotPasswordRequest() {
     }
 
-    public ForgotPasswordRequest(String email) {
+    public ForgotPasswordRequest(String email, String businessSlug) {
         this.email = email;
+        this.businessSlug = businessSlug;
     }
 
     // Getters and Setters
@@ -27,5 +31,13 @@ public class ForgotPasswordRequest {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getBusinessSlug() {
+        return businessSlug;
+    }
+
+    public void setBusinessSlug(String businessSlug) {
+        this.businessSlug = businessSlug;
     }
 }
