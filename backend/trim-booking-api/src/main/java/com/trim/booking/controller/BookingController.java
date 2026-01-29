@@ -1,9 +1,11 @@
 package com.trim.booking.controller;
 
 import com.trim.booking.repository.BookingRepository;
+import com.trim.booking.repository.BarberRepository;
 
 import com.trim.booking.dto.booking.CreateBookingRequest;
 import com.trim.booking.dto.booking.UpdateBookingRequest;
+import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.service.booking.BookingService;
 import com.trim.booking.tenant.TenantContext;
@@ -19,16 +21,19 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.time.LocalDate;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bookings")
 public class BookingController {
     private final BookingService bookingService;
     private final BookingRepository bookingRepository;
+    private final BarberRepository barberRepository;
 
-    public BookingController(BookingService bookingService, BookingRepository bookingRepository) {
+    public BookingController(BookingService bookingService, BookingRepository bookingRepository, BarberRepository barberRepository) {
         this.bookingService = bookingService;
         this.bookingRepository = bookingRepository;
+        this.barberRepository = barberRepository;
     }
 
     private Long getBusinessId() {
@@ -121,8 +126,41 @@ public class BookingController {
      * GET /api/bookings/{id}
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getBookingById(@PathVariable Long id) {
+        // Get authenticated user's ID and role from SecurityContext
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user has ADMIN role
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // Fetch the booking
         Booking booking = bookingService.getBookingById(id);
+
+        // Admin can access any booking in their business
+        if (isAdmin) {
+            return ResponseEntity.ok(booking);
+        }
+
+        // Check if user is the customer who made the booking
+        boolean isBookingCustomer = booking.getCustomer().getId().equals(authenticatedUserId);
+
+        // Check if user is the barber assigned to the booking
+        boolean isBookingBarber = false;
+        Long businessId = getBusinessId();
+        Optional<Barber> barberOpt = barberRepository.findByBusinessIdAndUserId(businessId, authenticatedUserId);
+        if (barberOpt.isPresent()) {
+            isBookingBarber = booking.getBarber().getId().equals(barberOpt.get().getId());
+        }
+
+        // If user is neither the customer nor the barber, deny access
+        if (!isBookingCustomer && !isBookingBarber) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You don't have permission to view this booking");
+        }
+
         return ResponseEntity.ok(booking);
     }
 
