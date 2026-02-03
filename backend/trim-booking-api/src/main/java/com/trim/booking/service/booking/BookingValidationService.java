@@ -93,5 +93,28 @@ public class BookingValidationService {
             throw new IllegalArgumentException("Cannot book in the past");
         }
     }
+
+    /**
+     * Validate that all entities belong to the same business (current tenant).
+     * This is a cross-entity business validation to ensure data integrity.
+     *
+     * @param customer Customer entity
+     * @param barber   Barber entity
+     * @param service  Service entity
+     * @throws IllegalArgumentException if any entity doesn't belong to current business
+     */
+    public void validateEntitiesBelongToSameBusiness(User customer, Barber barber, ServiceOffered service) {
+        Long businessId = TenantContext.getCurrentBusinessId();
+
+        if (!customer.getBusiness().getId().equals(businessId)) {
+            throw new IllegalArgumentException("Customer does not belong to current business");
+        }
+        if (!barber.getBusiness().getId().equals(businessId)) {
+            throw new IllegalArgumentException("Barber does not belong to current business");
+        }
+        if (!service.getBusiness().getId().equals(businessId)) {
+            throw new IllegalArgumentException("Service does not belong to current business");
+        }
+    }
 }
 

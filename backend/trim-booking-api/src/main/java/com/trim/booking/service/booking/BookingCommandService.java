@@ -66,6 +66,9 @@ public class BookingCommandService {
         Barber barber = validationService.validateAndGetBarber(barberId);
         ServiceOffered service = validationService.validateAndGetService(serviceId);
 
+        // Step 1.1: Validate all entities belong to the same business
+        validationService.validateEntitiesBelongToSameBusiness(customer, barber, service);
+
         // Step 1.5: Check if customer is blacklisted
         if (Boolean.TRUE.equals(customer.getBlacklisted())) {
             String reason = customer.getBlacklistReason() != null
