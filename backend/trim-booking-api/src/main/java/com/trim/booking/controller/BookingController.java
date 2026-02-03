@@ -44,12 +44,17 @@ public class BookingController {
      * Create a new booking.
      * <p>
      * POST /api/bookings
-     * Body: { "customerId": 1, "barberId": 1, "serviceId": 1, "bookingDate": "2025-10-13", "startTime": "10:00" }
+     * Body: { "barberId": 1, "serviceId": 1, "bookingDate": "2025-10-13", "startTime": "10:00" }
      */
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Booking> createBooking(@Valid @RequestBody CreateBookingRequest request) {
+        // Get the authenticated user's ID from SecurityContext
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
         Booking booking = bookingService.createBooking(
-                request.getCustomerId(),
+                authenticatedUserId,
                 request.getBarberId(),
                 request.getServiceId(),
                 request.getBookingDate(),
@@ -85,7 +90,26 @@ public class BookingController {
      * GET /api/bookings/barber/{barberId}
      */
     @GetMapping("/barber/{barberId}")
-    public ResponseEntity<List<Booking>> getBarberBookings(@PathVariable Long barberId) {
+    @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
+    public ResponseEntity<?> getBarberBookings(@PathVariable Long barberId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user is admin (admins can view any barber's bookings in their business)
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            // For barbers: verify they are requesting their own bookings
+            Long businessId = getBusinessId();
+            Optional<Barber> barberOpt = barberRepository.findByBusinessIdAndUserId(businessId, authenticatedUserId);
+
+            if (barberOpt.isEmpty() || !barberOpt.get().getId().equals(barberId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only view your own bookings");
+            }
+        }
+
         return ResponseEntity.ok(bookingService.getBarberBookings(barberId));
     }
 

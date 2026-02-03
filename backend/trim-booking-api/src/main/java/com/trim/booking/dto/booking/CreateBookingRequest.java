@@ -6,8 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class CreateBookingRequest {
-    @NotNull(message = "Customer ID is required")
-    private Long customerId;
 
     @NotNull(message = "Barber ID is required")
     private Long barberId;
@@ -37,13 +35,6 @@ public class CreateBookingRequest {
         this.paymentMethod = paymentMethod;
     }
 
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
 
     public Long getBarberId() {
         return barberId;

@@ -40,7 +40,6 @@ public class SecurityConfig {
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/bookings/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/auth/forgot-password").permitAll()
                         .requestMatchers("/api/auth/reset-password").permitAll()
@@ -48,7 +47,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/services/active").permitAll()
                         .requestMatchers("/api/barbers/active").permitAll()
                         .requestMatchers("/api/availability").permitAll()
-                        .requestMatchers("/api/bookings").permitAll()
                         .requestMatchers("/api/payments/webhook").permitAll()
                         .requestMatchers("/api/payments/create-intent").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
