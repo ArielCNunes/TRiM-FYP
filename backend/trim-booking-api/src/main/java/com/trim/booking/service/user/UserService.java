@@ -43,16 +43,14 @@ public class UserService {
     public User login(String email, String password) {
         Long businessId = getBusinessId();
 
-        // Find user by email - use business context if available, otherwise search globally
-        User user;
-        if (businessId != null) {
-            user = userRepository.findByBusinessIdAndEmail(businessId, email)
-                    .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
-        } else {
-            // Fallback to global search when no business context
-            user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
+        // Require business context for login - prevents cross-tenant access
+        if (businessId == null) {
+            throw new UnauthorizedException("Business context required for login");
         }
+
+        // Find user by email within the specific business
+        User user = userRepository.findByBusinessIdAndEmail(businessId, email)
+                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
         // Check password
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
