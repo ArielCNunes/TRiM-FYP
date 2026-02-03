@@ -170,12 +170,26 @@ public class BookingController {
      * PATCH /api/bookings/{id}/cancel
      */
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<Booking> cancelBooking(@PathVariable Long id) {
-        bookingService.cancelBooking(id);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> cancelBooking(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
 
-        // Fetch the updated booking to return it
+        // Fetch booking first
         Booking booking = bookingService.getBookingById(id);
-        return ResponseEntity.ok(booking);
+
+        // Check if user is admin
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // Only allow cancellation by booking owner or admin
+        if (!isAdmin && !booking.getCustomer().getId().equals(authenticatedUserId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You can only cancel your own bookings");
+        }
+
+        bookingService.cancelBooking(id);
+        return ResponseEntity.ok(bookingService.getBookingById(id));
     }
 
     /**
