@@ -80,7 +80,26 @@
 - [ ] Add new user stories
 - [ ] Implement deposit payment flow with Stripe
 - [ ] Set up barber employment type and payment routing logic
-- [ ] Create customer blacklisting admin interface
+
+---
+
+### Meeting 4 - 2nd of February 2026
+**Location:** In-person at the barber shop
+
+#### Agenda
+- Update progress.
+
+#### Progress Demonstrated
+- Told him I'm working on multi-tenant migration.
+
+#### Client Feedback
+- N/A
+
+#### Decisions Made
+- Demo app once migration is complete.
+
+#### Action Items for Next Meeting
+- [ ] Complete migration to multi tenant architecture
 
 #### Next Meeting Date
-**Scheduled:** Next week
+**Scheduled:** N/A
