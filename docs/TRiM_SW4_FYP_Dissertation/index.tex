@@ -1,0 +1,136 @@
+%----------------------------------------------------------------------------------------
+% PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+% WARNING: Don't mess with any of the following unless you know what you are doing.
+%----------------------------------------------------------------------------------------
+\documentclass[english,12pt,a4paper,openany]{book}
+\usepackage{datetime}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{eurosym}
+\usepackage{pbox}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{fancyhdr}
+\usepackage{amssymb}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{mdframed}
+\usepackage{multirow}
+\usepackage{multicol} 
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage[absolute]{textpos} 
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{geometry}
+\usepackage{hyperref}
+\pagestyle{fancy}
+\renewcommand\headrulewidth{1pt}
+\usepackage{float}
+
+%------------------------------------------------------------------------------------------------------
+%	The following are the RGB values for the official ATU colours.
+%------------------------------------------------------------------------------------------------------	
+\definecolor{ATUGreen}{RGB}{0, 91, 94}
+\definecolor{ATULightGreen}{RGB}{172, 245, 189}
+\definecolor{ATUNavy}{RGB}{0, 26, 121}
+\definecolor{ATUOrange}{RGB}{255, 121, 30}
+\definecolor{ATUPurple}{RGB}{77, 8, 87}
+\definecolor{ATUSand}{RGB}{255, 232, 212}
+\definecolor{ATUTeal}{RGB}{123, 185, 203}
+\definecolor{ATUWarmGrey}{RGB}{200, 190, 191}
+\definecolor{ATUYellow}{RGB}{248, 255, 142}
+
+
+
+%------------------------------------------------------------------------------------------------------
+%	******* CHANGE THE FOLLOWING VARIABLES
+%------------------------------------------------------------------------------------------------------	
+
+\newcommand{\reportauthor}{Ariel C. Nunes} % Change to your name
+\newcommand{\projecttitle}{TRiM - A Software Solution for Barber Shops}
+\newcommand{\reporttype}{Minor Dissertation} %Report  type (Project Plan / Final Report)
+\newdateformat{monthyeardate}{\monthname[\THEMONTH], \THEYEAR}
+
+
+
+
+
+%------------------------------------------------------------------------------------------------------	
+% WARNING: Don't mess with any of the following unless you know what you are doing.
+%------------------------------------------------------------------------------------------------------	
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\textcolor{ATUGreen}{\reportauthor}}
+\fancyhead[L]{\textcolor{ATUGreen}{\projecttitle}}
+\fancyfoot[L]{\textcolor{ATUGreen}{Atlantic Technological University (ATU), Galway.}}
+\fancyfoot[R]{\thepage}
+
+\begin{document}
+\begin{titlepage}
+
+\newgeometry{left=6cm,bottom=2cm, top=1cm, right=1cm}
+
+\tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (2.2mm,-165mm){\includegraphics{images/leftbar.png}}; % Fond changeable 
+
+\fontfamily{fvs}\fontseries{m}\selectfont
+\color{white}
+
+\begin{picture}(0,0)
+\put(-110,-743){\rotatebox{90}{\Huge{B.Sc. (Hons) in Software Development}}}
+\end{picture}
+ 
+\vspace{-10mm} 
+
+\flushright \includegraphics[width=100mm]{images/atu-logo-green.png} 
+
+\flushright
+\vspace{10mm}
+\textcolor{ATUGreen}{
+\fontfamily{cmss}\fontseries{m}\fontsize{22}{26}\selectfont
+\projecttitle
+}
+\normalsize
+\color{black}
+
+\vspace{1.5cm}
+\normalsize
+\textbf{By \\ \textcolor{ATUGreen}{\reportauthor}}\\ 
+\vspace{15mm}
+{\scshape \today} \\[0.3\baselineskip]
+\vspace{75mm}
+\Large {\textcolor{ATUGreen}{\textbf{{\reporttype}}}} \\
+\bigskip
+\normalsize
+\textbf{Department of Computer Science \& Applied Physics,\\School of Science \& Computing,\\Atlantic Technological University (ATU), Galway.}\\
+\end{titlepage}
+\newpage
+\tableofcontents
+\listoffigures
+\listoftables
+\pagenumbering{arabic} 
+
+%----------------------------------------------------------------------------------------
+%	   ******* CHANGE the Chapters if necessary. Each chapter is encapsulated inside 
+%                 its own file. The chapters below are based on the guidelines 
+%                 given in the lecture.
+%----------------------------------------------------------------------------------------
+\include{introduction}
+\include{methodology}
+\include{review}
+\include{design}
+\include{evaluation}
+\include{conclusion}
+
+
+
+%------------------------------------------------------------------------------------------------------	
+% Generate the bibliography. You may have to build the document more than once before all of the
+% references and processed and cited correctly.
+% WARNING: Don't mess with any of the following unless you know what you are doing.
+%------------------------------------------------------------------------------------------------------	
+\bibliographystyle{unsrt}
+\bibliography{references.bib}
+\end{document}
