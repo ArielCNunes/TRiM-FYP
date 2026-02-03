@@ -54,11 +54,11 @@ export function ForgotPasswordForm() {
   // Show success message after submission
   if (submitted) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-8">
+      <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-8">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-green-600"
+              className="w-8 h-8 text-green-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -71,14 +71,14 @@ export function ForgotPasswordForm() {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-white mb-2">
             Check your email
           </h2>
-          <p className="text-gray-600">
-            If an account exists with <strong>{email}</strong>, you will receive
+          <p className="text-zinc-400">
+            If an account exists with <strong className="text-white">{email}</strong>, you will receive
             password reset instructions shortly.
           </p>
-          <p className="text-sm text-gray-500 mt-4">
+          <p className="text-sm text-zinc-500 mt-4">
             Please check your spam folder if you don't see the email within a
             few minutes.
           </p>
@@ -86,7 +86,7 @@ export function ForgotPasswordForm() {
 
         <Link
           to="/auth"
-          className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition"
+          className="block w-full text-center bg-white hover:bg-zinc-100 text-zinc-900 font-medium py-2 rounded-md transition"
         >
           Back to Login
         </Link>
@@ -96,12 +96,12 @@ export function ForgotPasswordForm() {
 
   // Show email input form
   return (
-    <div className="bg-white rounded-lg shadow-md p-8">
+    <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-8">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-white mb-2">
           Forgot password?
         </h2>
-        <p className="text-gray-600">
+        <p className="text-zinc-400">
           Enter your email address and we'll send you instructions to reset your
           password.
         </p>
@@ -109,7 +109,7 @@ export function ForgotPasswordForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-1">
+          <label className="block text-sm font-medium text-zinc-300 mb-1">
             Email Address
           </label>
           <input
@@ -120,16 +120,16 @@ export function ForgotPasswordForm() {
               if (error) setError("");
             }}
             placeholder="your@email.com"
-            className="w-full bg-gray-50 text-gray-900 px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:outline-none"
+            className="w-full bg-zinc-800 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-zinc-500 focus:outline-none placeholder-zinc-500"
             disabled={loading}
           />
-          {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+          {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 rounded-md transition"
+          className="w-full bg-white hover:bg-zinc-100 disabled:bg-zinc-600 text-zinc-900 font-medium py-2 rounded-md transition"
         >
           {loading ? "Sending..." : "Send Reset Link"}
         </button>
@@ -138,7 +138,7 @@ export function ForgotPasswordForm() {
       <div className="mt-6 text-center">
         <Link
           to="/auth"
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          className="text-sm text-zinc-400 hover:text-white font-medium"
         >
           ← Back to Login
         </Link>

@@ -8,11 +8,11 @@ import { ForgotPasswordForm } from "../components/auth/ForgotPasswordForm";
  */
 export default function ForgotPassword() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-zinc-950">
       <div className="max-w-md mx-auto px-4 py-12">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">TRiM</h1>
+          <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">TRiM</h1>
         </div>
 
         {/* Forgot Password Form */}
