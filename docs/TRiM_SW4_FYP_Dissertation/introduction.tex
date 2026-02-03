@@ -6,15 +6,25 @@ Small businesses such as barber shops can oftentimes be faced with less than ide
 By leveraging technologies such as \textit{TRiM}, we are able to scale the business and bring real value to the table, and not just financial value, but also operational value as this tool aims to improve every corner the business. But what exactly is \textit{TRiM}? This platform aims to support all operations of service-based businesses such as barber shops, from customer bookings, to payment integration, and employee management. The goal is to allow multiple businesses to use the platform independently so that each one of them can have access to all the features offered by \textit{TRiM}.
 
 \section{Project Objectives}
-The objective of this project is clear: to deliver a real and robust software solution to local service-based businesses. These are the goals:
+The objective of this project is to deliver a real and robust software solution to local service-based businesses. The following goals have been defined:
 \begin{itemize}
-    \item Allow customers to book a service (logged in or as a guest) at a time that suits them with a professional of their choosing while preventing common issues such as double bookings.
-    \item Support payment processing.
-    \item Allow business owners to oversee operations by adding services/employees and prices.
+    \item \textbf{Customer Booking System}: Enable customers to book services online, select their preferred barber, choose from categorized services, and pick available time slots while the system prevents double bookings and scheduling conflicts.
+    
+    \item \textbf{Payment Integration}: Integrate Stripe for secure online payment processing, supporting both full online payments and deposit-based bookings where customers pay a percentage upfront and settle the outstanding balance in-shop (client requirement).
+    
+    \item \textbf{Business Administration}: Provide business owners with a comprehensive admin dashboard to manage service categories, individual services with pricing and duration, and employee (barber) profiles. Include analytics such as total revenue, booking statistics, and popular services.
+    
+    \item \textbf{Barber Management}: Allow barbers to manage their own availability by setting weekly working hours, defining break periods, and viewing/managing their upcoming bookings with the ability to confirm, complete, or handle cancellations and no-shows.
+    
+    \item \textbf{Customer Management}: Enable administrators to view customer history, track no-show counts, and blacklist problematic customers to protect business operations.
+    
+    \item \textbf{Multi-Tenant Architecture}: Design the platform to support multiple independent businesses, each with their own subdomain (business slug), isolated data, and separate admin/barber/customer user bases.
+    
+    \item \textbf{Role-Based Access Control}: Implement distinct user roles (Customer, Barber, Admin) with appropriate permissions and tailored interfaces for each role's specific needs.
 \end{itemize}
 
 \section{Dissertation Focus}
-The focus of this dissertation is mostly architectural, with a focus on database design patterns and data isolation techniques. With \textit{TRiM}, we're exploring how to create a multi-tenant software application that's scalable and robust across the board, but also leverages efficient design patterns that allows us to grow without massive costs or performance overhead. We also investigate how to make sure multiple business can have access to this system whilst maintaining performance and security at the top of our priorities.
+The focus of this dissertation is mostly architectural, with a focus on the database design pattern and data isolation techniques applied. With \textit{TRiM}, we're exploring how to create a multi-tenant software application that's scalable and robust across the board, but also leverages efficient design patterns that allows us to grow without massive costs or performance overhead. We also investigate how to make sure multiple business can have access to this system whilst maintaining performance and security at the top of our priorities.
 
 \section{Success Metrics}
 Describe sucess metrics.
