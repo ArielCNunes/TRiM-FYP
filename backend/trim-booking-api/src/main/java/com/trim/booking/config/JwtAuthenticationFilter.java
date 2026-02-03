@@ -1,5 +1,6 @@
 package com.trim.booking.config;
 
+import com.trim.booking.tenant.TenantContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,6 +53,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email = jwtUtil.extractEmail(token);
                 String role = jwtUtil.extractRole(token);
                 Long userId = jwtUtil.extractUserId(token);
+                Long tokenBusinessId = jwtUtil.extractBusinessId(token);
+
+                // Step 5b: Validate business ID matches tenant context (multi-tenant isolation)
+                Long contextBusinessId = TenantContext.getCurrentBusinessId();
+                if (tokenBusinessId != null && contextBusinessId != null
+                        && !tokenBusinessId.equals(contextBusinessId)) {
+                    // Token was issued for a different business - reject request
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Token not valid for this business\"}");
+                    return;
+                }
 
                 // Step 6: Create authentication object
                 // Grant authority based on role (e.g., ROLE_CUSTOMER)

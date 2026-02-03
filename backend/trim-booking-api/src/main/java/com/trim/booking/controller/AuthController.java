@@ -56,7 +56,8 @@ public class AuthController {
         String token = jwtUtil.generateToken(
                 user.getEmail(),
                 user.getRole().name(),
-                user.getId()
+                user.getId(),
+                user.getBusiness().getId()
         );
 
         // Create response with token and business slug
@@ -88,7 +89,8 @@ public class AuthController {
         String token = jwtUtil.generateToken(
                 user.getEmail(),
                 user.getRole().name(),
-                user.getId()
+                user.getId(),
+                user.getBusiness().getId()
         );
 
         // Get barberId if user is a barber

@@ -24,15 +24,17 @@ public class JwtUtil {
     /**
      * Generate JWT token for a user.
      *
-     * @param email  User's email
-     * @param role   User's role (CUSTOMER, BARBER, ADMIN)
-     * @param userId User's ID
+     * @param email      User's email
+     * @param role       User's role (CUSTOMER, BARBER, ADMIN)
+     * @param userId     User's ID
+     * @param businessId User's business ID for multi-tenant isolation
      * @return JWT token string
      */
-    public String generateToken(String email, String role, Long userId) {
+    public String generateToken(String email, String role, Long userId, Long businessId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
         claims.put("userId", userId);
+        claims.put("businessId", businessId);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -62,6 +64,14 @@ public class JwtUtil {
      */
     public Long extractUserId(String token) {
         return ((Number) extractAllClaims(token).get("userId")).longValue();
+    }
+
+    /**
+     * Extract businessId from token for multi-tenant validation.
+     */
+    public Long extractBusinessId(String token) {
+        Number businessId = (Number) extractAllClaims(token).get("businessId");
+        return businessId != null ? businessId.longValue() : null;
     }
 
     /**
