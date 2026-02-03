@@ -56,11 +56,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     // Global method for scheduled cleanup task - runs across all businesses
     @Query("SELECT b FROM Booking b WHERE b.status = 'PENDING' " +
             "AND b.expiresAt IS NOT NULL " +
-            "AND b.expiresAt < CURRENT_TIMESTAMP")
+            "AND b.expiresAt < CURRENT_TIMESTAMP " +
+            "ORDER BY b.business.id")
     List<Booking> findExpiredPendingBookings();
 
     // Global method for scheduled reminder task - runs across all businesses
-    List<Booking> findByBookingDate(LocalDate bookingDate);
+    @Query("SELECT b FROM Booking b WHERE b.bookingDate = :bookingDate ORDER BY b.business.id")
+    List<Booking> findByBookingDate(@Param("bookingDate") LocalDate bookingDate);
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.business.id = :businessId AND b.customer.id = :customerId AND b.status = :status")
     Long countByBusinessIdAndCustomerIdAndStatus(@Param("businessId") Long businessId, @Param("customerId") Long customerId, @Param("status") Booking.BookingStatus status);
