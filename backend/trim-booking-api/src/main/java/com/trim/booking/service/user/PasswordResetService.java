@@ -103,12 +103,18 @@ public class PasswordResetService {
 
         // Validate business context matches token's business
         Long currentBusinessId = TenantContext.getCurrentBusinessId();
-        if (currentBusinessId != null && user.getResetTokenBusinessId() != null) {
-            if (!currentBusinessId.equals(user.getResetTokenBusinessId())) {
-                logger.warn("Reset token business mismatch. Token business: {}, Current business: {}",
-                        user.getResetTokenBusinessId(), currentBusinessId);
-                return false;
-            }
+        if (currentBusinessId == null) {
+            logger.warn("Reset token validation attempted without business context");
+            return false;
+        }
+        if (user.getResetTokenBusinessId() == null) {
+            logger.warn("Reset token has no associated business");
+            return false;
+        }
+        if (!currentBusinessId.equals(user.getResetTokenBusinessId())) {
+            logger.warn("Reset token business mismatch. Token business: {}, Current business: {}",
+                    user.getResetTokenBusinessId(), currentBusinessId);
+            return false;
         }
 
         return true;
@@ -137,12 +143,18 @@ public class PasswordResetService {
 
         // Validate business context matches token's business
         Long currentBusinessId = TenantContext.getCurrentBusinessId();
-        if (currentBusinessId != null && user.getResetTokenBusinessId() != null) {
-            if (!currentBusinessId.equals(user.getResetTokenBusinessId())) {
-                logger.warn("Password reset attempt with business mismatch. Token business: {}, Current business: {}",
-                        user.getResetTokenBusinessId(), currentBusinessId);
-                throw new BadRequestException("Invalid or expired reset token");
-            }
+        if (currentBusinessId == null) {
+            logger.warn("Password reset attempted without business context");
+            throw new BadRequestException("Business context is required for password reset");
+        }
+        if (user.getResetTokenBusinessId() == null) {
+            logger.warn("Reset token has no associated business");
+            throw new BadRequestException("Invalid or expired reset token");
+        }
+        if (!currentBusinessId.equals(user.getResetTokenBusinessId())) {
+            logger.warn("Password reset attempt with business mismatch. Token business: {}, Current business: {}",
+                    user.getResetTokenBusinessId(), currentBusinessId);
+            throw new BadRequestException("Invalid or expired reset token");
         }
 
         // Hash new password

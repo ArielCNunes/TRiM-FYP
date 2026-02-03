@@ -407,8 +407,16 @@ public class EmailService {
      * Uses inline CSS for compatibility with email clients.
      */
     private String buildPasswordResetEmailHtml(User user, String resetToken) {
-        // Path parameter format: /reset-password/{token} NOT query parameter (?token=)
-        String resetUrl = "http://localhost:3000/reset-password/" + resetToken;
+        // Build reset URL with business subdomain for proper tenant context
+        String businessSlug = user.getBusiness() != null ? user.getBusiness().getSlug() : null;
+        String resetUrl;
+        if (businessSlug != null) {
+            // Include subdomain so tenant context is set when user clicks the link
+            resetUrl = "http://" + businessSlug + ".localhost:3000/reset-password/" + resetToken;
+        } else {
+            // Fallback (shouldn't happen in normal flow)
+            resetUrl = "http://localhost:3000/reset-password/" + resetToken;
+        }
 
         return String.format("""
                         <!DOCTYPE html>
