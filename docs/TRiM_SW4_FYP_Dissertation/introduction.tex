@@ -27,7 +27,13 @@ The objective of this project is to deliver a real and robust software solution 
 The focus of this dissertation is mostly architectural, with a focus on the database design pattern and data isolation techniques applied. With \textit{TRiM}, we're exploring how to create a multi-tenant software application that's scalable and robust across the board, but also leverages efficient design patterns that allows us to grow without massive costs or performance overhead. We also investigate how to make sure multiple business can have access to this system whilst maintaining performance and security at the top of our priorities.
 
 \section{Success Metrics}
-Describe sucess metrics.
+From a functional standpoint, the system must handle all core operations reliably: bookings should complete without conflicts, payments should process securely, and the admin dashboard should provide accurate insights into business operations.
+
+Beyond functionality, performance represents a critical area of evaluation. The system will be benchmarked under various conditions to assess its resilience. This includes measuring response times for key API endpoints, evaluating database performance as the number of tenants and bookings increases, and verifying that heavy usage by one business does not degrade the experience for others. Tenant isolation extends beyond security considerations, it also ensures fair distribution of system resources across all users.
+
+Security constitutes another essential metric. With multiple businesses and their customer data at stake, the system must demonstrate robust protection mechanisms. Cross-tenant data leakage would represent a critical failure, necessitating thorough testing of all isolation mechanisms to prevent such occurrences.
+
+Finally, usability remains a key consideration. The primary objective of \textit{TRiM} is to streamline operations for business owners and their customers. An unintuitive interface or cumbersome booking flow would undermine the value of the underlying architecture.
 
 \section{Chapters Overview}
 Give an overview of all the chapters.
