@@ -105,8 +105,15 @@ public class PaymentController {
                 com.google.gson.JsonObject dataObject = eventJson.getAsJsonObject("data").getAsJsonObject("object");
                 String paymentIntentId = dataObject.get("id").getAsString();
 
-                logger.info("Processing payment success for: {}", paymentIntentId);
-                paymentService.handlePaymentSuccess(paymentIntentId);
+                // Extract business_id from metadata for cross-tenant verification
+                Long businessIdFromMetadata = null;
+                if (dataObject.has("metadata") && dataObject.getAsJsonObject("metadata").has("business_id")) {
+                    String businessIdStr = dataObject.getAsJsonObject("metadata").get("business_id").getAsString();
+                    businessIdFromMetadata = Long.parseLong(businessIdStr);
+                }
+
+                logger.info("Processing payment success for: {}, business: {}", paymentIntentId, businessIdFromMetadata);
+                paymentService.handlePaymentSuccess(paymentIntentId, businessIdFromMetadata);
                 logger.info("Deposit payment succeeded for payment intent: {}", paymentIntentId);
 
             } catch (Exception e) {

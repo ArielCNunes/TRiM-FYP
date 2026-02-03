@@ -10,6 +10,8 @@ import com.trim.booking.repository.PaymentRepository;
 import com.trim.booking.service.notification.EmailService;
 import com.trim.booking.service.notification.SmsService;
 import com.trim.booking.tenant.TenantContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,8 @@ import java.util.Map;
  */
 @Service
 public class PaymentService {
+    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
+
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
     private final DepositCalculationService depositCalculationService;
@@ -92,6 +96,7 @@ public class PaymentService {
                 .setAmount(amountInCents)
                 .setCurrency("eur")
                 .putMetadata("booking_id", bookingId.toString())
+                .putMetadata("business_id", getBusinessId().toString())
                 .putMetadata("deposit_amount", depositAmount.toPlainString())
                 .putMetadata("outstanding_balance", outstandingBalance.toPlainString())
                 .setDescription("Booking Deposit: " + booking.getService().getName() + " with " +
@@ -126,18 +131,34 @@ public class PaymentService {
      * Sends confirmation email and SMS to customer.
      *
      * @param paymentIntentId Stripe PaymentIntent ID
+     * @param businessIdFromMetadata Business ID from Stripe metadata for cross-tenant verification
      */
     @Transactional
-    public void handlePaymentSuccess(String paymentIntentId) {
+    public void handlePaymentSuccess(String paymentIntentId, Long businessIdFromMetadata) {
         Payment payment = paymentRepository.findByStripePaymentIntentId(paymentIntentId)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
+
+        // Add business validation
+        Booking booking = payment.getBooking();
+        if (booking == null || booking.getBusiness() == null) {
+            throw new RuntimeException("Invalid payment - no associated business");
+        }
+
+        // Verify business_id from Stripe metadata matches the booking's business
+        Long bookingBusinessId = booking.getBusiness().getId();
+        if (businessIdFromMetadata != null && !businessIdFromMetadata.equals(bookingBusinessId)) {
+            logger.error("Business ID mismatch. Metadata: {}, Booking: {}", businessIdFromMetadata, bookingBusinessId);
+            throw new RuntimeException("Payment business verification failed - potential cross-tenant attack");
+        }
+
+        // Log the business context for audit
+        logger.info("Processing payment for business: {}", bookingBusinessId);
 
         // Update payment record
         payment.setStatus(Payment.PaymentStatus.SUCCEEDED);
         paymentRepository.save(payment);
 
         // Update booking to CONFIRMED
-        Booking booking = payment.getBooking();
         booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
         booking.setStatus(Booking.BookingStatus.CONFIRMED);
         booking.setExpiresAt(null); // Clear expiry if booking is confirmed

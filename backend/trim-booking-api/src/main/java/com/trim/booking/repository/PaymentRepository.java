@@ -11,4 +11,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     // Keep unchanged - Stripe IDs are globally unique
     Optional<Payment> findByStripePaymentIntentId(String stripePaymentIntentId);
+
+    // Business-scoped query for tenant verification
+    Optional<Payment> findByStripePaymentIntentIdAndBookingBusinessId(
+            String stripePaymentIntentId, Long businessId);
 }
