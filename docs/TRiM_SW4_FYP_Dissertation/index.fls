@@ -393,6 +393,8 @@ OUTPUT methodology.aux
 INPUT ./methodology.tex
 INPUT ./methodology.tex
 INPUT methodology.tex
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1440.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1440.tfm
 INPUT ./review.tex
 INPUT ./review.tex
 OUTPUT review.aux
@@ -405,8 +407,6 @@ OUTPUT design.aux
 INPUT ./design.tex
 INPUT ./design.tex
 INPUT design.tex
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1440.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1440.tfm
 INPUT ./evaluation.tex
 INPUT ./evaluation.tex
 OUTPUT evaluation.aux
