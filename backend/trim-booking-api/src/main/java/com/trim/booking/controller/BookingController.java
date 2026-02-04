@@ -252,7 +252,25 @@ public class BookingController {
      */
     @GetMapping("/barber/{barberId}/schedule")
     @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
-    public ResponseEntity<List<Booking>> getBarberSchedule(@PathVariable Long barberId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public ResponseEntity<?> getBarberSchedule(@PathVariable Long barberId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user is admin
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // If not admin, verify barber is requesting their own schedule
+        if (!isAdmin) {
+            Optional<Barber> barberOpt = barberRepository.findByBusinessIdAndUserId(
+                    getBusinessId(), authenticatedUserId);
+
+            if (barberOpt.isEmpty() || !barberOpt.get().getId().equals(barberId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only view your own schedule");
+            }
+        }
+
         List<Booking> schedule = bookingService.getBarberScheduleForDate(barberId, date);
         return ResponseEntity.ok(schedule);
     }
@@ -264,9 +282,35 @@ public class BookingController {
      */
     @PutMapping("/{id}/complete")
     @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
-    public ResponseEntity<Booking> markAsCompleted(@PathVariable Long id) {
-        Booking booking = bookingService.markAsCompleted(id);
-        return ResponseEntity.ok(booking);
+    public ResponseEntity<?> markAsCompleted(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user is admin
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // Fetch the booking first
+        Booking booking = bookingService.getBookingById(id);
+
+        // If not admin, verify barber owns this booking
+        if (!isAdmin) {
+            Optional<Barber> barberOpt = barberRepository.findByBusinessIdAndUserId(
+                    getBusinessId(), authenticatedUserId);
+
+            if (barberOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You are not a barber in this business");
+            }
+
+            if (!booking.getBarber().getId().equals(barberOpt.get().getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only modify your own bookings");
+            }
+        }
+
+        Booking updated = bookingService.markAsCompleted(id);
+        return ResponseEntity.ok(updated);
     }
 
     /**
@@ -277,9 +321,35 @@ public class BookingController {
      */
     @PutMapping("/{id}/mark-paid")
     @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
-    public ResponseEntity<Booking> markAsPaid(@PathVariable Long id) {
-        Booking booking = bookingService.markAsPaid(id);
-        return ResponseEntity.ok(booking);
+    public ResponseEntity<?> markAsPaid(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user is admin
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // Fetch the booking first
+        Booking booking = bookingService.getBookingById(id);
+
+        // If not admin, verify barber owns this booking
+        if (!isAdmin) {
+            Optional<Barber> barberOpt = barberRepository.findByBusinessIdAndUserId(
+                    getBusinessId(), authenticatedUserId);
+
+            if (barberOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You are not a barber in this business");
+            }
+
+            if (!booking.getBarber().getId().equals(barberOpt.get().getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only modify your own bookings");
+            }
+        }
+
+        Booking updated = bookingService.markAsPaid(id);
+        return ResponseEntity.ok(updated);
     }
 
     /**
@@ -289,8 +359,34 @@ public class BookingController {
      */
     @PutMapping("/{id}/no-show")
     @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
-    public ResponseEntity<Booking> markAsNoShow(@PathVariable Long id) {
-        Booking booking = bookingService.markAsNoShow(id);
-        return ResponseEntity.ok(booking);
+    public ResponseEntity<?> markAsNoShow(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user is admin
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // Fetch the booking first
+        Booking booking = bookingService.getBookingById(id);
+
+        // If not admin, verify barber owns this booking
+        if (!isAdmin) {
+            Optional<Barber> barberOpt = barberRepository.findByBusinessIdAndUserId(
+                    getBusinessId(), authenticatedUserId);
+
+            if (barberOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You are not a barber in this business");
+            }
+
+            if (!booking.getBarber().getId().equals(barberOpt.get().getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only modify your own bookings");
+            }
+        }
+
+        Booking updated = bookingService.markAsNoShow(id);
+        return ResponseEntity.ok(updated);
     }
 }

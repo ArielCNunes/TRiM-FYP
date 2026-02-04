@@ -12,11 +12,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/barber-availability")
@@ -45,9 +48,33 @@ public class BarberAvailabilityController {
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @PostMapping
-    public ResponseEntity<BarberAvailability> setAvailability(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> setAvailability(@RequestBody Map<String, Object> request) {
         Long businessId = getBusinessId();
         Long barberId = Long.valueOf(request.get("barberId").toString());
+
+        // Get authenticated user
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user is admin
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // If not admin, verify barber is setting their own availability
+        if (!isAdmin) {
+            Optional<Barber> barberOpt = barberRepository.findByBusinessIdAndUserId(businessId, authenticatedUserId);
+
+            if (barberOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You are not a barber in this business");
+            }
+
+            if (!barberOpt.get().getId().equals(barberId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only set your own availability");
+            }
+        }
+
         DayOfWeek dayOfWeek = DayOfWeek.valueOf(request.get("dayOfWeek").toString());
         LocalTime startTime = LocalTime.parse(request.get("startTime").toString());
         LocalTime endTime = LocalTime.parse(request.get("endTime").toString());
@@ -81,9 +108,33 @@ public class BarberAvailabilityController {
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @PutMapping("/{id}")
-    public ResponseEntity<BarberAvailability> updateAvailability(@PathVariable Long id, @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> updateAvailability(@PathVariable Long id, @RequestBody Map<String, Object> request) {
         BarberAvailability availability = barberAvailabilityRepository.findByIdAndBusinessId(id, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Availability not found with id: " + id));
+
+        // Get authenticated user
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user is admin
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // If not admin, verify barber owns this availability record
+        if (!isAdmin) {
+            Optional<Barber> barberOpt = barberRepository.findByBusinessIdAndUserId(
+                    getBusinessId(), authenticatedUserId);
+
+            if (barberOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You are not a barber in this business");
+            }
+
+            if (!availability.getBarber().getId().equals(barberOpt.get().getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only update your own availability");
+            }
+        }
 
         // Update fields if provided
         if (request.containsKey("dayOfWeek")) {
@@ -125,9 +176,34 @@ public class BarberAvailabilityController {
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAvailability(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAvailability(@PathVariable Long id) {
         BarberAvailability availability = barberAvailabilityRepository.findByIdAndBusinessId(id, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Availability not found with id: " + id));
+
+        // Get authenticated user
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authenticatedUserId = (Long) auth.getDetails();
+
+        // Check if user is admin
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // If not admin, verify barber owns this availability record
+        if (!isAdmin) {
+            Optional<Barber> barberOpt = barberRepository.findByBusinessIdAndUserId(
+                    getBusinessId(), authenticatedUserId);
+
+            if (barberOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You are not a barber in this business");
+            }
+
+            if (!availability.getBarber().getId().equals(barberOpt.get().getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only delete your own availability");
+            }
+        }
+
         barberAvailabilityRepository.delete(availability);
         return ResponseEntity.noContent().build();
     }
