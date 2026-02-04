@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { authApi } from "../../api/endpoints";
-import { useAppDispatch } from "../../store/hooks";
-import { setCredentials } from "../../features/auth/authSlice";
 import { PhoneInput } from "../shared/PhoneInput";
 import { validatePhoneNumber } from "../../utils/phoneUtils";
 
@@ -37,7 +35,6 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState<BusinessSignupErrors>({});
     const [loading, setLoading] = useState(false);
-    const dispatch = useAppDispatch();
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
@@ -76,18 +73,11 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
 
     /**
      * Build the redirect URL for the business subdomain.
-     * Includes auth token and user info as URL params for cross-subdomain auth.
+     * Uses exchange token for secure cross-subdomain auth (Not the actual JWT).
      */
     const getBusinessSubdomainUrl = (
         businessSlug: string,
-        authData: {
-            token: string;
-            id: number;
-            email: string;
-            firstName: string;
-            lastName: string;
-            role: string;
-        }
+        exchangeToken: string
     ): string => {
         const { protocol, hostname, port } = window.location;
         const parts = hostname.split(".");
@@ -105,19 +95,9 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
         const portSuffix = port ? `:${port}` : "";
         const baseUrl = `${protocol}//${businessSlug}.${baseDomain}${portSuffix}/admin`;
 
-        // Encode auth data as URL params for cross-subdomain transfer
-        const params = new URLSearchParams({
-            authToken: authData.token,
-            authUser: JSON.stringify({
-                id: authData.id,
-                email: authData.email,
-                firstName: authData.firstName,
-                lastName: authData.lastName,
-                role: authData.role,
-            }),
-        });
-
-        return `${baseUrl}?${params.toString()}`;
+        // Use exchange token only - will be exchanged for JWT on arrival
+        // This is secure: token is single-use and expires in 60 seconds
+        return `${baseUrl}?exchangeToken=${encodeURIComponent(exchangeToken)}`;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -129,6 +109,7 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
 
         setLoading(true);
         try {
+            // Register admin, returns exchangeToken instead of JWT
             const response = await authApi.registerAdmin({
                 businessName,
                 firstName,
@@ -138,37 +119,11 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
                 password,
             });
 
-            const {
-                token,
-                id,
-                email: userEmail,
-                firstName: userFirstName,
-                lastName: userLastName,
-                role,
-                businessSlug,
-            } = response.data;
+            const { exchangeToken, businessSlug } = response.data;
 
-            // Store credentials (for current origin)
-            dispatch(
-                setCredentials({
-                    id,
-                    token,
-                    email: userEmail,
-                    firstName: userFirstName,
-                    lastName: userLastName,
-                    role,
-                })
-            );
-
-            // Redirect to business subdomain admin page with auth token
-            window.location.href = getBusinessSubdomainUrl(businessSlug, {
-                token,
-                id,
-                email: userEmail,
-                firstName: userFirstName,
-                lastName: userLastName,
-                role,
-            });
+            // Redirect to business subdomain admin page with exchange token only
+            // The actual JWT is retrieved securely via POST on the target domain
+            window.location.href = getBusinessSubdomainUrl(businessSlug, exchangeToken);
         } catch (error: any) {
             const message = error.response?.data?.message || "Registration failed";
             setErrors({ email: message });

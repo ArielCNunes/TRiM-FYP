@@ -33,12 +33,9 @@ export interface AdminRegisterRequest {
 }
 
 export interface AdminRegisterResponse {
-  token: string;
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
+  /** Short-lived exchange token (NOT the JWT) - secure for URL redirect */
+  exchangeToken: string;
+  /** Business subdomain slug for redirect target */
   businessSlug: string;
 }
 

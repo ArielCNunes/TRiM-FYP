@@ -47,6 +47,16 @@ export const authApi = {
   /** Validate reset token. */
   validateResetToken: (token: string) =>
     api.get<{ valid: boolean }>(`/auth/validate-reset-token?token=${token}`),
+
+  /**
+   * Exchange a temporary token for actual JWT credentials.
+   * Used for secure cross-subdomain authentication.
+   */
+  exchangeToken: (exchangeToken: string) =>
+    api.post<{ token: string; user: string; businessSlug: string }>(
+      "/auth/exchange-token",
+      { exchangeToken },
+    ),
 };
 
 /** Service category endpoints. */
