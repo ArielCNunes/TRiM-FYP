@@ -251,3 +251,30 @@
 #### Next Meeting Date
 **Scheduled:** February 3rd, 2026
 
+---
+
+### Meeting 10 - Tuesday 3rd of February 2026
+**Duration:** 10 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Update supervisor on project/research progress of phase 2.
+
+#### Progress Demonstrated
+- N/A
+
+#### Technical Discussion
+- Benchmarking and also discussed migration to multi tenancy.
+
+#### Supervisor Feedback
+- N/A
+
+#### Decisions Made
+- Make sure to document the process of migration.
+  
+#### Action Items for Next Meeting
+- Demo app.
+
+#### Next Meeting Date
+**Scheduled:** February 10th, 2026
+
