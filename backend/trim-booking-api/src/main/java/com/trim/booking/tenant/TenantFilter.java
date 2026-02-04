@@ -27,6 +27,7 @@ public class TenantFilter extends OncePerRequestFilter {
      */
     private static final Set<String> PUBLIC_ENDPOINTS = Set.of(
             "/api/auth/register-admin",
+            "/api/auth/exchange-token",
             "/api/payments/webhook",
             "/swagger-ui",
             "/v3/api-docs"

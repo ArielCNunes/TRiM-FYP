@@ -4,8 +4,10 @@ import com.trim.booking.dto.auth.*;
 import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
+import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.repository.BusinessRepository;
+import com.trim.booking.service.auth.AuthTokenExchangeService;
 import com.trim.booking.service.user.PasswordResetService;
 import com.trim.booking.service.user.UserService;
 import jakarta.validation.Valid;
@@ -13,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.trim.booking.config.JwtUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,14 +27,17 @@ public class AuthController {
     private final BarberRepository barberRepository;
     private final BusinessRepository businessRepository;
     private final PasswordResetService passwordResetService;
+    private final AuthTokenExchangeService authTokenExchangeService;
 
     public AuthController(UserService userService, JwtUtil jwtUtil, BarberRepository barberRepository,
-                          BusinessRepository businessRepository, PasswordResetService passwordResetService) {
+                          BusinessRepository businessRepository, PasswordResetService passwordResetService,
+                          AuthTokenExchangeService authTokenExchangeService) {
         this.barberRepository = barberRepository;
         this.businessRepository = businessRepository;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.passwordResetService = passwordResetService;
+        this.authTokenExchangeService = authTokenExchangeService;
     }
 
     @PostMapping("/register")
@@ -40,11 +48,11 @@ public class AuthController {
 
     /**
      * Register a new admin with a new business.
-     * Returns a LoginResponse with token and businessSlug so the frontend
-     * can immediately redirect to the business subdomain without a separate login call.
+     * Returns an exchange token for secure cross-subdomain redirect.
+     * The exchange token can be traded for actual JWT credentials.
      */
     @PostMapping("/register-admin")
-    public ResponseEntity<LoginResponse> registerAdmin(@Valid @RequestBody AdminRegisterRequest request) {
+    public ResponseEntity<Map<String, String>> registerAdmin(@Valid @RequestBody AdminRegisterRequest request) {
         User user = userService.registerAdmin(request);
 
         // Get business slug from user's business
@@ -52,27 +60,52 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("Business not found"));
         String businessSlug = business.getSlug();
 
-        // Generate JWT token so user is logged in immediately
-        String token = jwtUtil.generateToken(
+        // Generate JWT token
+        String jwtToken = jwtUtil.generateToken(
                 user.getEmail(),
                 user.getRole().name(),
                 user.getId(),
                 user.getBusiness().getId()
         );
 
-        // Create response with token and business slug
-        LoginResponse response = new LoginResponse(
+        // Create user data JSON
+        String userData = String.format(
+                "{\"id\":%d,\"email\":\"%s\",\"firstName\":\"%s\",\"lastName\":\"%s\",\"role\":\"%s\",\"barberId\":null}",
                 user.getId(),
-                token,
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getRole().name(),
-                null, // Admin is not a barber
+                user.getRole().name()
+        );
+
+        // Create exchange token (NOT the JWT)
+        String exchangeToken = authTokenExchangeService.createExchangeToken(
+                jwtToken,
+                userData,
                 businessSlug
         );
 
+        // Return exchange token and business slug for redirect
+        Map<String, String> response = new HashMap<>();
+        response.put("exchangeToken", exchangeToken);
+        response.put("businessSlug", businessSlug);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * Exchange a temporary token for actual JWT credentials.
+     * This endpoint is public (no tenant context required).
+     */
+    @PostMapping("/exchange-token")
+    public ResponseEntity<Map<String, String>> exchangeToken(@RequestBody Map<String, String> request) {
+        String exchangeToken = request.get("exchangeToken");
+        if (exchangeToken == null || exchangeToken.isEmpty()) {
+            throw new BadRequestException("exchangeToken is required");
+        }
+
+        Map<String, String> credentials = authTokenExchangeService.exchangeToken(exchangeToken);
+        return ResponseEntity.ok(credentials);
     }
 
     @PostMapping("/login")
