@@ -8,7 +8,7 @@
 
 ## Overview
 
-TRiM is a full-stack booking system for barbershops. Customers can book appointments online (with or without an account), pay deposits via Stripe, and manage their bookings. Barbers manage their schedules and availability, while admins oversee services, staff, and business analytics.
+TRiM is a full-stack booking system for barbershops. Customers can book appointments online, pay deposits via Stripe, and manage their bookings. Barbers manage their schedules and availability, while admins oversee services, staff, and business analytics.
 
 **Phase 2** will implement **multi-tenant architecture**, enabling multiple barbershops to operate on a single platform, researching database isolation patterns like Row-Level Security for secure SaaS deployment.
 
@@ -47,5 +47,5 @@ TRiM is a full-stack booking system for barbershops. Customers can book appointm
 TRiM-FYP/
 ├── backend/trim-booking-api/   # Spring Boot API
 ├── frontend/src/               # React application
-└── docs/                       # Meeting logs
+└── docs/                       # Meeting logs + dissertation (LaTeX document)
 ```
