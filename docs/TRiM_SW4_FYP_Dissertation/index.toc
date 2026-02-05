@@ -11,17 +11,27 @@
 \contentsline {subsection}{\numberline {2.1.2}Github Board}{5}{subsection.2.1.2}%
 \contentsline {section}{\numberline {2.2}Research}{5}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}}{5}{subsection.2.2.1}%
+\contentsline {section}{\numberline {2.3}Benchmarking Methodology}{5}{section.2.3}%
 \contentsline {chapter}{\numberline {3}Technology Review}{6}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Literature Review}{6}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Third-party integrations}{6}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Stripe}{6}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Twillio}{6}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}JavaMail}{6}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Multi-tenancy Approaches}{6}{section.3.3}%
 \contentsline {chapter}{\numberline {4}System Design}{7}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Multi Tenant Architecture}{7}{section.4.1}%
-\contentsline {subsection}{\numberline {4.1.1}Migration}{7}{subsection.4.1.1}%
-\contentsline {subsection}{\numberline {4.1.2}Security Concerns}{7}{subsection.4.1.2}%
-\contentsline {subsection}{\numberline {4.1.3}Data Isolation}{7}{subsection.4.1.3}%
-\contentsline {subsection}{\numberline {4.1.4}Database Optimisation}{7}{subsection.4.1.4}%
-\contentsline {section}{\numberline {4.2}Business Requirements}{7}{section.4.2}%
+\contentsline {subsection}{\numberline {4.1.1}Migration From Single Tenant to Multi Tenant}{7}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}TenantFilter}{7}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}TenantContext (ThreadLocal)}{7}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Subdomain-based Routing}{7}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.1.5}Database Optimisation}{7}{subsection.4.1.5}%
+\contentsline {section}{\numberline {4.2}Availability Algorithm}{7}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}Preventing Race Conditions}{7}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Processing Payments}{7}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.2}Slot Calculation}{7}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Security Architecture}{7}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Cross-subdomain Token Exchange}{7}{subsection.4.3.1}%
+\contentsline {section}{\numberline {4.4}Deposit Calculation}{7}{section.4.4}%
 \contentsline {chapter}{\numberline {5}System Evaluation}{8}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Performance}{8}{section.5.1}%
 \contentsline {subsection}{\numberline {5.1.1}Benchmarks}{8}{subsection.5.1.1}%
