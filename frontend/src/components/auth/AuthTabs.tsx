@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { LoginForm } from "./LoginForm";
 import { SignupForm } from "./SignupForm";
 
@@ -34,7 +35,9 @@ const handleBusinessSignupClick = () => {
  * Includes option to switch to business registration.
  */
 export function AuthTabs() {
-  const [activeTab, setActiveTab] = useState<AuthTab>("login");
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") === "signup" ? "signup" : "login";
+  const [activeTab, setActiveTab] = useState<AuthTab>(initialTab);
 
   return (
     <div className="space-y-6">

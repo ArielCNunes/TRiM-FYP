@@ -9,6 +9,13 @@ export default function Home() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const user = useAppSelector((state) => state.auth.user);
 
+  // Detect if we're on a subdomain (e.g., v6.localhost vs localhost)
+  const hostname = window.location.hostname;
+  const parts = hostname.split(".");
+  const isSubdomain =
+    (hostname.endsWith(".localhost") && parts.length >= 2) ||
+    (!hostname.includes("localhost") && parts.length > 2);
+
   return (
     <div className="min-h-screen bg-zinc-950">
       {/* Admin View - Calendar is the main feature */}
@@ -64,62 +71,135 @@ export default function Home() {
                 <h1 className="text-7xl font-bold mb-6 text-white tracking-tight">
                   TRiM
                 </h1>
-                <p className="text-2xl text-zinc-300 mb-4">
-                  Professional Barbershop Services
-                </p>
-                <p className="text-lg text-zinc-500 mb-12 max-w-2xl mx-auto">
-                  Book your appointment with us.
-                </p>
+                {isSubdomain ? (
+                  // Subdomain landing - for customers
+                  <>
+                    <p className="text-2xl text-zinc-300 mb-4">
+                      Professional Barbershop Services
+                    </p>
+                    <p className="text-lg text-zinc-500 mb-12 max-w-2xl mx-auto">
+                      Sign in to book appointments and manage your bookings.
+                    </p>
 
-                <button
-                  onClick={() => navigate("/booking")}
-                  className="bg-indigo-600 text-white px-16 py-5 rounded-lg font-semibold hover:bg-indigo-500 transition text-xl shadow-lg shadow-indigo-500/20"
-                >
-                  Book Your Appointment
-                </button>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+                      <button
+                        onClick={() => navigate("/auth")}
+                        className="bg-indigo-600 text-white px-12 py-5 rounded-lg font-semibold hover:bg-indigo-500 transition text-xl shadow-lg shadow-indigo-500/20"
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        onClick={() => navigate("/auth?tab=signup")}
+                        className="bg-transparent border-2 border-indigo-500 text-indigo-400 px-12 py-5 rounded-lg font-semibold hover:bg-indigo-950 transition text-xl"
+                      >
+                        Create Account
+                      </button>
+                    </div>
 
-                {/* Features Section */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20">
-                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="bg-indigo-900/30 p-4 rounded-lg">
-                        <Scissors className="w-10 h-10 text-indigo-400" />
+                    {/* Features Section - Customer focused */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                        <div className="flex items-center justify-center mb-4">
+                          <div className="bg-indigo-900/30 p-4 rounded-lg">
+                            <Scissors className="w-10 h-10 text-indigo-400" />
+                          </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-white">
+                          Expert Barbers
+                        </h3>
+                        <p className="text-zinc-400">
+                          Skilled professionals dedicated to your perfect look
+                        </p>
+                      </div>
+                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                        <div className="flex items-center justify-center mb-4">
+                          <div className="bg-emerald-900/30 p-4 rounded-lg">
+                            <Calendar className="w-10 h-10 text-emerald-400" />
+                          </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-white">
+                          Easy Booking
+                        </h3>
+                        <p className="text-zinc-400">
+                          Book online anytime, manage appointments effortlessly
+                        </p>
+                      </div>
+                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                        <div className="flex items-center justify-center mb-4">
+                          <div className="bg-amber-900/30 p-4 rounded-lg">
+                            <Star className="w-10 h-10 text-amber-400" />
+                          </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-white">
+                          Premium Service
+                        </h3>
+                        <p className="text-zinc-400">
+                          Quality cuts and styling for every occasion
+                        </p>
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold mb-2 text-white">
-                      Expert Barbers
-                    </h3>
-                    <p className="text-zinc-400">
-                      Skilled professionals dedicated to your perfect look
+                  </>
+                ) : (
+                  // Main domain landing - for businesses
+                  <>
+                    <p className="text-2xl text-zinc-300 mb-4">
+                      The Modern Barbershop Booking Platform
                     </p>
-                  </div>
-                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="bg-emerald-900/30 p-4 rounded-lg">
-                        <Calendar className="w-10 h-10 text-emerald-400" />
+                    <p className="text-lg text-zinc-500 mb-12 max-w-2xl mx-auto">
+                      Streamline your barbershop operations with powerful booking, scheduling, and management tools.
+                    </p>
+
+                    <button
+                      onClick={() => navigate("/register-business")}
+                      className="bg-indigo-600 text-white px-16 py-5 rounded-lg font-semibold hover:bg-indigo-500 transition text-xl shadow-lg shadow-indigo-500/20 mb-20"
+                    >
+                      Register Your Business
+                    </button>
+
+                    {/* Features Section - Business focused */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                        <div className="flex items-center justify-center mb-4">
+                          <div className="bg-indigo-900/30 p-4 rounded-lg">
+                            <Scissors className="w-10 h-10 text-indigo-400" />
+                          </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-white">
+                          Team Management
+                        </h3>
+                        <p className="text-zinc-400">
+                          Add barbers, set their schedules, and manage availability effortlessly
+                        </p>
+                      </div>
+                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                        <div className="flex items-center justify-center mb-4">
+                          <div className="bg-emerald-900/30 p-4 rounded-lg">
+                            <Calendar className="w-10 h-10 text-emerald-400" />
+                          </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-white">
+                          Online Booking
+                        </h3>
+                        <p className="text-zinc-400">
+                          Let customers book appointments 24/7 through your custom booking page
+                        </p>
+                      </div>
+                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                        <div className="flex items-center justify-center mb-4">
+                          <div className="bg-amber-900/30 p-4 rounded-lg">
+                            <Star className="w-10 h-10 text-amber-400" />
+                          </div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-white">
+                          Integrated Payments
+                        </h3>
+                        <p className="text-zinc-400">
+                          Accept online payments securely with built-in Stripe integration
+                        </p>
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold mb-2 text-white">
-                      Easy Booking
-                    </h3>
-                    <p className="text-zinc-400">
-                      Book online anytime, manage appointments effortlessly
-                    </p>
-                  </div>
-                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="bg-amber-900/30 p-4 rounded-lg">
-                        <Star className="w-10 h-10 text-amber-400" />
-                      </div>
-                    </div>
-                    <h3 className="text-xl font-bold mb-2 text-white">
-                      Premium Service
-                    </h3>
-                    <p className="text-zinc-400">
-                      Quality cuts and styling for every occasion
-                    </p>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
             ) : (
               // Logged-in Customer View
