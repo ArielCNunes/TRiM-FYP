@@ -4,6 +4,7 @@ import Navbar from "./components/Sidebar";
 import AppRoutes from "./routes/AppRoutes";
 import { useAppDispatch } from "./store/hooks";
 import { exchangeTokenFromUrl } from "./features/auth/authSlice";
+import LoadingSpinner from "./components/shared/LoadingSpinner";
 
 /**
  * App Component
@@ -19,18 +20,30 @@ import { exchangeTokenFromUrl } from "./features/auth/authSlice";
 function AppContent() {
   const dispatch = useAppDispatch();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isExchangingToken, setIsExchangingToken] = useState(false);
 
   // Handle secure token exchange from URL on app load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has("exchangeToken")) {
-      dispatch(exchangeTokenFromUrl());
+      setIsExchangingToken(true);
+      dispatch(exchangeTokenFromUrl())
+        .finally(() => setIsExchangingToken(false));
     }
   }, [dispatch]);
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed((prev) => !prev);
   };
+
+  // Show loading while exchanging token
+  if (isExchangingToken) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <LoadingSpinner message="Setting up your account..." />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950">

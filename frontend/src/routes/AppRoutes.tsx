@@ -7,6 +7,7 @@ import Auth from "@/pages/Auth";
 import BarberDashboard from "@/pages/BarberDashboard";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
+import RegisterBusiness from "@/pages/RegisterBusiness";
 
 /**
  * AppRoutes Component
@@ -39,6 +40,9 @@ export default function AppRoutes() {
       {/* Password Reset routes */}
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+      {/* Business Registration route */}
+      <Route path="/register-business" element={<RegisterBusiness />} />
     </Routes>
   );
 }

@@ -14,7 +14,7 @@ type BusinessSignupErrors = {
 };
 
 interface BusinessSignupFormProps {
-    onBack: () => void;
+    onBack?: () => void;
 }
 
 /**
@@ -23,7 +23,7 @@ interface BusinessSignupFormProps {
  * Handles business/admin registration with comprehensive validation.
  * After successful registration, automatically logs in the user.
  */
-export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
+export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
     const [businessName, setBusinessName] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -121,6 +121,11 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
 
             const { exchangeToken, businessSlug } = response.data;
 
+            // Clear any existing auth before redirecting to new business
+            // This prevents stale tokens from causing 403 errors
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+
             // Redirect to business subdomain admin page with exchange token only
             // The actual JWT is retrieved securely via POST on the target domain
             window.location.href = getBusinessSubdomainUrl(businessSlug, exchangeToken);
@@ -132,16 +137,25 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps) {
         }
     };
 
+    const handleBack = () => {
+        if (onBack) {
+            onBack();
+        } else {
+            // Navigate to home/auth page when used as standalone
+            window.location.href = "/";
+        }
+    };
+
     return (
         <div>
             <button
-                onClick={onBack}
+                onClick={handleBack}
                 className="text-zinc-400 hover:text-white text-sm mb-4 flex items-center gap-1"
             >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                Back to customer signup
+                {onBack ? "Back to customer signup" : "Back to login"}
             </button>
 
             <div className="mb-6">
