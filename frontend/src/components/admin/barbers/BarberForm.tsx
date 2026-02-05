@@ -52,7 +52,31 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
           profileImageUrl: formData.profileImageUrl || undefined,
         });
       } else {
-        await barbersApi.create(formData as any);
+        // Create barber and get the response with the new barber's ID
+        const response = await barbersApi.create(formData as any);
+        const newBarberId = response.data.id;
+
+        // Save default availability for the new barber
+        const defaultAvailability = [
+          { day: "MONDAY", start: "09:00", end: "17:00", enabled: true },
+          { day: "TUESDAY", start: "09:00", end: "17:00", enabled: true },
+          { day: "WEDNESDAY", start: "09:00", end: "17:00", enabled: true },
+          { day: "THURSDAY", start: "09:00", end: "17:00", enabled: true },
+          { day: "FRIDAY", start: "09:00", end: "17:00", enabled: true },
+          { day: "SATURDAY", start: "10:00", end: "16:00", enabled: false },
+          { day: "SUNDAY", start: "09:00", end: "17:00", enabled: false },
+        ];
+
+        // Save each day's availability
+        for (const slot of defaultAvailability) {
+          await barbersApi.setAvailability({
+            barberId: newBarberId,
+            dayOfWeek: slot.day,
+            startTime: slot.start,
+            endTime: slot.end,
+            isAvailable: slot.enabled,
+          });
+        }
       }
 
       setFormData({
