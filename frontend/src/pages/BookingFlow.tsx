@@ -8,6 +8,7 @@ import { ConfirmationStep } from '../components/bookingSteps/ConfirmationStep';
 import { PaymentForm } from '../components/bookingSteps/PaymentForm';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import { useTheme } from '../context/ThemeContext';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
@@ -27,6 +28,18 @@ export default function BookingFlow() {
   const navigate = useNavigate();
   const user = useAppSelector(state => state.auth.user);
   const bookingFlow = useBookingFlow();
+  const { theme } = useTheme();
+
+  const stripeAppearance = {
+    theme: theme === "dark" ? "night" as const : "stripe" as const,
+    variables: {
+      colorPrimary: theme === "dark" ? "#6366f1" : "#4f46e5",
+      colorBackground: theme === "dark" ? "#18181b" : "#ffffff",
+      colorText: theme === "dark" ? "#ffffff" : "#18181b",
+      colorDanger: theme === "dark" ? "#f87171" : "#dc2626",
+      borderRadius: "6px",
+    },
+  };
 
   // Redirect to login if not authenticated
   if (!user) {
@@ -190,7 +203,7 @@ export default function BookingFlow() {
   // ============================================
   if (bookingFlow.currentStep === 'payment' && bookingFlow.clientSecret) {
     return (
-      <Elements stripe={stripePromise} options={{ clientSecret: bookingFlow.clientSecret }}>
+      <Elements stripe={stripePromise} options={{ clientSecret: bookingFlow.clientSecret, appearance: stripeAppearance }}>
         <PaymentForm
           clientSecret={bookingFlow.clientSecret}
           bookingId={bookingFlow.createdBookingId || 0}
