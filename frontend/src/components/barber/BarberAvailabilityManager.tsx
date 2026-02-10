@@ -177,12 +177,12 @@ export default function BarberAvailabilityManager({
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex border-b border-zinc-700">
+      <div className="flex border-b border-[var(--border-default)]">
         <button
           onClick={() => setActiveTab("hours")}
           className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "hours"
-            ? "text-indigo-400 border-b-2 border-indigo-400"
-            : "text-zinc-400 hover:text-zinc-300"
+            ? "text-[var(--accent-text)] border-b-2 border-[var(--accent-text)]"
+            : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
         >
           Working Hours
@@ -190,8 +190,8 @@ export default function BarberAvailabilityManager({
         <button
           onClick={() => setActiveTab("breaks")}
           className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "breaks"
-            ? "text-emerald-400 border-b-2 border-emerald-400"
-            : "text-zinc-400 hover:text-zinc-300"
+            ? "text-[var(--success-text)] border-b-2 border-[var(--success-text)]"
+            : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
         >
           Breaks
@@ -205,25 +205,25 @@ export default function BarberAvailabilityManager({
             <div
               key={day}
               className={`border rounded-lg transition-all ${availability[day].enabled
-                ? "border-zinc-600 bg-zinc-800/50"
-                : "border-zinc-700 bg-zinc-800"
+                ? "border-[var(--border-strong)] bg-[var(--bg-elevated)]/50"
+                : "border-[var(--border-default)] bg-[var(--bg-elevated)]"
                 }`}
             >
               {/* Day header with toggle */}
-              <div className="flex items-center justify-between p-3 border-b border-zinc-700">
+              <div className="flex items-center justify-between p-3 border-b border-[var(--border-default)]">
                 <label className="flex items-center gap-3 cursor-pointer flex-1">
                   <input
                     type="checkbox"
                     checked={availability[day].enabled}
                     onChange={() => handleToggle(day)}
-                    className="w-5 h-5 rounded border-zinc-600 text-indigo-600 focus:ring-indigo-500 bg-zinc-900"
+                    className="w-5 h-5 rounded border-[var(--border-strong)] text-indigo-600 focus:ring-[var(--focus-ring)] bg-[var(--bg-surface)]"
                   />
-                  <span className="font-semibold text-white capitalize text-lg">
+                  <span className="font-semibold text-[var(--text-primary)] capitalize text-lg">
                     {day}
                   </span>
                 </label>
                 {!availability[day].enabled && (
-                  <span className="text-sm text-zinc-500 italic">Day off</span>
+                  <span className="text-sm text-[var(--text-subtle)] italic">Day off</span>
                 )}
               </div>
 
@@ -232,7 +232,7 @@ export default function BarberAvailabilityManager({
                 <div className="p-4">
                   <div className="flex items-center gap-4">
                     <div className="flex-1">
-                      <label className="block text-xs font-medium text-zinc-400 mb-1">
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                         Start Time
                       </label>
                       <select
@@ -240,7 +240,7 @@ export default function BarberAvailabilityManager({
                         onChange={(e) =>
                           handleTimeChange(day, "start", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-zinc-600 rounded-md bg-zinc-900 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
                       >
                         {timeOptions.map((time) => (
                           <option key={time.value} value={time.value}>
@@ -250,10 +250,10 @@ export default function BarberAvailabilityManager({
                       </select>
                     </div>
 
-                    <div className="text-zinc-500 pt-6">→</div>
+                    <div className="text-[var(--text-subtle)] pt-6">→</div>
 
                     <div className="flex-1">
-                      <label className="block text-xs font-medium text-zinc-400 mb-1">
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                         End Time
                       </label>
                       <select
@@ -261,7 +261,7 @@ export default function BarberAvailabilityManager({
                         onChange={(e) =>
                           handleTimeChange(day, "end", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-zinc-600 rounded-md bg-zinc-900 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
                       >
                         {timeOptions.map((time) => (
                           <option key={time.value} value={time.value}>
@@ -279,7 +279,7 @@ export default function BarberAvailabilityManager({
           <button
             onClick={handleSave}
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-700 text-white font-semibold py-3 rounded-md transition mt-4 shadow-lg shadow-indigo-500/20"
+            className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] text-[var(--text-primary)] font-semibold py-3 rounded-md transition mt-4 shadow-lg shadow-[var(--accent-shadow)]"
           >
             {loading ? "Saving..." : "Save Availability"}
           </button>

@@ -138,7 +138,7 @@ export default function BarberCalendar() {
 
     if (!barberId) {
         return (
-            <div className="flex justify-center items-center py-20 text-zinc-400">
+            <div className="flex justify-center items-center py-20 text-[var(--text-muted)]">
                 Unable to load barber information
             </div>
         );
@@ -156,7 +156,7 @@ export default function BarberCalendar() {
 
             {loading ? (
                 <div className="flex justify-center items-center py-20">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500"></div>
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[var(--focus-ring)]"></div>
                 </div>
             ) : barber ? (
                 <CalendarGrid
@@ -167,7 +167,7 @@ export default function BarberCalendar() {
                     onBookingClick={setSelectedBooking}
                 />
             ) : (
-                <div className="flex justify-center items-center py-20 text-zinc-400">
+                <div className="flex justify-center items-center py-20 text-[var(--text-muted)]">
                     Loading your schedule...
                 </div>
             )}

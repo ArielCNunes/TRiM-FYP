@@ -185,7 +185,7 @@ export default function BarberBreaksManager({
     if (loading) {
         return (
             <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-500"></div>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--focus-ring)]"></div>
             </div>
         );
     }
@@ -194,15 +194,15 @@ export default function BarberBreaksManager({
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-lg font-semibold text-white">Breaks</h3>
-                    <p className="text-xs text-zinc-500">
+                    <h3 className="text-lg font-semibold text-[var(--text-primary)]">Breaks</h3>
+                    <p className="text-xs text-[var(--text-subtle)]">
                         Breaks apply to all working days
                     </p>
                 </div>
                 {!showAddForm && !editingBreak && (
                     <button
                         onClick={() => setShowAddForm(true)}
-                        className="text-sm bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-md transition"
+                        className="text-sm bg-[var(--success)] hover:bg-[var(--success-hover)] text-[var(--text-primary)] px-3 py-1.5 rounded-md transition"
                     >
                         + Add Break
                     </button>
@@ -210,21 +210,21 @@ export default function BarberBreaksManager({
             </div>
 
             {error && (
-                <div className="p-3 bg-red-900/50 border border-red-800 rounded text-red-300 text-sm">
+                <div className="p-3 bg-[var(--danger-muted)] border border-[var(--danger-border)] rounded text-[var(--danger-text-light)] text-sm">
                     {error}
                 </div>
             )}
 
             {/* Add/Edit Break Form */}
             {(showAddForm || editingBreak) && (
-                <div className="p-4 bg-zinc-800 rounded-lg border border-zinc-700">
-                    <h4 className="text-sm font-medium text-white mb-3">
+                <div className="p-4 bg-[var(--bg-elevated)] rounded-lg border border-[var(--border-default)]">
+                    <h4 className="text-sm font-medium text-[var(--text-primary)] mb-3">
                         {editingBreak ? "Edit Break" : "Add New Break"}
                     </h4>
 
                     <div className="space-y-3">
                         <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1">
+                            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                                 Label (optional)
                             </label>
                             <input
@@ -234,13 +234,13 @@ export default function BarberBreaksManager({
                                     setFormData({ ...formData, label: e.target.value })
                                 }
                                 placeholder="e.g., Lunch, Coffee break"
-                                className="w-full px-3 py-2 border border-zinc-600 rounded-md bg-zinc-900 text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+                                className="w-full px-3 py-2 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
                             />
                         </div>
 
                         <div className="flex items-center gap-3">
                             <div className="flex-1">
-                                <label className="block text-xs font-medium text-zinc-400 mb-1">
+                                <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                                     Start Time
                                 </label>
                                 <select
@@ -248,7 +248,7 @@ export default function BarberBreaksManager({
                                     onChange={(e) =>
                                         setFormData({ ...formData, startTime: e.target.value })
                                     }
-                                    className="w-full px-3 py-2 border border-zinc-600 rounded-md bg-zinc-900 text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+                                    className="w-full px-3 py-2 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
                                 >
                                     {timeOptions.map((time) => (
                                         <option key={time.value} value={time.value}>
@@ -258,10 +258,10 @@ export default function BarberBreaksManager({
                                 </select>
                             </div>
 
-                            <div className="text-zinc-500 pt-5">→</div>
+                            <div className="text-[var(--text-subtle)] pt-5">→</div>
 
                             <div className="flex-1">
-                                <label className="block text-xs font-medium text-zinc-400 mb-1">
+                                <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                                     End Time
                                 </label>
                                 <select
@@ -269,7 +269,7 @@ export default function BarberBreaksManager({
                                     onChange={(e) =>
                                         setFormData({ ...formData, endTime: e.target.value })
                                     }
-                                    className="w-full px-3 py-2 border border-zinc-600 rounded-md bg-zinc-900 text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+                                    className="w-full px-3 py-2 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
                                 >
                                     {timeOptions.map((time) => (
                                         <option key={time.value} value={time.value}>
@@ -284,7 +284,7 @@ export default function BarberBreaksManager({
                             <button
                                 onClick={editingBreak ? handleUpdateBreak : handleAddBreak}
                                 disabled={saving}
-                                className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-700 text-white py-2 rounded-md transition text-sm font-medium"
+                                className="flex-1 bg-[var(--success)] hover:bg-[var(--success-hover)] disabled:bg-[var(--bg-muted)] text-[var(--text-primary)] py-2 rounded-md transition text-sm font-medium"
                             >
                                 {saving
                                     ? "Saving..."
@@ -294,7 +294,7 @@ export default function BarberBreaksManager({
                             </button>
                             <button
                                 onClick={cancelForm}
-                                className="px-4 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 py-2 rounded-md transition text-sm"
+                                className="px-4 bg-[var(--bg-muted)] hover:bg-[var(--bg-subtle)] text-[var(--text-secondary)] py-2 rounded-md transition text-sm"
                             >
                                 Cancel
                             </button>
@@ -305,7 +305,7 @@ export default function BarberBreaksManager({
 
             {/* Breaks List */}
             {breaks.length === 0 ? (
-                <div className="text-center py-6 text-zinc-500 text-sm">
+                <div className="text-center py-6 text-[var(--text-subtle)] text-sm">
                     No breaks scheduled. Add a break for lunch or other regular breaks.
                 </div>
             ) : (
@@ -313,13 +313,13 @@ export default function BarberBreaksManager({
                     {breaks.map((breakItem) => (
                         <div
                             key={breakItem.id}
-                            className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg border border-zinc-700"
+                            className="flex items-center justify-between p-3 bg-[var(--bg-elevated)]/50 rounded-lg border border-[var(--border-default)]"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-emerald-600/20 flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-full bg-[var(--success)]/20 flex items-center justify-center">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        className="h-4 w-4 text-emerald-400"
+                                        className="h-4 w-4 text-[var(--success-text)]"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -333,12 +333,12 @@ export default function BarberBreaksManager({
                                     </svg>
                                 </div>
                                 <div>
-                                    <p className="text-white font-medium text-sm">
+                                    <p className="text-[var(--text-primary)] font-medium text-sm">
                                         {formatTimeForDisplay(breakItem.startTime)} -{" "}
                                         {formatTimeForDisplay(breakItem.endTime)}
                                     </p>
                                     {breakItem.label && (
-                                        <p className="text-xs text-zinc-400">{breakItem.label}</p>
+                                        <p className="text-xs text-[var(--text-muted)]">{breakItem.label}</p>
                                     )}
                                 </div>
                             </div>
@@ -346,14 +346,14 @@ export default function BarberBreaksManager({
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => startEditing(breakItem)}
-                                    className="text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+                                    className="text-[var(--accent-text)] hover:text-[var(--accent-text-light)] text-sm font-medium"
                                 >
                                     Edit
                                 </button>
                                 <button
                                     onClick={() => handleDeleteBreak(breakItem.id)}
                                     disabled={saving}
-                                    className="text-red-400 hover:text-red-300 text-sm font-medium"
+                                    className="text-[var(--danger-text)] hover:text-[var(--danger-text-light)] text-sm font-medium"
                                 >
                                     Delete
                                 </button>
