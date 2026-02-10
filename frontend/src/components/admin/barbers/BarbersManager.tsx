@@ -94,7 +94,7 @@ export default function BarbersManager() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--focus-ring)]"></div>
       </div>
     );
   }
@@ -102,13 +102,13 @@ export default function BarbersManager() {
   return (
     <div>
       <div className="mb-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">Barbers</h2>
+        <h2 className="text-2xl font-bold text-[var(--text-primary)]">Barbers</h2>
         <button
           onClick={() => {
             setEditingBarber(null);
             setShowForm(!showForm);
           }}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20"
+          className="bg-[var(--accent)] text-[var(--text-primary)] px-4 py-2 rounded-md hover:bg-[var(--accent-hover)] transition shadow-lg shadow-[var(--accent-shadow)]"
         >
           {showForm && !editingBarber ? "Cancel" : "Add Barber"}
         </button>
@@ -147,20 +147,20 @@ export default function BarbersManager() {
 
           {/* Inactive Barbers Dropdown */}
           {inactiveBarbers.length > 0 && (
-            <div className="mt-8 border border-zinc-800 rounded-lg overflow-hidden">
+            <div className="mt-8 border border-[var(--border-subtle)] rounded-lg overflow-hidden">
               <button
                 onClick={() => setShowInactive(!showInactive)}
-                className="w-full px-4 py-3 bg-zinc-900 flex items-center justify-between text-left hover:bg-zinc-800/50 transition-colors"
+                className="w-full px-4 py-3 bg-[var(--bg-surface)] flex items-center justify-between text-left hover:bg-[var(--bg-elevated)]/50 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-zinc-400 font-medium">Inactive Barbers</span>
-                  <span className="text-xs bg-zinc-700 text-zinc-400 px-2 py-0.5 rounded-full">
+                  <span className="text-[var(--text-muted)] font-medium">Inactive Barbers</span>
+                  <span className="text-xs bg-[var(--bg-muted)] text-[var(--text-muted)] px-2 py-0.5 rounded-full">
                     {inactiveBarbers.length}
                   </span>
                 </div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`h-5 w-5 text-zinc-500 transition-transform duration-200 ${showInactive ? "rotate-180" : ""
+                  className={`h-5 w-5 text-[var(--text-subtle)] transition-transform duration-200 ${showInactive ? "rotate-180" : ""
                     }`}
                   fill="none"
                   viewBox="0 0 24 24"
@@ -176,8 +176,8 @@ export default function BarbersManager() {
               </button>
 
               {showInactive && (
-                <div className="p-4 bg-zinc-900/50 border-t border-zinc-800">
-                  <p className="text-xs text-zinc-500 mb-4">
+                <div className="p-4 bg-[var(--bg-surface)]/50 border-t border-[var(--border-subtle)]">
+                  <p className="text-xs text-[var(--text-subtle)] mb-4">
                     These barbers are hidden from the booking flow. Click "Reactivate" to restore a barber.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -202,20 +202,20 @@ export default function BarbersManager() {
       {/* Availability Modal */}
       {availabilityBarber && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-zinc-900 rounded-lg shadow-xl border border-zinc-800 w-full max-w-2xl max-h-[90vh] overflow-hidden">
+          <div className="bg-[var(--bg-surface)] rounded-lg shadow-xl border border-[var(--border-subtle)] w-full max-w-2xl max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+            <div className="flex items-center justify-between p-4 border-b border-[var(--border-subtle)]">
               <div>
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-[var(--text-primary)]">
                   Manage Availability
                 </h3>
-                <p className="text-sm text-zinc-400">
+                <p className="text-sm text-[var(--text-muted)]">
                   {availabilityBarber.user.firstName} {availabilityBarber.user.lastName}
                 </p>
               </div>
               <button
                 onClick={() => setAvailabilityBarber(null)}
-                className="text-zinc-400 hover:text-white transition p-1"
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition p-1"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

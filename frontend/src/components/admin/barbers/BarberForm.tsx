@@ -99,13 +99,13 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
   };
 
   return (
-    <div className="mb-8 p-6 bg-zinc-900 rounded-lg shadow border border-zinc-800">
-      <h3 className="text-xl font-bold mb-4 text-white">
+    <div className="mb-8 p-6 bg-[var(--bg-surface)] rounded-lg shadow border border-[var(--border-subtle)]">
+      <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">
         {editingBarber ? "Edit Barber" : "Create New Barber"}
       </h3>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-900/50 border border-red-800 rounded text-red-300 text-sm">
+        <div className="mb-4 p-3 bg-[var(--danger-muted)]/50 border border-[var(--danger-border)] rounded text-[var(--danger-text-light)] text-sm">
           {error}
         </div>
       )}
@@ -114,13 +114,13 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
         {/* Name fields - always editable */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-zinc-300">
+            <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
               First Name
             </label>
             <input
               type="text"
               required
-              className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
               value={formData.firstName}
               onChange={(e) =>
                 setFormData({ ...formData, firstName: e.target.value })
@@ -129,13 +129,13 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-zinc-300">
+            <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
               Last Name
             </label>
             <input
               type="text"
               required
-              className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
               value={formData.lastName}
               onChange={(e) =>
                 setFormData({ ...formData, lastName: e.target.value })
@@ -145,13 +145,13 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1 text-zinc-300">
+          <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
             Email
           </label>
           <input
             type="email"
             required
-            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
             value={formData.email}
             onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })
@@ -171,14 +171,14 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
         {/* Password only shown when creating a new barber */}
         {!editingBarber && (
           <div>
-            <label className="block text-sm font-medium mb-1 text-zinc-300">
+            <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
               Password
             </label>
             <input
               type="password"
               required
               minLength={8}
-              className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
@@ -189,11 +189,11 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
         )}
 
         <div>
-          <label className="block text-sm font-medium mb-1 text-zinc-300">
+          <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
             Bio
           </label>
           <textarea
-            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
             rows={3}
             value={formData.bio}
             onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
@@ -202,19 +202,19 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1 text-zinc-300">
+          <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
             Profile Image URL
           </label>
           <input
             type="url"
-            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
             value={formData.profileImageUrl}
             onChange={(e) =>
               setFormData({ ...formData, profileImageUrl: e.target.value })
             }
             placeholder="https://example.com/photo.jpg"
           />
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-[var(--text-subtle)] mt-1">
             Optional: URL to the barber's profile photo
           </p>
         </div>
@@ -223,7 +223,7 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 transition"
+            className="flex-1 bg-[var(--accent)] text-[var(--text-primary)] py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] transition"
           >
             {loading
               ? editingBarber
@@ -236,7 +236,7 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 bg-zinc-800 text-zinc-300 py-2 rounded-md hover:bg-zinc-700 transition border border-zinc-700"
+            className="px-6 bg-[var(--bg-elevated)] text-[var(--text-secondary)] py-2 rounded-md hover:bg-[var(--bg-muted)] transition border border-[var(--border-default)]"
           >
             Cancel
           </button>

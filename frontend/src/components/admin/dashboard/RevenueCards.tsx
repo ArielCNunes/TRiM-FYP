@@ -7,16 +7,16 @@ interface RevenueCardsProps {
 export default function RevenueCards({ stats }: RevenueCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-zinc-900 p-6 rounded-lg shadow border border-zinc-800">
-        <p className="text-sm text-zinc-400 mb-1">Total Revenue</p>
-        <p className="text-3xl font-bold text-white">
+      <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)]">
+        <p className="text-sm text-[var(--text-muted)] mb-1">Total Revenue</p>
+        <p className="text-3xl font-bold text-[var(--text-primary)]">
           €{stats.totalRevenue.toFixed(2)}
         </p>
       </div>
 
-      <div className="bg-zinc-900 p-6 rounded-lg shadow border border-zinc-800">
-        <p className="text-sm text-zinc-400 mb-1">This Month Revenue</p>
-        <p className="text-3xl font-bold text-indigo-400">
+      <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)]">
+        <p className="text-sm text-[var(--text-muted)] mb-1">This Month Revenue</p>
+        <p className="text-3xl font-bold text-[var(--accent-text)]">
           €{stats.thisMonthRevenue.toFixed(2)}
         </p>
       </div>

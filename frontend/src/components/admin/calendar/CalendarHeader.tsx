@@ -40,7 +40,7 @@ export default function CalendarHeader({
     return (
         <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-                <h2 className="text-2xl font-bold text-white">{formatDateRange()}</h2>
+                <h2 className="text-2xl font-bold text-[var(--text-primary)]">{formatDateRange()}</h2>
             </div>
 
             <div className="flex items-center gap-2">
@@ -48,22 +48,22 @@ export default function CalendarHeader({
                     onClick={onToday}
                     disabled={isCurrentWeek()}
                     className={`px-4 py-2 rounded-md text-sm font-medium transition ${isCurrentWeek()
-                            ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
-                            : "bg-zinc-800 text-white hover:bg-zinc-700"
+                        ? "bg-[var(--bg-elevated)] text-[var(--text-subtle)] cursor-not-allowed"
+                        : "bg-[var(--bg-elevated)] text-[var(--text-primary)] hover:bg-[var(--bg-muted)]"
                         }`}
                 >
                     Today
                 </button>
 
-                <div className="flex items-center bg-zinc-800 rounded-md">
+                <div className="flex items-center bg-[var(--bg-elevated)] rounded-md">
                     <button
                         onClick={onPreviousWeek}
-                        className="p-2 hover:bg-zinc-700 rounded-l-md transition"
+                        className="p-2 hover:bg-[var(--bg-muted)] rounded-l-md transition"
                         aria-label="Previous week"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 text-white"
+                            className="h-5 w-5 text-[var(--text-primary)]"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -76,15 +76,15 @@ export default function CalendarHeader({
                             />
                         </svg>
                     </button>
-                    <div className="w-px h-6 bg-zinc-700" />
+                    <div className="w-px h-6 bg-[var(--bg-muted)]" />
                     <button
                         onClick={onNextWeek}
-                        className="p-2 hover:bg-zinc-700 rounded-r-md transition"
+                        className="p-2 hover:bg-[var(--bg-muted)] rounded-r-md transition"
                         aria-label="Next week"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 text-white"
+                            className="h-5 w-5 text-[var(--text-primary)]"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"

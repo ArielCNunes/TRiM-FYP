@@ -53,26 +53,26 @@ export default function CategoryForm({
     };
 
     return (
-        <div className="mb-8 p-6 bg-zinc-900 rounded-lg shadow border border-zinc-800">
-            <h3 className="text-xl font-bold mb-4 text-white">
+        <div className="mb-8 p-6 bg-[var(--bg-surface)] rounded-lg shadow border border-[var(--border-subtle)]">
+            <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">
                 {editingCategory ? "Edit Category" : "Create New Category"}
             </h3>
 
             {error && (
-                <div className="mb-4 p-3 bg-red-900/50 border border-red-800 rounded text-red-300 text-sm">
+                <div className="mb-4 p-3 bg-[var(--danger-muted)]/50 border border-[var(--danger-border)] rounded text-[var(--danger-text-light)] text-sm">
                     {error}
                 </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium mb-1 text-zinc-300">
+                    <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
                         Category Name
                     </label>
                     <input
                         type="text"
                         required
-                        className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="e.g., Haircuts, Beard Care, Treatments"
@@ -80,19 +80,19 @@ export default function CategoryForm({
                 </div>
 
                 {editingCategory && (
-                    <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-md border border-zinc-700">
+                    <div className="flex items-center justify-between p-3 bg-[var(--bg-elevated)] rounded-md border border-[var(--border-default)]">
                         <div>
-                            <label className="text-sm font-medium text-zinc-300">
+                            <label className="text-sm font-medium text-[var(--text-secondary)]">
                                 Active
                             </label>
-                            <p className="text-xs text-zinc-500">
+                            <p className="text-xs text-[var(--text-subtle)]">
                                 Inactive categories won't show in the booking flow
                             </p>
                         </div>
                         <button
                             type="button"
                             onClick={() => setActive(!active)}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? "bg-indigo-600" : "bg-zinc-600"
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? "bg-[var(--accent)]" : "bg-[var(--border-strong)]"
                                 }`}
                         >
                             <span
@@ -107,7 +107,7 @@ export default function CategoryForm({
                     <button
                         type="submit"
                         disabled={loading || !name.trim()}
-                        className="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 disabled:cursor-not-allowed transition"
+                        className="flex-1 bg-[var(--accent)] text-[var(--text-primary)] py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] disabled:cursor-not-allowed transition"
                     >
                         {loading
                             ? editingCategory
@@ -120,7 +120,7 @@ export default function CategoryForm({
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="px-6 bg-zinc-800 text-zinc-300 py-2 rounded-md hover:bg-zinc-700 transition border border-zinc-700"
+                        className="px-6 bg-[var(--bg-elevated)] text-[var(--text-secondary)] py-2 rounded-md hover:bg-[var(--bg-muted)] transition border border-[var(--border-default)]"
                     >
                         Cancel
                     </button>

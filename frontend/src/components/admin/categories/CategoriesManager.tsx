@@ -74,7 +74,7 @@ export default function CategoriesManager({ onCategoryClick }: CategoriesManager
     if (loading) {
         return (
             <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--focus-ring)]"></div>
             </div>
         );
     }
@@ -82,13 +82,13 @@ export default function CategoriesManager({ onCategoryClick }: CategoriesManager
     return (
         <div>
             <div className="mb-6 flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-white">Service Categories</h2>
+                <h2 className="text-2xl font-bold text-[var(--text-primary)]">Service Categories</h2>
                 <button
                     onClick={() => {
                         setEditingCategory(null);
                         setShowForm(!showForm);
                     }}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20"
+                    className="bg-[var(--accent)] text-[var(--text-primary)] px-4 py-2 rounded-md hover:bg-[var(--accent-hover)] transition shadow-lg shadow-[var(--accent-shadow)]"
                 >
                     {showForm && !editingCategory ? "Cancel" : "Add Category"}
                 </button>

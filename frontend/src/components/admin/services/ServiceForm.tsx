@@ -104,20 +104,20 @@ export default function ServiceForm({
 
   if (loadingCategories) {
     return (
-      <div className="mb-8 p-6 bg-zinc-900 rounded-lg shadow border border-zinc-800">
-        <p className="text-zinc-400">Loading categories...</p>
+      <div className="mb-8 p-6 bg-[var(--bg-surface)] rounded-lg shadow border border-[var(--border-subtle)]">
+        <p className="text-[var(--text-muted)]">Loading categories...</p>
       </div>
     );
   }
 
   if (categories.length === 0) {
     return (
-      <div className="mb-8 p-6 bg-zinc-900 rounded-lg shadow border border-zinc-800">
+      <div className="mb-8 p-6 bg-[var(--bg-surface)] rounded-lg shadow border border-[var(--border-subtle)]">
         <p className="text-amber-400">Please create a category first before adding services.</p>
         <button
           type="button"
           onClick={onCancel}
-          className="mt-4 px-6 bg-zinc-800 text-zinc-300 py-2 rounded-md hover:bg-zinc-700 transition border border-zinc-700"
+          className="mt-4 px-6 bg-[var(--bg-elevated)] text-[var(--text-secondary)] py-2 rounded-md hover:bg-[var(--bg-muted)] transition border border-[var(--border-default)]"
         >
           Cancel
         </button>
@@ -126,25 +126,25 @@ export default function ServiceForm({
   }
 
   return (
-    <div className="mb-8 p-6 bg-zinc-900 rounded-lg shadow border border-zinc-800">
-      <h3 className="text-xl font-bold mb-4 text-white">
+    <div className="mb-8 p-6 bg-[var(--bg-surface)] rounded-lg shadow border border-[var(--border-subtle)]">
+      <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">
         {editingService ? "Edit Service" : "Create New Service"}
       </h3>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-900/50 border border-red-800 rounded text-red-300 text-sm">
+        <div className="mb-4 p-3 bg-[var(--danger-muted)]/50 border border-[var(--danger-border)] rounded text-[var(--danger-text-light)] text-sm">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1 text-zinc-300">
+          <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
             Category
           </label>
           <select
             required
-            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
             value={formData.categoryId}
             onChange={(e) =>
               setFormData({ ...formData, categoryId: parseInt(e.target.value) })
@@ -159,25 +159,25 @@ export default function ServiceForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1 text-zinc-300">
+          <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
             Service Name
           </label>
           <input
             type="text"
             required
-            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1 text-zinc-300">
+          <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
             Description
           </label>
           <textarea
             required
-            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
             rows={3}
             value={formData.description}
             onChange={(e) =>
@@ -188,7 +188,7 @@ export default function ServiceForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-zinc-300">
+            <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
               Duration (minutes)
             </label>
             <input
@@ -196,7 +196,7 @@ export default function ServiceForm({
               required
               min="15"
               step="15"
-              className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
               value={formData.durationMinutes}
               onChange={(e) =>
                 setFormData({
@@ -208,7 +208,7 @@ export default function ServiceForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-zinc-300">
+            <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
               Price (€)
             </label>
             <input
@@ -216,7 +216,7 @@ export default function ServiceForm({
               required
               min="0"
               step="0.01"
-              className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
               value={formData.price}
               onChange={(e) =>
                 setFormData({
@@ -229,7 +229,7 @@ export default function ServiceForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1 text-zinc-300">
+          <label className="block text-sm font-medium mb-1 text-[var(--text-secondary)]">
             Deposit Percentage (%)
           </label>
           <input
@@ -238,7 +238,7 @@ export default function ServiceForm({
             min="0"
             max="100"
             step="1"
-            className="w-full border border-zinc-700 bg-zinc-800 text-white rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
             value={formData.depositPercentage}
             onChange={(e) =>
               setFormData({
@@ -247,24 +247,24 @@ export default function ServiceForm({
               })
             }
           />
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-[var(--text-subtle)] mt-1">
             Percentage of the total price required as deposit (0-100%)
           </p>
         </div>
 
-        <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-md border border-zinc-700">
+        <div className="flex items-center justify-between p-3 bg-[var(--bg-elevated)] rounded-md border border-[var(--border-default)]">
           <div>
-            <label className="text-sm font-medium text-zinc-300">
+            <label className="text-sm font-medium text-[var(--text-secondary)]">
               Active
             </label>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-[var(--text-subtle)]">
               Inactive services won't appear in the booking flow
             </p>
           </div>
           <button
             type="button"
             onClick={() => setFormData({ ...formData, active: !formData.active })}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.active ? "bg-indigo-600" : "bg-zinc-600"
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.active ? "bg-[var(--accent)]" : "bg-[var(--bg-subtle)]"
               }`}
           >
             <span
@@ -278,7 +278,7 @@ export default function ServiceForm({
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 transition"
+            className="flex-1 bg-[var(--accent)] text-[var(--text-primary)] py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] transition"
           >
             {loading
               ? editingService
@@ -291,7 +291,7 @@ export default function ServiceForm({
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 bg-zinc-800 text-zinc-300 py-2 rounded-md hover:bg-zinc-700 transition border border-zinc-700"
+            className="px-6 bg-[var(--bg-elevated)] text-[var(--text-secondary)] py-2 rounded-md hover:bg-[var(--bg-muted)] transition border border-[var(--border-default)]"
           >
             Cancel
           </button>

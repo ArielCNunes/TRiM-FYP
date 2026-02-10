@@ -10,49 +10,49 @@ export default function RecentBookingsTable({
   recentBookings,
 }: RecentBookingsTableProps) {
   return (
-    <div className="bg-zinc-900 p-6 rounded-lg shadow border border-zinc-800">
-      <h3 className="text-xl font-bold mb-4 text-white">Recent Bookings</h3>
+    <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)]">
+      <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">Recent Bookings</h3>
       {recentBookings.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-zinc-800">
+            <thead className="bg-[var(--bg-elevated)]">
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-zinc-400">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">
                   Customer
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-zinc-400">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">
                   Barber
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-zinc-400">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">
                   Service
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-zinc-400">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">
                   Date
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-zinc-400">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">
                   Time
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-zinc-400">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">
                   Status
                 </th>
               </tr>
             </thead>
             <tbody>
               {recentBookings.map((booking, index) => (
-                <tr key={index} className="border-t border-zinc-800">
-                  <td className="px-4 py-3 text-sm text-white">
+                <tr key={index} className="border-t border-[var(--border-subtle)]">
+                  <td className="px-4 py-3 text-sm text-[var(--text-primary)]">
                     {booking.customerName}
                   </td>
-                  <td className="px-4 py-3 text-sm text-white">
+                  <td className="px-4 py-3 text-sm text-[var(--text-primary)]">
                     {booking.barberName}
                   </td>
-                  <td className="px-4 py-3 text-sm text-white">
+                  <td className="px-4 py-3 text-sm text-[var(--text-primary)]">
                     {booking.serviceName}
                   </td>
-                  <td className="px-4 py-3 text-sm text-zinc-400">
+                  <td className="px-4 py-3 text-sm text-[var(--text-muted)]">
                     {new Date(booking.date).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3 text-sm text-zinc-400">
+                  <td className="px-4 py-3 text-sm text-[var(--text-muted)]">
                     {booking.time}
                   </td>
                   <td className="px-4 py-3">

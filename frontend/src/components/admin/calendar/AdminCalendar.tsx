@@ -166,7 +166,7 @@ export default function AdminCalendar() {
 
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500"></div>
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[var(--focus-ring)]"></div>
                     </div>
                 ) : selectedBarber ? (
                     <CalendarGrid
@@ -177,7 +177,7 @@ export default function AdminCalendar() {
                         onBookingClick={setSelectedBooking}
                     />
                 ) : (
-                    <div className="flex justify-center items-center py-20 text-zinc-400">
+                    <div className="flex justify-center items-center py-20 text-[var(--text-muted)]">
                         Select an employee to view their schedule
                     </div>
                 )}

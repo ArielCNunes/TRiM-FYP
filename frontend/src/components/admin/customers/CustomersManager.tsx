@@ -92,7 +92,7 @@ export default function CustomersManager() {
     if (loading) {
         return (
             <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--focus-ring)]"></div>
             </div>
         );
     }
@@ -100,7 +100,7 @@ export default function CustomersManager() {
     return (
         <div>
             <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Customers</h2>
+                <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Customers</h2>
 
                 {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -109,7 +109,7 @@ export default function CustomersManager() {
                         placeholder="Search by name, email, or phone..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="flex-1 px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="flex-1 px-4 py-2 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                     />
                     <select
                         value={filterBlacklisted}
@@ -118,7 +118,7 @@ export default function CustomersManager() {
                                 e.target.value as "all" | "active" | "blacklisted"
                             )
                         }
-                        className="px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="px-4 py-2 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                     >
                         <option value="all">All Customers</option>
                         <option value="active">Active Only</option>
@@ -138,26 +138,26 @@ export default function CustomersManager() {
                     }
                 />
             ) : (
-                <div className="bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden">
+                <div className="bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-zinc-800">
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">
+                                <tr className="border-b border-[var(--border-subtle)]">
+                                    <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--text-muted)]">
                                         Customer
                                     </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-400">
+                                    <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--text-muted)]">
                                         Contact
                                     </th>
-                                    <th className="px-4 py-3 text-center text-sm font-semibold text-zinc-400">
+                                    <th className="px-4 py-3 text-center text-sm font-semibold text-[var(--text-muted)]">
                                         Status
                                     </th>
-                                    <th className="px-4 py-3 text-right text-sm font-semibold text-zinc-400">
+                                    <th className="px-4 py-3 text-right text-sm font-semibold text-[var(--text-muted)]">
                                         Actions
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-zinc-800">
+                            <tbody className="divide-y divide-[var(--border-subtle)]">
                                 {filteredCustomers.map((customer) => (
                                     <CustomerRow
                                         key={customer.id}

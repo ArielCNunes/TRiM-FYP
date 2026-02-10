@@ -23,40 +23,40 @@ export default function ServiceCard({
 
   return (
     <div className={`p-4 rounded-lg shadow border ${isInactive
-        ? "bg-zinc-900/50 border-zinc-800/50"
-        : "bg-zinc-900 border-zinc-800"
+      ? "bg-[var(--bg-surface)]/50 border-[var(--border-subtle)]/50"
+      : "bg-[var(--bg-surface)] border-[var(--border-subtle)]"
       }`}>
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center gap-2">
-          <h3 className={`text-lg font-bold ${isInactive ? "text-zinc-500" : "text-white"}`}>
+          <h3 className={`text-lg font-bold ${isInactive ? "text-[var(--text-subtle)]" : "text-[var(--text-primary)]"}`}>
             {service.name}
           </h3>
           {isInactive && (
-            <span className="text-xs bg-zinc-700 text-zinc-400 px-2 py-0.5 rounded">
+            <span className="text-xs bg-[var(--bg-muted)] text-[var(--text-muted)] px-2 py-0.5 rounded">
               Inactive
             </span>
           )}
         </div>
         {service.categoryName && (
           <span className={`text-xs px-2 py-1 rounded-full ${isInactive
-              ? "bg-zinc-700/30 text-zinc-500"
-              : "bg-indigo-600/30 text-indigo-300"
+            ? "bg-[var(--bg-muted)]/30 text-[var(--text-subtle)]"
+            : "bg-[var(--accent)]/30 text-[var(--accent-text)]"
             }`}>
             {service.categoryName}
           </span>
         )}
       </div>
-      <p className={`mb-3 text-sm ${isInactive ? "text-zinc-600" : "text-zinc-400"}`}>
+      <p className={`mb-3 text-sm ${isInactive ? "text-[var(--text-faint)]" : "text-[var(--text-muted)]"}`}>
         {service.description}
       </p>
-      <div className={`space-y-1 text-sm ${isInactive ? "text-zinc-600" : "text-zinc-500"}`}>
+      <div className={`space-y-1 text-sm ${isInactive ? "text-[var(--text-faint)]" : "text-[var(--text-subtle)]"}`}>
         <div className="flex justify-between">
           <span>Duration:</span>
           <span>{service.durationMinutes} min</span>
         </div>
         <div className="flex justify-between">
           <span>Price:</span>
-          <span className={`font-semibold ${isInactive ? "text-zinc-500" : "text-zinc-300"}`}>
+          <span className={`font-semibold ${isInactive ? "text-[var(--text-subtle)]" : "text-[var(--text-secondary)]"}`}>
             €{service.price.toFixed(2)}
           </span>
         </div>
@@ -67,10 +67,10 @@ export default function ServiceCard({
       </div>
 
       {/* Action buttons */}
-      <div className="mt-4 pt-3 border-t border-zinc-800 flex justify-end gap-2">
+      <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex justify-end gap-2">
         <button
           onClick={() => onEdit(service)}
-          className="text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+          className="text-[var(--accent-text)] hover:text-[var(--accent-text)] text-sm font-medium"
         >
           Edit
         </button>
@@ -92,7 +92,7 @@ export default function ServiceCard({
               </button>
               <button
                 onClick={() => setShowDeactivateConfirm(false)}
-                className="text-zinc-400 hover:text-zinc-300 text-sm font-medium"
+                className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] text-sm font-medium"
               >
                 Cancel
               </button>

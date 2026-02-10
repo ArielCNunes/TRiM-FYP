@@ -120,7 +120,7 @@ export default function ServicesManager({ filterByCategoryId, onClearFilter }: S
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--focus-ring)]"></div>
       </div>
     );
   }
@@ -128,13 +128,13 @@ export default function ServicesManager({ filterByCategoryId, onClearFilter }: S
   return (
     <div>
       <div className="mb-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">Services</h2>
+        <h2 className="text-2xl font-bold text-[var(--text-primary)]">Services</h2>
         <button
           onClick={() => {
             setEditingService(null);
             setShowForm(!showForm);
           }}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20"
+          className="bg-[var(--accent)] text-[var(--text-primary)] px-4 py-2 rounded-md hover:bg-[var(--accent-hover)] transition shadow-lg shadow-[var(--accent-shadow)]"
         >
           {showForm && !editingService ? "Cancel" : "Add Service"}
         </button>
@@ -142,13 +142,13 @@ export default function ServicesManager({ filterByCategoryId, onClearFilter }: S
 
       {/* Filter indicator */}
       {filterByCategoryId && categories.length > 0 && (
-        <div className="mb-4 px-4 py-2 bg-indigo-600/20 border border-indigo-500/30 rounded-lg flex items-center justify-between">
-          <span className="text-indigo-300 text-sm">
+        <div className="mb-4 px-4 py-2 bg-[var(--accent)]/20 border border-[var(--focus-ring)]/30 rounded-lg flex items-center justify-between">
+          <span className="text-[var(--accent-text)] text-sm">
             Showing services in: <strong>{categories[0]?.name}</strong>
           </span>
           <button
             onClick={onClearFilter}
-            className="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
+            className="text-[var(--accent-text)] hover:text-[var(--accent-text)] text-sm font-medium flex items-center gap-1"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -178,9 +178,9 @@ export default function ServicesManager({ filterByCategoryId, onClearFilter }: S
             .filter((category) => category.services.length > 0)
             .map((category) => (
               <div key={category.id}>
-                <h3 className="text-lg font-semibold text-zinc-300 mb-4 border-b border-zinc-800 pb-2">
+                <h3 className="text-lg font-semibold text-[var(--text-secondary)] mb-4 border-b border-[var(--border-subtle)] pb-2">
                   {category.name}
-                  <span className="ml-2 text-sm text-zinc-500 font-normal">
+                  <span className="ml-2 text-sm text-[var(--text-subtle)] font-normal">
                     ({category.services.length}{" "}
                     {category.services.length === 1 ? "service" : "services"})
                   </span>
@@ -204,20 +204,20 @@ export default function ServicesManager({ filterByCategoryId, onClearFilter }: S
 
           {/* Inactive Services Dropdown */}
           {allServices.inactive.length > 0 && (
-            <div className="mt-8 border border-zinc-800 rounded-lg overflow-hidden">
+            <div className="mt-8 border border-[var(--border-subtle)] rounded-lg overflow-hidden">
               <button
                 onClick={() => setShowInactive(!showInactive)}
-                className="w-full px-4 py-3 bg-zinc-900 flex items-center justify-between text-left hover:bg-zinc-800/50 transition-colors"
+                className="w-full px-4 py-3 bg-[var(--bg-surface)] flex items-center justify-between text-left hover:bg-[var(--bg-elevated)]/50 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-zinc-400 font-medium">Inactive Services</span>
-                  <span className="text-xs bg-zinc-700 text-zinc-400 px-2 py-0.5 rounded-full">
+                  <span className="text-[var(--text-muted)] font-medium">Inactive Services</span>
+                  <span className="text-xs bg-[var(--bg-muted)] text-[var(--text-muted)] px-2 py-0.5 rounded-full">
                     {allServices.inactive.length}
                   </span>
                 </div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`h-5 w-5 text-zinc-500 transition-transform duration-200 ${showInactive ? "rotate-180" : ""}`}
+                  className={`h-5 w-5 text-[var(--text-subtle)] transition-transform duration-200 ${showInactive ? "rotate-180" : ""}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -227,8 +227,8 @@ export default function ServicesManager({ filterByCategoryId, onClearFilter }: S
               </button>
 
               {showInactive && (
-                <div className="p-4 bg-zinc-900/50 border-t border-zinc-800">
-                  <p className="text-xs text-zinc-500 mb-4">
+                <div className="p-4 bg-[var(--bg-surface)]/50 border-t border-[var(--border-subtle)]">
+                  <p className="text-xs text-[var(--text-subtle)] mb-4">
                     These services are hidden from the booking flow. Edit a service to reactivate it.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

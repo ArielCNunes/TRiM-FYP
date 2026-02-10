@@ -32,14 +32,14 @@ export default function BlacklistModal({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-zinc-900 rounded-xl border border-zinc-800 max-w-md w-full shadow-2xl">
+        <div className="fixed inset-0 bg-[var(--overlay)] flex items-center justify-center z-50 p-4">
+            <div className="bg-[var(--bg-surface)] rounded-xl border border-[var(--border-subtle)] max-w-md w-full shadow-2xl">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-zinc-800">
-                    <h3 className="text-lg font-semibold text-white">
+                <div className="px-6 py-4 border-b border-[var(--border-subtle)]">
+                    <h3 className="text-lg font-semibold text-[var(--text-primary)]">
                         Blacklist Customer
                     </h3>
-                    <p className="text-sm text-zinc-400 mt-1">
+                    <p className="text-sm text-[var(--text-muted)] mt-1">
                         {customer.firstName} {customer.lastName} ({customer.email})
                     </p>
                 </div>
@@ -54,8 +54,8 @@ export default function BlacklistModal({
                             </p>
                         </div>
 
-                        <label className="block text-sm font-medium text-zinc-300 mb-2">
-                            Reason for blacklisting <span className="text-red-400">*</span>
+                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                            Reason for blacklisting <span className="text-[var(--danger-text)]">*</span>
                         </label>
                         <textarea
                             value={reason}
@@ -66,20 +66,20 @@ export default function BlacklistModal({
                             placeholder="e.g., Multiple no-shows without notice"
                             rows={3}
                             maxLength={500}
-                            className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                            className="w-full px-3 py-2 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] resize-none"
                         />
                         <div className="flex justify-between mt-1">
                             {error ? (
-                                <p className="text-sm text-red-400">{error}</p>
+                                <p className="text-sm text-[var(--danger-text)]">{error}</p>
                             ) : (
                                 <span />
                             )}
-                            <p className="text-xs text-zinc-500">{reason.length}/500</p>
+                            <p className="text-xs text-[var(--text-subtle)]">{reason.length}/500</p>
                         </div>
 
                         {/* No-show count info */}
                         {customer.noShowCount > 0 && (
-                            <p className="text-sm text-zinc-400 mt-3">
+                            <p className="text-sm text-[var(--text-muted)] mt-3">
                                 This customer has{" "}
                                 <span className="text-amber-400 font-medium">
                                     {customer.noShowCount} no-show
@@ -91,17 +91,17 @@ export default function BlacklistModal({
                     </div>
 
                     {/* Actions */}
-                    <div className="px-6 py-4 border-t border-zinc-800 flex justify-end gap-3">
+                    <div className="px-6 py-4 border-t border-[var(--border-subtle)] flex justify-end gap-3">
                         <button
                             type="button"
                             onClick={onCancel}
-                            className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                            className="px-4 py-2 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors"
+                            className="px-4 py-2 text-sm font-medium bg-[var(--danger)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--danger-hover)] transition-colors"
                         >
                             Blacklist Customer
                         </button>

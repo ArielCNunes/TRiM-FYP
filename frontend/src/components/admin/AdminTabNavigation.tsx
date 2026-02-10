@@ -18,14 +18,14 @@ export default function AdminTabNavigation({
   ];
 
   return (
-    <div className="flex gap-4 mb-8 border-b border-zinc-800">
+    <div className="flex gap-4 mb-8 border-b border-[var(--border-subtle)]">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
           className={`px-6 py-3 font-semibold transition ${activeTab === tab.id
-            ? "border-b-2 border-indigo-500 text-indigo-400"
-            : "text-zinc-400 hover:text-white"
+            ? "border-b-2 border-b-[var(--focus-ring)] text-[var(--accent-text)]"
+            : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
         >
           {tab.label}

@@ -34,32 +34,32 @@ export default function CategoryCard({
     return (
         <div
             className={`p-4 rounded-lg shadow border transition-colors ${category.active
-                ? "bg-zinc-900 border-zinc-800 hover:border-zinc-700"
-                : "bg-zinc-900/50 border-zinc-800/50"
+                ? "bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-default)]"
+                : "bg-[var(--bg-surface)]/50 border-[var(--border-subtle)]/50"
                 } ${onClick && category.active ? "cursor-pointer" : ""}`}
             onClick={() => onClick && category.active && onClick(category.id)}
         >
             <div className="flex justify-between items-start">
                 <div>
                     <div className="flex items-center gap-2">
-                        <h3 className={`text-lg font-bold ${category.active ? "text-white" : "text-zinc-500"
+                        <h3 className={`text-lg font-bold ${category.active ? "text-[var(--text-primary)]" : "text-[var(--text-subtle)]"
                             }`}>
                             {category.name}
                         </h3>
                         {!category.active && (
-                            <span className="px-2 py-0.5 text-xs font-medium bg-zinc-700 text-zinc-400 rounded">
+                            <span className="px-2 py-0.5 text-xs font-medium bg-[var(--bg-muted)] text-[var(--text-muted)] rounded">
                                 Inactive
                             </span>
                         )}
                     </div>
-                    <p className="text-sm text-zinc-400 mt-1">
+                    <p className="text-sm text-[var(--text-muted)] mt-1">
                         {servicesCount} {servicesCount === 1 ? "service" : "services"}
                     </p>
                 </div>
                 <div className="flex gap-2">
                     <button
                         onClick={(e) => { e.stopPropagation(); onEdit(category); }}
-                        className="text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+                        className="text-[var(--accent-text)] hover:text-[var(--accent-hover)] text-sm font-medium"
                     >
                         Edit
                     </button>
@@ -68,7 +68,7 @@ export default function CategoryCard({
                             <button
                                 onClick={(e) => { e.stopPropagation(); setShowDeactivateConfirm(true); }}
                                 className={`text-sm font-medium ${!canDeactivate
-                                    ? "text-zinc-600 cursor-not-allowed"
+                                    ? "text-[var(--text-subtle)] cursor-not-allowed"
                                     : "text-amber-400 hover:text-amber-300"
                                     }`}
                                 disabled={!canDeactivate}
@@ -90,7 +90,7 @@ export default function CategoryCard({
                                 </button>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); setShowDeactivateConfirm(false); }}
-                                    className="text-zinc-400 hover:text-zinc-300 text-sm font-medium"
+                                    className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] text-sm font-medium"
                                 >
                                     Cancel
                                 </button>
