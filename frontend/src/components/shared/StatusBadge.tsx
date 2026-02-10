@@ -1,5 +1,5 @@
 import React from "react";
-import { getBookingStatusStyles, getPaymentStatusStyles } from "../../utils/statusUtils";
+import { getBookingStatusStyles, getPaymentStatusStyles, type StatusStyle } from "../../utils/statusUtils";
 
 interface StatusBadgeProps {
   status: string;
@@ -16,7 +16,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   type,
   className = "",
 }) => {
-  const getStyles = () => {
+  const getStyles = (): StatusStyle => {
     if (type === "booking") {
       return getBookingStatusStyles(status);
     } else {
@@ -24,9 +24,16 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     }
   };
 
+  const styles = getStyles();
+
   return (
     <span
-      className={`px-2 py-1 rounded text-xs font-semibold ${getStyles()} ${className}`}
+      className={`px-2 py-1 rounded text-xs font-semibold border ${className}`}
+      style={{
+        backgroundColor: styles.backgroundColor,
+        color: styles.color,
+        borderColor: styles.borderColor,
+      }}
     >
       {status}
     </span>

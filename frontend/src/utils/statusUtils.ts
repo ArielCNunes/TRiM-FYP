@@ -2,23 +2,53 @@
  * Utility functions for status formatting and styling
  */
 
+export interface StatusStyle {
+  backgroundColor: string;
+  color: string;
+  borderColor: string;
+}
+
 /**
- * Get Tailwind CSS classes for booking status badges
+ * Get CSS variable-based styles for booking status badges
  */
-export const getBookingStatusStyles = (status: string): string => {
+export const getBookingStatusStyles = (status: string): StatusStyle => {
   switch (status) {
     case "COMPLETED":
-      return "bg-emerald-900/30 text-emerald-300 border border-emerald-800";
+      return {
+        backgroundColor: "var(--success-muted)",
+        color: "var(--success-text-light)",
+        borderColor: "var(--success-border)",
+      };
     case "CONFIRMED":
-      return "bg-indigo-900/30 text-indigo-300 border border-indigo-800";
+      return {
+        backgroundColor: "var(--accent-muted)",
+        color: "var(--accent-text-light)",
+        borderColor: "var(--accent-muted)",
+      };
     case "PENDING":
-      return "bg-yellow-900/30 text-yellow-300 border border-yellow-800";
+      return {
+        backgroundColor: "var(--warning-muted)",
+        color: "var(--warning-text-light)",
+        borderColor: "var(--warning-border)",
+      };
     case "CANCELLED":
-      return "bg-red-900/30 text-red-300 border border-red-800";
+      return {
+        backgroundColor: "var(--danger-muted)",
+        color: "var(--danger-text-light)",
+        borderColor: "var(--danger-border)",
+      };
     case "NO_SHOW":
-      return "bg-zinc-800 text-zinc-300 border border-zinc-700";
+      return {
+        backgroundColor: "var(--bg-elevated)",
+        color: "var(--text-secondary)",
+        borderColor: "var(--border-default)",
+      };
     default:
-      return "bg-zinc-800 text-zinc-300 border border-zinc-700";
+      return {
+        backgroundColor: "var(--bg-elevated)",
+        color: "var(--text-secondary)",
+        borderColor: "var(--border-default)",
+      };
   }
 };
 
@@ -28,19 +58,21 @@ export const getBookingStatusStyles = (status: string): string => {
 export const getBookingActionButtonStyles = (
   status: string,
   loading: boolean,
-  actionType: "complete" | "no-show"
+  actionType: "complete" | "no-show",
 ): string => {
-  if (loading) return "bg-zinc-700";
+  if (loading) return "bg-[var(--bg-muted)]";
 
-  if (status === "COMPLETED") return "bg-emerald-600";
-  if (status === "NO_SHOW") return "bg-zinc-600";
-  if (status === "CANCELLED") return "bg-red-500";
+  if (status === "COMPLETED") return "bg-[var(--success)]";
+  if (status === "NO_SHOW") return "bg-[var(--bg-subtle)]";
+  if (status === "CANCELLED") return "bg-[var(--danger-hover)]";
 
   // Default active button colors
-  if (actionType === "complete") return "bg-indigo-600 hover:bg-indigo-500";
-  if (actionType === "no-show") return "bg-orange-600 hover:bg-orange-500";
+  if (actionType === "complete")
+    return "bg-[var(--accent)] hover:bg-[var(--accent-hover)]";
+  if (actionType === "no-show")
+    return "bg-[var(--orange)] hover:bg-[var(--orange-hover)]";
 
-  return "bg-zinc-700";
+  return "bg-[var(--bg-muted)]";
 };
 
 /**
@@ -64,20 +96,40 @@ export const formatPaymentStatus = (status: string): string => {
 };
 
 /**
- * Get Tailwind CSS classes for payment status badges
+ * Get CSS variable-based styles for payment status badges
  */
-export const getPaymentStatusStyles = (status: string): string => {
+export const getPaymentStatusStyles = (status: string): StatusStyle => {
   switch (status) {
     case "FULLY_PAID":
-      return "bg-emerald-900/30 text-emerald-300 border border-emerald-800";
+      return {
+        backgroundColor: "var(--success-muted)",
+        color: "var(--success-text-light)",
+        borderColor: "var(--success-border)",
+      };
     case "DEPOSIT_PAID":
-      return "bg-indigo-900/30 text-indigo-300 border border-indigo-800";
+      return {
+        backgroundColor: "var(--accent-muted)",
+        color: "var(--accent-text-light)",
+        borderColor: "var(--accent-muted)",
+      };
     case "PENDING":
     case "DEPOSIT_PENDING":
-      return "bg-yellow-900/30 text-yellow-300 border border-yellow-800";
+      return {
+        backgroundColor: "var(--warning-muted)",
+        color: "var(--warning-text-light)",
+        borderColor: "var(--warning-border)",
+      };
     case "REFUNDED":
-      return "bg-purple-900/30 text-purple-300 border border-purple-800";
+      return {
+        backgroundColor: "var(--purple-muted)",
+        color: "var(--purple-text-light)",
+        borderColor: "var(--purple-border-dark)",
+      };
     default:
-      return "bg-zinc-800 text-zinc-300 border border-zinc-700";
+      return {
+        backgroundColor: "var(--bg-elevated)",
+        color: "var(--text-secondary)",
+        borderColor: "var(--border-default)",
+      };
   }
 };
