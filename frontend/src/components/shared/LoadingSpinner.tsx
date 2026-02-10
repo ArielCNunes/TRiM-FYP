@@ -7,7 +7,7 @@ export default function LoadingSpinner({
 }: LoadingSpinnerProps) {
   return (
     <div className="text-center py-12">
-      <p className="text-zinc-500">{message}</p>
+      <p className="text-[var(--text-subtle)]">{message}</p>
     </div>
   );
 }

@@ -12,11 +12,10 @@ export function StatusBanner({
 
   return (
     <div
-      className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${
-        status.type === "success"
-          ? "border-emerald-800 bg-emerald-900/20 text-emerald-300"
-          : "border-red-800 bg-red-900/20 text-red-300"
-      }`}
+      className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${status.type === "success"
+          ? "border-[var(--success-border)] bg-[var(--success-muted)]/20 text-[var(--success-text-light)]"
+          : "border-[var(--danger-border)] bg-[var(--danger-muted)]/20 text-[var(--danger-text-light)]"
+        }`}
     >
       {status.message}
     </div>
@@ -45,7 +44,7 @@ export function StepNavigation({
     <div className="mt-8 flex gap-4">
       <button
         onClick={onBack}
-        className="px-6 py-2 border border-zinc-700 rounded-md hover:bg-zinc-800 text-zinc-300"
+        className="px-6 py-2 border border-[var(--border-default)] rounded-md hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
       >
         Back
       </button>
@@ -53,7 +52,7 @@ export function StepNavigation({
         <button
           onClick={onContinue}
           disabled={loading}
-          className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 shadow-lg shadow-indigo-500/20"
+          className="bg-[var(--accent)] text-[var(--text-primary)] px-6 py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] shadow-lg shadow-[var(--accent-shadow)]"
         >
           {continueLabel}
         </button>
