@@ -43,8 +43,8 @@ export function ServiceSelectionStep({
   if (loading) {
     return (
       <div className="p-8 text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mx-auto mb-4"></div>
-        <p className="text-zinc-400">Loading services...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--focus-ring)] mx-auto mb-4"></div>
+        <p className="text-[var(--text-muted)]">Loading services...</p>
       </div>
     );
   }
@@ -56,35 +56,35 @@ export function ServiceSelectionStep({
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8 text-white">Select a Service</h1>
+      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">Select a Service</h1>
       <StatusBanner status={status} />
 
       {categoriesWithServices.length === 0 ? (
-        <p className="text-center text-zinc-500">No services available</p>
+        <p className="text-center text-[var(--text-subtle)]">No services available</p>
       ) : (
         // Services grouped by category with collapsible sections
         <div className="space-y-6">
           {categoriesWithServices.map((category) => (
             <div
               key={category.id}
-              className="border border-zinc-800 rounded-lg overflow-hidden"
+              className="border border-[var(--border-subtle)] rounded-lg overflow-hidden"
             >
               {/* Category header - clickable to expand/collapse */}
               <button
                 onClick={() => toggleCategory(category.id)}
-                className="w-full flex justify-between items-center p-4 bg-zinc-900/50 hover:bg-zinc-900 transition text-left"
+                className="w-full flex justify-between items-center p-4 bg-[var(--bg-surface)]/50 hover:bg-[var(--bg-surface)] transition text-left"
               >
                 <div>
-                  <h2 className="text-xl font-semibold text-white">
+                  <h2 className="text-xl font-semibold text-[var(--text-primary)]">
                     {category.name}
                   </h2>
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-sm text-[var(--text-subtle)]">
                     {category.services.length}{" "}
                     {category.services.length === 1 ? "service" : "services"}
                   </p>
                 </div>
                 <svg
-                  className={`w-5 h-5 text-zinc-400 transition-transform ${expandedCategories.has(category.id) ? "rotate-180" : ""
+                  className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${expandedCategories.has(category.id) ? "rotate-180" : ""
                     }`}
                   fill="none"
                   stroke="currentColor"
@@ -101,7 +101,7 @@ export function ServiceSelectionStep({
 
               {/* Services grid - shown when category is expanded */}
               {expandedCategories.has(category.id) && (
-                <div className="p-4 bg-zinc-950">
+                <div className="p-4 bg-[var(--bg-base)]">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {category.services.map((service) => (
                       <div
@@ -114,21 +114,21 @@ export function ServiceSelectionStep({
                           })
                         }
                         className={`border rounded-lg p-5 cursor-pointer transition ${selectedService?.id === service.id
-                          ? "border-indigo-500 bg-indigo-900/20"
-                          : "border-zinc-800 bg-zinc-900 hover:border-zinc-600"
+                          ? "border-[var(--focus-ring)] bg-[var(--accent-muted)]/50"
+                          : "border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--border-strong)]"
                           }`}
                       >
-                        <h3 className="text-lg font-bold mb-2 text-white">
+                        <h3 className="text-lg font-bold mb-2 text-[var(--text-primary)]">
                           {service.name}
                         </h3>
-                        <p className="text-zinc-400 text-sm mb-4">
+                        <p className="text-[var(--text-muted)] text-sm mb-4">
                           {service.description}
                         </p>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-zinc-500">
+                          <span className="text-sm text-[var(--text-subtle)]">
                             {service.durationMinutes} min
                           </span>
-                          <span className="text-lg font-bold text-indigo-400">
+                          <span className="text-lg font-bold text-[var(--accent-text)]">
                             €{service.price.toFixed(2)}
                           </span>
                         </div>
@@ -144,17 +144,17 @@ export function ServiceSelectionStep({
 
       {/* Selection summary and continue button */}
       {selectedService && (
-        <div className="mt-8 p-4 bg-zinc-900 border border-zinc-800 rounded-lg">
-          <p className="text-lg mb-4 text-zinc-300">
+        <div className="mt-8 p-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg">
+          <p className="text-lg mb-4 text-[var(--text-secondary)]">
             Selected:{" "}
-            <strong className="text-white">{selectedService.name}</strong>
+            <strong className="text-[var(--text-primary)]">{selectedService.name}</strong>
             {selectedService.categoryName && (
-              <span className="text-zinc-500 text-sm ml-2">
+              <span className="text-[var(--text-subtle)] text-sm ml-2">
                 ({selectedService.categoryName})
               </span>
             )}
             {" - "}
-            <span className="text-indigo-400">
+            <span className="text-[var(--accent-text)]">
               €{selectedService.price.toFixed(2)}
             </span>
           </p>

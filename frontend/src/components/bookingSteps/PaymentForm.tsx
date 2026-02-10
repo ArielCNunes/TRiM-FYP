@@ -102,13 +102,13 @@ export function PaymentForm({
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8 text-white">Payment</h1>
+      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">Payment</h1>
 
-      <div className="border border-zinc-800 rounded-lg p-6 mb-6 bg-zinc-900">
+      <div className="border border-[var(--border-subtle)] rounded-lg p-6 mb-6 bg-[var(--bg-surface)]">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="mb-4">
-            <p className="text-zinc-400 mb-2">Amount to pay now:</p>
-            <p className="text-3xl font-bold text-indigo-400">
+            <p className="text-[var(--text-muted)] mb-2">Amount to pay now:</p>
+            <p className="text-3xl font-bold text-[var(--accent-text)]">
               €{depositAmount.toFixed(2)}
             </p>
           </div>
@@ -134,9 +134,9 @@ export function PaymentForm({
               />
               {showExpressCheckout && (
                 <div className="flex items-center my-4">
-                  <div className="flex-1 border-t border-zinc-700"></div>
-                  <span className="px-4 text-zinc-500 text-sm">or pay with card</span>
-                  <div className="flex-1 border-t border-zinc-700"></div>
+                  <div className="flex-1 border-t border-[var(--border-default)]"></div>
+                  <span className="px-4 text-[var(--text-subtle)] text-sm">or pay with card</span>
+                  <div className="flex-1 border-t border-[var(--border-default)]"></div>
                 </div>
               )}
             </div>
@@ -156,20 +156,20 @@ export function PaymentForm({
           </div>
 
           {errorMessage && (
-            <div className="p-4 bg-red-900/20 border border-red-800 rounded-md">
-              <p className="text-red-400 text-sm">{errorMessage}</p>
+            <div className="p-4 bg-[var(--danger-muted)]/20 border border-[var(--danger-border)] rounded-md">
+              <p className="text-[var(--danger-text)] text-sm">{errorMessage}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={!stripe || isProcessing}
-            className="w-full bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 font-semibold text-lg transition shadow-lg shadow-indigo-500/20"
+            className="w-full bg-[var(--accent)] text-[var(--text-primary)] px-6 py-3 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] font-semibold text-lg transition shadow-lg shadow-[var(--accent-shadow)]"
           >
             {isProcessing ? (
               <span className="flex items-center justify-center">
                 <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-[var(--text-primary)]"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -195,7 +195,7 @@ export function PaymentForm({
             )}
           </button>
 
-          <p className="text-xs text-zinc-500 text-center mt-4">
+          <p className="text-xs text-[var(--text-subtle)] text-center mt-4">
             Your payment information is securely processed by Stripe.
           </p>
         </form>

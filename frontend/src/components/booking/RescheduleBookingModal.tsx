@@ -72,7 +72,7 @@ export default function RescheduleBookingModal({
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          "Failed to load available time slots. Please try again."
+        "Failed to load available time slots. Please try again."
       );
       setAvailableSlots([]);
     } finally {
@@ -134,18 +134,18 @@ export default function RescheduleBookingModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-zinc-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-zinc-800">
+    <div className="fixed inset-0 bg-[var(--overlay)] z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div className="bg-[var(--bg-surface)] rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-[var(--border-subtle)]">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 rounded-t-lg">
+        <div className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] px-6 py-4 rounded-t-lg">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">
+            <h2 className="text-2xl font-bold text-[var(--text-primary)]">
               Reschedule Appointment
             </h2>
             <button
               onClick={onClose}
               disabled={submitting}
-              className="text-white hover:text-zinc-200 transition"
+              className="text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition"
             >
               <svg
                 className="w-6 h-6"
@@ -165,14 +165,14 @@ export default function RescheduleBookingModal({
         </div>
 
         {/* Current Booking Details */}
-        <div className="px-6 py-4 bg-zinc-800/50 border-b border-zinc-700">
-          <p className="text-sm font-semibold text-zinc-400 mb-2">
+        <div className="px-6 py-4 bg-[var(--bg-elevated)]/50 border-b border-[var(--border-default)]">
+          <p className="text-sm font-semibold text-[var(--text-muted)] mb-2">
             Current Appointment
           </p>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-zinc-400">Date:</span>{" "}
-              <span className="font-semibold text-white">
+              <span className="text-[var(--text-muted)]">Date:</span>{" "}
+              <span className="font-semibold text-[var(--text-primary)]">
                 {new Date(booking.bookingDate).toLocaleDateString("en-US", {
                   weekday: "short",
                   month: "short",
@@ -182,20 +182,20 @@ export default function RescheduleBookingModal({
               </span>
             </div>
             <div>
-              <span className="text-zinc-400">Time:</span>{" "}
-              <span className="font-semibold text-white">
+              <span className="text-[var(--text-muted)]">Time:</span>{" "}
+              <span className="font-semibold text-[var(--text-primary)]">
                 {booking.startTime.substring(0, 5)}
               </span>
             </div>
             <div>
-              <span className="text-zinc-400">Service:</span>{" "}
-              <span className="font-semibold text-white">
+              <span className="text-[var(--text-muted)]">Service:</span>{" "}
+              <span className="font-semibold text-[var(--text-primary)]">
                 {booking.service.name}
               </span>
             </div>
             <div>
-              <span className="text-zinc-400">Barber:</span>{" "}
-              <span className="font-semibold text-white">
+              <span className="text-[var(--text-muted)]">Barber:</span>{" "}
+              <span className="font-semibold text-[var(--text-primary)]">
                 {booking.barber.user.firstName} {booking.barber.user.lastName}
               </span>
             </div>
@@ -206,14 +206,14 @@ export default function RescheduleBookingModal({
         <form onSubmit={handleSubmit} className="px-6 py-6">
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-900/20 border border-red-800 rounded-md">
-              <p className="text-sm text-red-300 font-medium">{error}</p>
+            <div className="mb-4 p-4 bg-[var(--danger-muted)]/20 border border-[var(--danger-border)] rounded-md">
+              <p className="text-sm text-[var(--danger-text)] font-medium">{error}</p>
             </div>
           )}
 
           {/* Date Selection */}
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-zinc-300 mb-2">
+            <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">
               Select New Date
             </label>
             <input
@@ -222,11 +222,11 @@ export default function RescheduleBookingModal({
               onChange={(e) => setSelectedDate(e.target.value)}
               min={getMinDate()}
               max={getMaxDate()}
-              className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              className="w-full px-4 py-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] text-[var(--text-primary)] rounded-md focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)] transition"
               disabled={submitting}
               required
             />
-            <p className="mt-2 text-xs text-zinc-500">
+            <p className="mt-2 text-xs text-[var(--text-subtle)]">
               Select a new date for your appointment.
             </p>
           </div>
@@ -234,29 +234,28 @@ export default function RescheduleBookingModal({
           {/* Time Slots Selection */}
           {selectedDate && (
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-zinc-300 mb-2">
+              <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">
                 Select New Time
               </label>
 
               {loadingSlots ? (
                 <div className="flex items-center justify-center py-8">
                   <LoadingSpinner />
-                  <span className="ml-3 text-zinc-400">
+                  <span className="ml-3 text-[var(--text-muted)]">
                     Loading available times...
                   </span>
                 </div>
               ) : availableSlots.length > 0 ? (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto p-2 border border-zinc-700 rounded-md bg-zinc-800/30">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto p-2 border border-[var(--border-default)] rounded-md bg-[var(--bg-elevated)]/30">
                   {availableSlots.map((slot) => (
                     <button
                       key={slot}
                       type="button"
                       onClick={() => setSelectedTime(slot)}
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition ${
-                        selectedTime === slot
-                          ? "bg-indigo-600 text-white ring-2 ring-indigo-500 ring-offset-2 ring-offset-zinc-900"
-                          : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700 border border-zinc-700"
-                      }`}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition ${selectedTime === slot
+                          ? "bg-[var(--accent)] text-[var(--text-primary)] ring-2 ring-[var(--focus-ring)] ring-offset-2 ring-offset-[var(--bg-surface)]"
+                          : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)] border border-[var(--border-default)]"
+                        }`}
                       disabled={submitting}
                     >
                       {slot.substring(0, 5)}
@@ -265,11 +264,11 @@ export default function RescheduleBookingModal({
                 </div>
               ) : (
                 !loadingSlots && (
-                  <div className="text-center py-6 bg-zinc-800/50 rounded-md border border-zinc-700">
-                    <p className="text-zinc-400">
+                  <div className="text-center py-6 bg-[var(--bg-elevated)]/50 rounded-md border border-[var(--border-default)]">
+                    <p className="text-[var(--text-muted)]">
                       No available time slots for this date
                     </p>
-                    <p className="text-sm text-zinc-500 mt-1">
+                    <p className="text-sm text-[var(--text-subtle)] mt-1">
                       Please select a different date
                     </p>
                   </div>
@@ -280,11 +279,11 @@ export default function RescheduleBookingModal({
 
           {/* Selected New Time Display */}
           {selectedDate && selectedTime && (
-            <div className="mb-6 p-4 bg-emerald-900/20 border border-emerald-800 rounded-md">
-              <p className="text-sm font-semibold text-emerald-300 mb-1">
+            <div className="mb-6 p-4 bg-[var(--success)]/20 border border-[var(--success-border)] rounded-md">
+              <p className="text-sm font-semibold text-[var(--success-text)] mb-1">
                 New Appointment Details
               </p>
-              <p className="text-emerald-200">
+              <p className="text-[var(--success-text)]">
                 <span className="font-semibold">
                   {new Date(selectedDate).toLocaleDateString("en-US", {
                     weekday: "long",
@@ -302,19 +301,19 @@ export default function RescheduleBookingModal({
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3 justify-end pt-4 border-t border-zinc-800">
+          <div className="flex gap-3 justify-end pt-4 border-t border-[var(--border-subtle)]">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="px-6 py-2 border border-zinc-700 text-zinc-300 font-medium rounded-md hover:bg-zinc-800 transition disabled:opacity-50"
+              className="px-6 py-2 border border-[var(--border-default)] text-[var(--text-secondary)] font-medium rounded-md hover:bg-[var(--bg-elevated)] transition disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting || !selectedDate || !selectedTime}
-              className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-lg shadow-indigo-500/20"
+              className="px-6 py-2 bg-[var(--accent)] text-[var(--text-primary)] font-medium rounded-md hover:bg-[var(--accent-hover)] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-lg shadow-[var(--accent-shadow)]"
             >
               {submitting ? (
                 <>

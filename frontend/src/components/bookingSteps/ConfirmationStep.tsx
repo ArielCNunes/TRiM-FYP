@@ -29,48 +29,48 @@ export function ConfirmationStep({
 }) {
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8 text-white">
+      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">
         Confirm Your Booking
       </h1>
       <StatusBanner status={status} />
 
       {/* Booking summary: service, barber, date/time, price */}
-      <div className="border border-zinc-800 rounded-lg p-6 mb-6 space-y-4 bg-zinc-900">
-        <div className="pb-4 border-b border-zinc-800">
-          <p className="text-zinc-400">Service</p>
-          <p className="text-2xl font-bold text-white">
+      <div className="border border-[var(--border-subtle)] rounded-lg p-6 mb-6 space-y-4 bg-[var(--bg-surface)]">
+        <div className="pb-4 border-b border-[var(--border-subtle)]">
+          <p className="text-[var(--text-muted)]">Service</p>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">
             {selectedService?.name}
           </p>
-          <p className="text-zinc-500">
+          <p className="text-[var(--text-subtle)]">
             Duration: {selectedService?.durationMinutes} minutes
           </p>
         </div>
 
-        <div className="pb-4 border-b border-zinc-800">
-          <p className="text-zinc-400">Barber</p>
-          <p className="text-2xl font-bold text-white">
+        <div className="pb-4 border-b border-[var(--border-subtle)]">
+          <p className="text-[var(--text-muted)]">Barber</p>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">
             {selectedBarber?.user.firstName} {selectedBarber?.user.lastName}
           </p>
         </div>
 
-        <div className="pb-4 border-b border-zinc-800">
-          <p className="text-zinc-400">Date & Time</p>
-          <p className="text-2xl font-bold text-white">
+        <div className="pb-4 border-b border-[var(--border-subtle)]">
+          <p className="text-[var(--text-muted)]">Date & Time</p>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">
             {new Date(selectedDate).toLocaleDateString()} at {selectedTime}
           </p>
         </div>
 
         <div>
-          <p className="text-zinc-400">Price</p>
-          <p className="text-2xl font-bold text-indigo-400">
+          <p className="text-[var(--text-muted)]">Price</p>
+          <p className="text-2xl font-bold text-[var(--accent-text)]">
             €{selectedService?.price.toFixed(2)}
           </p>
         </div>
       </div>
 
       {/* Payment Information */}
-      <div className="border border-zinc-800 bg-zinc-900/50 rounded-lg p-4 mb-6">
-        <p className="text-sm text-zinc-400 text-center">
+      <div className="border border-[var(--border-subtle)] bg-[var(--bg-surface)]/50 rounded-lg p-4 mb-6">
+        <p className="text-sm text-[var(--text-muted)] text-center">
           You'll be asked to pay a deposit before your booking is confirmed.
         </p>
       </div>
@@ -79,14 +79,14 @@ export function ConfirmationStep({
       <div className="flex gap-4">
         <button
           onClick={onBack}
-          className="px-6 py-2 border border-zinc-700 rounded-md hover:bg-zinc-800 text-zinc-300"
+          className="px-6 py-2 border border-[var(--border-default)] rounded-md hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
         >
           Back
         </button>
         <button
           onClick={onConfirm}
           disabled={submitting}
-          className="flex-1 bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 shadow-lg shadow-indigo-500/20"
+          className="flex-1 bg-[var(--accent)] text-[var(--text-primary)] px-6 py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] shadow-lg shadow-[var(--accent-shadow)]"
         >
           {submitting ? "Creating Booking..." : "Confirm Booking"}
         </button>

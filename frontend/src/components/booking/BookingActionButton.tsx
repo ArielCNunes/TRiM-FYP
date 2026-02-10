@@ -106,19 +106,17 @@ export const BookingActionButton: React.FC<BookingActionButtonProps> = ({
           bookingStatus,
           loading,
           actionType
-        )} text-white px-4 py-2 rounded font-semibold transition ${
-          isDisabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
-        }`}
-        aria-label={`Mark booking ${bookingId} as ${
-          actionType === "complete" ? "complete" : "no-show"
-        }`}
+        )} text-[var(--text-primary)] px-4 py-2 rounded font-semibold transition ${isDisabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+          }`}
+        aria-label={`Mark booking ${bookingId} as ${actionType === "complete" ? "complete" : "no-show"
+          }`}
       >
         {getButtonText()}
       </button>
 
       {error && (
         <div
-          className="bg-red-900/20 border border-red-800 text-red-300 px-3 py-2 rounded text-sm"
+          className="bg-[var(--danger-muted)]/20 border border-[var(--danger-border)] text-[var(--danger-text)] px-3 py-2 rounded text-sm"
           role="alert"
         >
           {error}

@@ -32,14 +32,14 @@ export function BarberSelectionStep({
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2 text-white">Select a Barber</h1>
-      <p className="text-zinc-400 mb-8">
-        Service: <strong className="text-white">{selectedServiceName}</strong>
+      <h1 className="text-3xl font-bold mb-2 text-[var(--text-primary)]">Select a Barber</h1>
+      <p className="text-[var(--text-muted)] mb-8">
+        Service: <strong className="text-[var(--text-primary)]">{selectedServiceName}</strong>
       </p>
       <StatusBanner status={status} />
 
       {barbers.length === 0 ? (
-        <p className="text-center text-zinc-500">No barbers available</p>
+        <p className="text-center text-[var(--text-subtle)]">No barbers available</p>
       ) : (
         // Barber grid: clickable cards with profile image, name, bio, email
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -47,11 +47,10 @@ export function BarberSelectionStep({
             <div
               key={barber.id}
               onClick={() => onSelect(barber)}
-              className={`border rounded-lg p-6 cursor-pointer transition ${
-                selectedBarber?.id === barber.id
-                  ? "border-indigo-500 bg-indigo-900/20"
-                  : "border-zinc-800 bg-zinc-900 hover:border-zinc-600"
-              }`}
+              className={`border rounded-lg p-6 cursor-pointer transition ${selectedBarber?.id === barber.id
+                  ? "border-[var(--focus-ring)] bg-[var(--accent-muted)]/50"
+                  : "border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--border-strong)]"
+                }`}
             >
               {/* Profile photo */}
               {barber.profileImageUrl && (
@@ -61,11 +60,11 @@ export function BarberSelectionStep({
                   className="w-full h-40 object-cover rounded-lg mb-4"
                 />
               )}
-              <h3 className="text-xl font-bold mb-2 text-white">
+              <h3 className="text-xl font-bold mb-2 text-[var(--text-primary)]">
                 {barber.user.firstName} {barber.user.lastName}
               </h3>
-              {barber.bio && <p className="text-zinc-400 mb-4">{barber.bio}</p>}
-              <p className="text-sm text-zinc-500">{barber.user.email}</p>
+              {barber.bio && <p className="text-[var(--text-muted)] mb-4">{barber.bio}</p>}
+              <p className="text-sm text-[var(--text-subtle)]">{barber.user.email}</p>
             </div>
           ))}
         </div>
