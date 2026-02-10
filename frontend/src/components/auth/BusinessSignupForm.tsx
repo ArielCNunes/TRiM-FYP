@@ -150,7 +150,7 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
         <div>
             <button
                 onClick={handleBack}
-                className="text-zinc-400 hover:text-white text-sm mb-4 flex items-center gap-1"
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm mb-4 flex items-center gap-1"
             >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -159,13 +159,13 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
             </button>
 
             <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white">Register Your Business</h3>
-                <p className="text-sm text-zinc-400">Create an admin account to manage your barbershop</p>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">Register Your Business</h3>
+                <p className="text-sm text-[var(--text-muted)]">Create an admin account to manage your barbershop</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
                         Business Name
                     </label>
                     <input
@@ -176,16 +176,16 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
                             if (errors.businessName) setErrors({ ...errors, businessName: undefined });
                         }}
                         placeholder="John's Barbershop"
-                        className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
+                        className="w-full bg-[var(--bg-surface)] text-[var(--text-primary)] px-4 py-2 rounded-md border border-[var(--border-default)] focus:border-[var(--focus-ring)] focus:outline-none placeholder-[var(--text-subtle)]"
                     />
                     {errors.businessName && (
-                        <p className="text-red-400 text-sm mt-1">{errors.businessName}</p>
+                        <p className="text-[var(--danger-text)] text-sm mt-1">{errors.businessName}</p>
                     )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-zinc-300 mb-1">
+                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
                             First Name
                         </label>
                         <input
@@ -196,15 +196,15 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
                                 if (errors.firstName) setErrors({ ...errors, firstName: undefined });
                             }}
                             placeholder="John"
-                            className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
+                            className="w-full bg-[var(--bg-surface)] text-[var(--text-primary)] px-4 py-2 rounded-md border border-[var(--border-default)] focus:border-[var(--focus-ring)] focus:outline-none placeholder-[var(--text-subtle)]"
                         />
                         {errors.firstName && (
-                            <p className="text-red-400 text-sm mt-1">{errors.firstName}</p>
+                            <p className="text-[var(--danger-text)] text-sm mt-1">{errors.firstName}</p>
                         )}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-zinc-300 mb-1">
+                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
                             Last Name
                         </label>
                         <input
@@ -215,16 +215,16 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
                                 if (errors.lastName) setErrors({ ...errors, lastName: undefined });
                             }}
                             placeholder="Doe"
-                            className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
+                            className="w-full bg-[var(--bg-surface)] text-[var(--text-primary)] px-4 py-2 rounded-md border border-[var(--border-default)] focus:border-[var(--focus-ring)] focus:outline-none placeholder-[var(--text-subtle)]"
                         />
                         {errors.lastName && (
-                            <p className="text-red-400 text-sm mt-1">{errors.lastName}</p>
+                            <p className="text-[var(--danger-text)] text-sm mt-1">{errors.lastName}</p>
                         )}
                     </div>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
                         Email
                     </label>
                     <input
@@ -235,10 +235,10 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
                             if (errors.email) setErrors({ ...errors, email: undefined });
                         }}
                         placeholder="your@email.com"
-                        className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
+                        className="w-full bg-[var(--bg-surface)] text-[var(--text-primary)] px-4 py-2 rounded-md border border-[var(--border-default)] focus:border-[var(--focus-ring)] focus:outline-none placeholder-[var(--text-subtle)]"
                     />
                     {errors.email && (
-                        <p className="text-red-400 text-sm mt-1">{errors.email}</p>
+                        <p className="text-[var(--danger-text)] text-sm mt-1">{errors.email}</p>
                     )}
                 </div>
 
@@ -254,7 +254,7 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
                 />
 
                 <div>
-                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
                         Password
                     </label>
                     <div className="relative">
@@ -266,23 +266,23 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
                                 if (errors.password) setErrors({ ...errors, password: undefined });
                             }}
                             placeholder="••••••••"
-                            className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
+                            className="w-full bg-[var(--bg-surface)] text-[var(--text-primary)] px-4 py-2 rounded-md border border-[var(--border-default)] focus:border-[var(--focus-ring)] focus:outline-none placeholder-[var(--text-subtle)]"
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-2.5 text-zinc-400 hover:text-white text-sm"
+                            className="absolute right-3 top-2.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm"
                         >
                             {showPassword ? "Hide" : "Show"}
                         </button>
                     </div>
                     {errors.password && (
-                        <p className="text-red-400 text-sm mt-1">{errors.password}</p>
+                        <p className="text-[var(--danger-text)] text-sm mt-1">{errors.password}</p>
                     )}
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
                         Confirm Password
                     </label>
                     <div className="relative">
@@ -294,29 +294,29 @@ export function BusinessSignupForm({ onBack }: BusinessSignupFormProps = {}) {
                                 if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: undefined });
                             }}
                             placeholder="••••••••"
-                            className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
+                            className="w-full bg-[var(--bg-surface)] text-[var(--text-primary)] px-4 py-2 rounded-md border border-[var(--border-default)] focus:border-[var(--focus-ring)] focus:outline-none placeholder-[var(--text-subtle)]"
                         />
                         <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-2.5 text-zinc-400 hover:text-white text-sm"
+                            className="absolute right-3 top-2.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm"
                         >
                             {showConfirmPassword ? "Hide" : "Show"}
                         </button>
                     </div>
                     {errors.confirmPassword && (
-                        <p className="text-red-400 text-sm mt-1">{errors.confirmPassword}</p>
+                        <p className="text-[var(--danger-text)] text-sm mt-1">{errors.confirmPassword}</p>
                     )}
                 </div>
 
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-[var(--text-subtle)]">
                     By signing up, you agree to our Terms of Service and Privacy Policy
                 </p>
 
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-700 disabled:text-zinc-400 text-white font-medium py-2 rounded-md transition shadow-lg shadow-indigo-500/20"
+                    className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] disabled:text-[var(--text-muted)] text-[var(--text-primary)] font-medium py-2 rounded-md transition shadow-lg shadow-[var(--accent-shadow)]"
                 >
                     {loading ? "Creating account..." : "Register Business"}
                 </button>

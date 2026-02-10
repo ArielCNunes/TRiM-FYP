@@ -87,7 +87,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-zinc-300 mb-1">
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
           Email
         </label>
         <input
@@ -98,15 +98,15 @@ export function LoginForm() {
             if (errors.email) setErrors({ ...errors, email: undefined });
           }}
           placeholder="your@email.com"
-          className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
+          className="w-full bg-[var(--bg-surface)] text-[var(--text-primary)] px-4 py-2 rounded-md border border-[var(--border-default)] focus:border-[var(--focus-ring)] focus:outline-none placeholder-[var(--text-subtle)]"
         />
         {errors.email && (
-          <p className="text-red-400 text-sm mt-1">{errors.email}</p>
+          <p className="text-[var(--danger-text)] text-sm mt-1">{errors.email}</p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-zinc-300 mb-1">
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
           Password
         </label>
         <div className="relative">
@@ -119,25 +119,25 @@ export function LoginForm() {
                 setErrors({ ...errors, password: undefined });
             }}
             placeholder="••••••••"
-            className="w-full bg-zinc-900 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
+            className="w-full bg-[var(--bg-surface)] text-[var(--text-primary)] px-4 py-2 rounded-md border border-[var(--border-default)] focus:border-[var(--focus-ring)] focus:outline-none placeholder-[var(--text-subtle)]"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-2.5 text-zinc-400 hover:text-white text-sm"
+            className="absolute right-3 top-2.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm"
           >
             {showPassword ? "Hide" : "Show"}
           </button>
         </div>
         {errors.password && (
-          <p className="text-red-400 text-sm mt-1">{errors.password}</p>
+          <p className="text-[var(--danger-text)] text-sm mt-1">{errors.password}</p>
         )}
       </div>
 
       <div className="text-right">
         <Link
           to="/forgot-password"
-          className="text-sm text-indigo-400 hover:text-indigo-300"
+          className="text-sm text-[var(--accent-text)] hover:text-[var(--accent-text-light)]"
         >
           Forgot password?
         </Link>
@@ -146,7 +146,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-700 disabled:text-zinc-400 text-white font-medium py-2 rounded-md transition shadow-lg shadow-indigo-500/20"
+        className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] disabled:text-[var(--text-muted)] text-[var(--text-primary)] font-medium py-2 rounded-md transition shadow-lg shadow-[var(--accent-shadow)]"
       >
         {loading ? "Logging in..." : "Log In"}
       </button>

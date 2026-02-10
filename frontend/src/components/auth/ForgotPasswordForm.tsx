@@ -54,11 +54,11 @@ export function ForgotPasswordForm() {
   // Show success message after submission
   if (submitted) {
     return (
-      <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-8">
+      <div className="bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] p-8">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-[var(--success-muted)] rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-green-500"
+              className="w-8 h-8 text-[var(--green-text)]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -71,14 +71,14 @@ export function ForgotPasswordForm() {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
             Check your email
           </h2>
-          <p className="text-zinc-400">
-            If an account exists with <strong className="text-white">{email}</strong>, you will receive
+          <p className="text-[var(--text-muted)]">
+            If an account exists with <strong className="text-[var(--text-primary)]">{email}</strong>, you will receive
             password reset instructions shortly.
           </p>
-          <p className="text-sm text-zinc-500 mt-4">
+          <p className="text-sm text-[var(--text-subtle)] mt-4">
             Please check your spam folder if you don't see the email within a
             few minutes.
           </p>
@@ -96,12 +96,12 @@ export function ForgotPasswordForm() {
 
   // Show email input form
   return (
-    <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-8">
+    <div className="bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] p-8">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">
+        <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
           Forgot password?
         </h2>
-        <p className="text-zinc-400">
+        <p className="text-[var(--text-muted)]">
           Enter your email address and we'll send you instructions to reset your
           password.
         </p>
@@ -109,7 +109,7 @@ export function ForgotPasswordForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-300 mb-1">
+          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
             Email Address
           </label>
           <input
@@ -120,10 +120,10 @@ export function ForgotPasswordForm() {
               if (error) setError("");
             }}
             placeholder="your@email.com"
-            className="w-full bg-zinc-800 text-white px-4 py-2 rounded-md border border-zinc-700 focus:border-zinc-500 focus:outline-none placeholder-zinc-500"
+            className="w-full bg-[var(--bg-elevated)] text-[var(--text-primary)] px-4 py-2 rounded-md border border-[var(--border-default)] focus:border-[var(--border-strong)] focus:outline-none placeholder-[var(--text-subtle)]"
             disabled={loading}
           />
-          {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+          {error && <p className="text-[var(--danger-text)] text-sm mt-1">{error}</p>}
         </div>
 
         <button
@@ -138,7 +138,7 @@ export function ForgotPasswordForm() {
       <div className="mt-6 text-center">
         <Link
           to="/auth"
-          className="text-sm text-zinc-400 hover:text-white font-medium"
+          className="text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium"
         >
           ← Back to Login
         </Link>
