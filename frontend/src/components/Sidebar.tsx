@@ -18,10 +18,18 @@ interface SidebarProps {
  */
 export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
   // Get authentication state and user info from Redux store
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, businessSlug } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+
+  // Format business slug to readable name (e.g., "my-barbershop" -> "My Barbershop")
+  const businessName = businessSlug
+    ? businessSlug
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+    : null;
 
   /**
    * Handles user logout
@@ -65,10 +73,15 @@ export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
       >
         {/* Logo section with toggle button */}
         <div className="px-6 py-6 border-b border-[var(--border-subtle)] flex items-center justify-between">
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex flex-col">
             <span className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">
               TRiM
             </span>
+            {businessName && (
+              <span className="text-xs text-[var(--text-muted)] font-normal mt-0.5 truncate max-w-[120px]">
+                {businessName}
+              </span>
+            )}
           </Link>
           <button
             onClick={onToggle}
