@@ -1,24 +1,34 @@
 \chapter{System Design}
 
+\section{System Overview}
+\subsection{Architecture Diagram}
+\subsection{Technology Stack}
+
+\section{Multi-Tenant Database Design}
+\subsection{Entity-Relationship Model}
+\subsection{Tenant-Aware Schema}
+\subsection{Data Isolation Strategy}
+\subsection{Migration From Single to Multi-Tenant}
+
+\section{Multi-Tenant Implementation}
+\subsection{TenantFilter \& TenantContext}
+\subsection{Subdomain-based Routing}
+
+\section{Backend Implementation}
+\subsection{RESTful API Design}
+\subsection{Race Condition Prevention}
+\subsection{Booking \& Payment Flow}
+
+\section{Authentication \& Security}
+\subsection{JWT \& Role-Based Access Control}
+\subsection{Cross-Subdomain Token Exchange}
+
+\section{Frontend Architecture}
+\subsection{Component Structure}
+\subsection{State Management}
+
 Provide a detailed explanation of the overall system architecture \cite{lin1991divergence}, i.e. the HOW of the project.
 Use UML, system architecture diagrams, screenshots, code snippets and algorithms to illustrate your design.
-
-\section{Multi Tenant Architecture}
-\subsection{Migration From Single Tenant to Multi Tenant}
-\subsection{TenantFilter}
-\subsection{TenantContext (ThreadLocal)}
-\subsection{Subdomain-based Routing}
-\subsection{Database Optimisation}
-
-\section{Availability Algorithm}
-\subsection{Preventing Race Conditions}
-\subsection{Slot Calculation}
-
-\section{Security Architecture}
-\subsection{Cross-subdomain Token Exchange}
-
-\section{Deposit Calculation}
-
 
 % \begin{figure}[h!]
 %     \includegraphics[width=0.9\textwidth]{images/architecture.png}
