@@ -8,25 +8,227 @@
   font-weight: 400;
 }
 
+/* ===========================
+   DARK THEME (default)
+   =========================== */
+.dark {
+  /* --- Surfaces --- */
+  --bg-base:        #09090b;   /* zinc-950 — page background */
+  --bg-surface:     #18181b;   /* zinc-900 — cards, sidebar, inputs */
+  --bg-elevated:    #27272a;   /* zinc-800 — hover states, raised elements */
+  --bg-muted:       #3f3f46;   /* zinc-700 — disabled, subtle fills */
+  --bg-subtle:      #52525b;   /* zinc-600 — secondary fills */
+
+  /* --- Text --- */
+  --text-primary:   #ffffff;   /* white — headings, primary text */
+  --text-secondary: #d4d4d8;   /* zinc-300 — body text, nav links */
+  --text-muted:     #a1a1aa;   /* zinc-400 — secondary labels */
+  --text-subtle:    #71717a;   /* zinc-500 — placeholders, captions */
+  --text-faint:     #52525b;   /* zinc-600 — very subtle text */
+
+  /* --- Borders --- */
+  --border-default: #3f3f46;   /* zinc-700 */
+  --border-subtle:  #27272a;   /* zinc-800 */
+  --border-strong:  #52525b;   /* zinc-600 */
+  --border-muted:   #71717a;   /* zinc-500 */
+
+  /* --- Accent (indigo) --- */
+  --accent:         #4f46e5;   /* indigo-600 — primary buttons */
+  --accent-hover:   #6366f1;   /* indigo-500 — button hover */
+  --accent-muted:   #312e81;   /* indigo-900 — subtle accent bg */
+  --accent-text:    #818cf8;   /* indigo-400 — accent text/links */
+  --accent-text-light: #a5b4fc; /* indigo-300 — lighter accent text */
+  --accent-shadow:  rgba(99, 102, 241, 0.2); /* indigo-500/20 */
+
+  /* --- Focus --- */
+  --focus-ring:     #6366f1;   /* indigo-500 */
+
+  /* --- Danger (red) --- */
+  --danger:         #dc2626;   /* red-600 */
+  --danger-hover:   #ef4444;   /* red-500 */
+  --danger-muted:   #7f1d1d;   /* red-900 */
+  --danger-text:    #f87171;   /* red-400 */
+  --danger-text-light: #fca5a5; /* red-300 */
+  --danger-border:  #991b1b;   /* red-800 */
+  --danger-shadow:  rgba(239, 68, 68, 0.2);
+
+  /* --- Success (emerald) --- */
+  --success:        #059669;   /* emerald-600 */
+  --success-hover:  #10b981;   /* emerald-500 */
+  --success-muted:  #064e3b;   /* emerald-900 */
+  --success-text:   #34d399;   /* emerald-400 */
+  --success-text-light: #6ee7b7; /* emerald-300 */
+  --success-border: #065f46;   /* emerald-800 */
+
+  /* --- Warning (amber/yellow) --- */
+  --warning-muted:  #78350f;   /* amber-900 / yellow-900 */
+  --warning-text:   #fbbf24;   /* amber-400 */
+  --warning-text-light: #fcd34d; /* yellow-300 */
+  --warning-border: #854d0e;   /* yellow-800 */
+
+  /* --- Info (blue) --- */
+  --info:           #2563eb;   /* blue-600 */
+  --info-text:      #60a5fa;   /* blue-400 */
+  --info-border:    #3b82f6;   /* blue-500 */
+
+  /* --- Orange --- */
+  --orange:         #ea580c;   /* orange-600 */
+  --orange-hover:   #f97316;   /* orange-500 */
+  --orange-text:    #fb923c;   /* orange-400 */
+  --orange-border:  #f97316;   /* orange-500 */
+
+  /* --- Purple --- */
+  --purple:         #9333ea;   /* purple-600 */
+  --purple-text:    #c084fc;   /* purple-400 */
+  --purple-muted:   #581c87;   /* purple-900 */
+  --purple-border:  #a855f7;   /* purple-500 */
+  --purple-text-light: #d8b4fe; /* purple-300 */
+  --purple-border-dark: #6b21a8; /* purple-800 */
+
+  /* --- Green (non-emerald) --- */
+  --green:          #16a34a;   /* green-600 */
+  --green-hover:    #15803d;   /* green-700 */
+  --green-text:     #4ade80;   /* green-400 */
+  --green-muted:    #14532d;   /* green-900 */
+  --green-border:   #22c55e;   /* green-500 */
+
+  /* --- Overlay --- */
+  --overlay:        rgba(0, 0, 0, 0.7);  /* bg-black/70 */
+  --overlay-light:  rgba(0, 0, 0, 0.2);  /* bg-black/20 */
+
+  /* --- Scrollbar --- */
+  --scrollbar-track: #09090b;  /* zinc-950 */
+  --scrollbar-thumb: #27272a;  /* zinc-800 */
+  --scrollbar-thumb-hover: #3f3f46; /* zinc-700 */
+
+  /* --- Stripe Elements --- */
+  --stripe-text:      #ffffff;
+  --stripe-bg:        #18181b;
+  --stripe-border:    #3f3f46;
+  --stripe-placeholder: #71717a;
+}
+
+/* ===========================
+   LIGHT THEME
+   =========================== */
+.light {
+  /* --- Surfaces --- */
+  --bg-base:        #f4f4f5;   /* zinc-100 */
+  --bg-surface:     #ffffff;   /* white */
+  --bg-elevated:    #e4e4e7;   /* zinc-200 */
+  --bg-muted:       #d4d4d8;   /* zinc-300 */
+  --bg-subtle:      #a1a1aa;   /* zinc-400 */
+
+  /* --- Text --- */
+  --text-primary:   #18181b;   /* zinc-900 */
+  --text-secondary: #3f3f46;   /* zinc-700 */
+  --text-muted:     #52525b;   /* zinc-600 */
+  --text-subtle:    #71717a;   /* zinc-500 */
+  --text-faint:     #a1a1aa;   /* zinc-400 */
+
+  /* --- Borders --- */
+  --border-default: #d4d4d8;   /* zinc-300 */
+  --border-subtle:  #e4e4e7;   /* zinc-200 */
+  --border-strong:  #a1a1aa;   /* zinc-400 */
+  --border-muted:   #71717a;   /* zinc-500 */
+
+  /* --- Accent (indigo) --- */
+  --accent:         #4f46e5;   /* indigo-600 */
+  --accent-hover:   #4338ca;   /* indigo-700 */
+  --accent-muted:   #e0e7ff;   /* indigo-100 */
+  --accent-text:    #4338ca;   /* indigo-700 */
+  --accent-text-light: #4f46e5; /* indigo-600 */
+  --accent-shadow:  rgba(79, 70, 229, 0.15);
+
+  /* --- Focus --- */
+  --focus-ring:     #4f46e5;   /* indigo-600 */
+
+  /* --- Danger (red) --- */
+  --danger:         #dc2626;   /* red-600 */
+  --danger-hover:   #b91c1c;   /* red-700 */
+  --danger-muted:   #fee2e2;   /* red-100 */
+  --danger-text:    #b91c1c;   /* red-700 */
+  --danger-text-light: #dc2626; /* red-600 */
+  --danger-border:  #fca5a5;   /* red-300 */
+  --danger-shadow:  rgba(220, 38, 38, 0.15);
+
+  /* --- Success (emerald) --- */
+  --success:        #059669;   /* emerald-600 */
+  --success-hover:  #047857;   /* emerald-700 */
+  --success-muted:  #d1fae5;   /* emerald-100 */
+  --success-text:   #047857;   /* emerald-700 */
+  --success-text-light: #059669; /* emerald-600 */
+  --success-border: #6ee7b7;   /* emerald-300 */
+
+  /* --- Warning (amber/yellow) --- */
+  --warning-muted:  #fef3c7;   /* amber-100 */
+  --warning-text:   #b45309;   /* amber-700 */
+  --warning-text-light: #d97706; /* amber-600 */
+  --warning-border: #fcd34d;   /* yellow-300 */
+
+  /* --- Info (blue) --- */
+  --info:           #2563eb;   /* blue-600 */
+  --info-text:      #1d4ed8;   /* blue-700 */
+  --info-border:    #93c5fd;   /* blue-300 */
+
+  /* --- Orange --- */
+  --orange:         #ea580c;   /* orange-600 */
+  --orange-hover:   #c2410c;   /* orange-700 */
+  --orange-text:    #c2410c;   /* orange-700 */
+  --orange-border:  #fdba74;   /* orange-300 */
+
+  /* --- Purple --- */
+  --purple:         #9333ea;   /* purple-600 */
+  --purple-text:    #7e22ce;   /* purple-700 */
+  --purple-muted:   #f3e8ff;   /* purple-100 */
+  --purple-border:  #d8b4fe;   /* purple-300 */
+  --purple-text-light: #9333ea; /* purple-600 */
+  --purple-border-dark: #d8b4fe; /* purple-300 */
+
+  /* --- Green (non-emerald) --- */
+  --green:          #16a34a;   /* green-600 */
+  --green-hover:    #15803d;   /* green-700 */
+  --green-text:     #15803d;   /* green-700 */
+  --green-muted:    #dcfce7;   /* green-100 */
+  --green-border:   #86efac;   /* green-300 */
+
+  /* --- Overlay --- */
+  --overlay:        rgba(0, 0, 0, 0.4);
+  --overlay-light:  rgba(0, 0, 0, 0.05);
+
+  /* --- Scrollbar --- */
+  --scrollbar-track: #f4f4f5;  /* zinc-100 */
+  --scrollbar-thumb: #d4d4d8;  /* zinc-300 */
+  --scrollbar-thumb-hover: #a1a1aa; /* zinc-400 */
+
+  /* --- Stripe Elements --- */
+  --stripe-text:      #18181b;
+  --stripe-bg:        #ffffff;
+  --stripe-border:    #d4d4d8;
+  --stripe-placeholder: #a1a1aa;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  @apply bg-zinc-950 text-zinc-100;
+  background-color: var(--bg-base);
+  color: var(--text-secondary);
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-zinc-950;
+  background-color: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-zinc-800 rounded-full;
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-zinc-700;
+  background-color: var(--scrollbar-thumb-hover);
 }
