@@ -138,7 +138,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.isAuthenticated = true;
       })
-      .addCase(exchangeTokenFromUrl.rejected, (state) => {
+      .addCase(exchangeTokenFromUrl.rejected, (_state) => {
         // Token exchange failed - user needs to login manually
         // Don't change state, just let them proceed unauthenticated
       });
