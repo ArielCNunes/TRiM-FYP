@@ -17,18 +17,18 @@ export default function Home() {
     (!hostname.includes("localhost") && parts.length > 2);
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       {/* Admin View - Calendar is the main feature */}
       {user?.role === "ADMIN" && (
         <div className="w-full px-8 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white">Shop Calendar</h1>
-              <p className="text-zinc-400">View and manage all bookings</p>
+              <h1 className="text-3xl font-bold text-[var(--text-primary)]">Shop Calendar</h1>
+              <p className="text-[var(--text-muted)]">View and manage all bookings</p>
             </div>
             <button
               onClick={() => navigate("/admin")}
-              className="bg-zinc-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-zinc-700 transition flex items-center gap-2"
+              className="bg-[var(--bg-elevated)] text-[var(--text-primary)] px-4 py-2 rounded-lg font-medium hover:bg-[var(--bg-muted)] transition flex items-center gap-2"
             >
               <Settings className="w-4 h-4" />
               Admin Settings
@@ -44,12 +44,12 @@ export default function Home() {
         <div className="w-full px-8 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white">My Schedule</h1>
-              <p className="text-zinc-400">View and manage your bookings</p>
+              <h1 className="text-3xl font-bold text-[var(--text-primary)]">My Schedule</h1>
+              <p className="text-[var(--text-muted)]">View and manage your bookings</p>
             </div>
             <button
               onClick={() => navigate("/barber")}
-              className="bg-zinc-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-zinc-700 transition flex items-center gap-2"
+              className="bg-[var(--bg-elevated)] text-[var(--text-primary)] px-4 py-2 rounded-lg font-medium hover:bg-[var(--bg-muted)] transition flex items-center gap-2"
             >
               <Settings className="w-4 h-4" />
               Manage Availability
@@ -68,29 +68,29 @@ export default function Home() {
             {!isAuthenticated ? (
               // Public Landing Page
               <div className="text-center">
-                <h1 className="text-7xl font-bold mb-6 text-white tracking-tight">
+                <h1 className="text-7xl font-bold mb-6 text-[var(--text-primary)] tracking-tight">
                   TRiM
                 </h1>
                 {isSubdomain ? (
                   // Subdomain landing - for customers
                   <>
-                    <p className="text-2xl text-zinc-300 mb-4">
+                    <p className="text-2xl text-[var(--text-secondary)] mb-4">
                       Professional Barbershop Services
                     </p>
-                    <p className="text-lg text-zinc-500 mb-12 max-w-2xl mx-auto">
+                    <p className="text-lg text-[var(--text-subtle)] mb-12 max-w-2xl mx-auto">
                       Sign in to book appointments and manage your bookings.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
                       <button
                         onClick={() => navigate("/auth")}
-                        className="bg-indigo-600 text-white px-12 py-5 rounded-lg font-semibold hover:bg-indigo-500 transition text-xl shadow-lg shadow-indigo-500/20"
+                        className="bg-[var(--accent)] text-[var(--text-primary)] px-12 py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-xl shadow-lg shadow-[var(--accent-shadow)]"
                       >
                         Sign In
                       </button>
                       <button
                         onClick={() => navigate("/auth?tab=signup")}
-                        className="bg-transparent border-2 border-indigo-500 text-indigo-400 px-12 py-5 rounded-lg font-semibold hover:bg-indigo-950 transition text-xl"
+                        className="bg-transparent border-2 border-[var(--focus-ring)] text-[var(--accent-text)] px-12 py-5 rounded-lg font-semibold hover:bg-indigo-950 transition text-xl"
                       >
                         Create Account
                       </button>
@@ -98,42 +98,42 @@ export default function Home() {
 
                     {/* Features Section - Customer focused */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                      <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-8">
                         <div className="flex items-center justify-center mb-4">
                           <div className="bg-indigo-900/30 p-4 rounded-lg">
-                            <Scissors className="w-10 h-10 text-indigo-400" />
+                            <Scissors className="w-10 h-10 text-[var(--accent-text)]" />
                           </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2 text-white">
+                        <h3 className="text-xl font-bold mb-2 text-[var(--text-primary)]">
                           Expert Barbers
                         </h3>
-                        <p className="text-zinc-400">
+                        <p className="text-[var(--text-muted)]">
                           Skilled professionals dedicated to your perfect look
                         </p>
                       </div>
-                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                      <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-8">
                         <div className="flex items-center justify-center mb-4">
                           <div className="bg-emerald-900/30 p-4 rounded-lg">
-                            <Calendar className="w-10 h-10 text-emerald-400" />
+                            <Calendar className="w-10 h-10 text-[var(--success-text)]" />
                           </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2 text-white">
+                        <h3 className="text-xl font-bold mb-2 text-[var(--text-primary)]">
                           Easy Booking
                         </h3>
-                        <p className="text-zinc-400">
+                        <p className="text-[var(--text-muted)]">
                           Book online anytime, manage appointments effortlessly
                         </p>
                       </div>
-                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                      <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-8">
                         <div className="flex items-center justify-center mb-4">
                           <div className="bg-amber-900/30 p-4 rounded-lg">
-                            <Star className="w-10 h-10 text-amber-400" />
+                            <Star className="w-10 h-10 text-[var(--warning-text)]" />
                           </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2 text-white">
+                        <h3 className="text-xl font-bold mb-2 text-[var(--text-primary)]">
                           Premium Service
                         </h3>
-                        <p className="text-zinc-400">
+                        <p className="text-[var(--text-muted)]">
                           Quality cuts and styling for every occasion
                         </p>
                       </div>
@@ -142,58 +142,58 @@ export default function Home() {
                 ) : (
                   // Main domain landing - for businesses
                   <>
-                    <p className="text-2xl text-zinc-300 mb-4">
+                    <p className="text-2xl text-[var(--text-secondary)] mb-4">
                       The Modern Barbershop Booking Platform
                     </p>
-                    <p className="text-lg text-zinc-500 mb-12 max-w-2xl mx-auto">
+                    <p className="text-lg text-[var(--text-subtle)] mb-12 max-w-2xl mx-auto">
                       Streamline your barbershop operations with powerful booking, scheduling, and management tools.
                     </p>
 
                     <button
                       onClick={() => navigate("/register-business")}
-                      className="bg-indigo-600 text-white px-16 py-5 rounded-lg font-semibold hover:bg-indigo-500 transition text-xl shadow-lg shadow-indigo-500/20 mb-20"
+                      className="bg-[var(--accent)] text-[var(--text-primary)] px-16 py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-xl shadow-lg shadow-[var(--accent-shadow)] mb-20"
                     >
                       Register Your Business
                     </button>
 
                     {/* Features Section - Business focused */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                      <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-8">
                         <div className="flex items-center justify-center mb-4">
                           <div className="bg-indigo-900/30 p-4 rounded-lg">
-                            <Scissors className="w-10 h-10 text-indigo-400" />
+                            <Scissors className="w-10 h-10 text-[var(--accent-text)]" />
                           </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2 text-white">
+                        <h3 className="text-xl font-bold mb-2 text-[var(--text-primary)]">
                           Team Management
                         </h3>
-                        <p className="text-zinc-400">
+                        <p className="text-[var(--text-muted)]">
                           Add barbers, set their schedules, and manage availability effortlessly
                         </p>
                       </div>
-                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                      <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-8">
                         <div className="flex items-center justify-center mb-4">
                           <div className="bg-emerald-900/30 p-4 rounded-lg">
-                            <Calendar className="w-10 h-10 text-emerald-400" />
+                            <Calendar className="w-10 h-10 text-[var(--success-text)]" />
                           </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2 text-white">
+                        <h3 className="text-xl font-bold mb-2 text-[var(--text-primary)]">
                           Online Booking
                         </h3>
-                        <p className="text-zinc-400">
+                        <p className="text-[var(--text-muted)]">
                           Let customers book appointments 24/7 through your custom booking page
                         </p>
                       </div>
-                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+                      <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-8">
                         <div className="flex items-center justify-center mb-4">
                           <div className="bg-amber-900/30 p-4 rounded-lg">
-                            <Star className="w-10 h-10 text-amber-400" />
+                            <Star className="w-10 h-10 text-[var(--warning-text)]" />
                           </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2 text-white">
+                        <h3 className="text-xl font-bold mb-2 text-[var(--text-primary)]">
                           Integrated Payments
                         </h3>
-                        <p className="text-zinc-400">
+                        <p className="text-[var(--text-muted)]">
                           Accept online payments securely with built-in Stripe integration
                         </p>
                       </div>
@@ -205,23 +205,23 @@ export default function Home() {
               // Logged-in Customer View
               <>
                 <div className="text-center mb-16">
-                  <h1 className="text-6xl font-bold mb-6 text-white">
+                  <h1 className="text-6xl font-bold mb-6 text-[var(--text-primary)]">
                     Welcome back, {user?.firstName}.
                   </h1>
-                  <p className="text-xl text-zinc-400 mb-8">
+                  <p className="text-xl text-[var(--text-muted)] mb-8">
                     Ready for your next appointment?
                   </p>
 
                   <div className="flex gap-4 justify-center">
                     <button
                       onClick={() => navigate("/booking")}
-                      className="bg-indigo-600 text-white px-12 py-4 rounded-lg font-semibold hover:bg-indigo-500 transition text-lg shadow-lg shadow-indigo-500/20"
+                      className="bg-[var(--accent)] text-[var(--text-primary)] px-12 py-4 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-lg shadow-lg shadow-[var(--accent-shadow)]"
                     >
                       Book New Appointment
                     </button>
                     <button
                       onClick={() => navigate("/my-bookings")}
-                      className="bg-transparent border-2 border-indigo-500 text-indigo-400 px-12 py-4 rounded-lg font-semibold hover:bg-indigo-950 transition text-lg"
+                      className="bg-transparent border-2 border-[var(--focus-ring)] text-[var(--accent-text)] px-12 py-4 rounded-lg font-semibold hover:bg-indigo-950 transition text-lg"
                     >
                       View My Bookings
                     </button>

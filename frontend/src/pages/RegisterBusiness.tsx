@@ -51,21 +51,21 @@ export default function RegisterBusiness() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-zinc-950">
+        <div className="min-h-screen bg-[var(--bg-base)]">
             <div className="max-w-md mx-auto px-4 py-12">
                 {/* Logo and heading */}
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
+                    <h1 className="text-4xl font-bold text-[var(--text-primary)] mb-2 tracking-tight">
                         TRiM
                     </h1>
-                    <p className="text-zinc-400 mb-2">Register Your Business</p>
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-[var(--text-muted)] mb-2">Register Your Business</p>
+                    <p className="text-sm text-[var(--text-subtle)]">
                         Create an account to manage your barbershop
                     </p>
                 </div>
 
                 {/* Business signup form */}
-                <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg shadow-xl shadow-black/20">
+                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-6 rounded-lg shadow-xl shadow-black/20">
                     <BusinessSignupForm />
                 </div>
             </div>

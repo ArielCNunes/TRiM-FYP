@@ -55,9 +55,9 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-4xl font-bold mb-8 text-white">Admin Dashboard</h1>
+        <h1 className="text-4xl font-bold mb-8 text-[var(--text-primary)]">Admin Dashboard</h1>
 
         <AdminTabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 

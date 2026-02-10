@@ -9,11 +9,11 @@ import { ResetPasswordForm } from "../components/auth/ResetPasswordForm";
  */
 export default function ResetPassword() {
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       <div className="max-w-md mx-auto px-4 py-12">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">TRiM</h1>
+          <h1 className="text-4xl font-bold text-[var(--text-primary)] mb-2 tracking-tight">TRiM</h1>
         </div>
 
         {/* Reset Password Form */}

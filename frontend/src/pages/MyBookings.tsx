@@ -37,10 +37,10 @@ export default function MyBookings() {
   if (!user) {
     return (
       <div className="p-8 text-center">
-        <p className="text-red-600">Please log in to view your bookings</p>
+        <p className="text-[var(--danger-text)]">Please log in to view your bookings</p>
         <button
           onClick={() => navigate("/login")}
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md"
+          className="mt-4 bg-[var(--accent)] text-[var(--text-primary)] px-4 py-2 rounded-md"
         >
           Go to Login
         </button>
@@ -144,16 +144,16 @@ export default function MyBookings() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* Page header */}
-      <h1 className="text-4xl font-bold mb-2 text-white">My Bookings</h1>
-      <p className="text-zinc-400 mb-8">
+      <h1 className="text-4xl font-bold mb-2 text-[var(--text-primary)]">My Bookings</h1>
+      <p className="text-[var(--text-muted)] mb-8">
         Your upcoming appointments, sorted by date
       </p>
 
       {status && (
         <div
           className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${status.type === "success"
-              ? "border-emerald-800 bg-emerald-900/20 text-emerald-300"
-              : "border-red-800 bg-red-900/20 text-red-300"
+            ? "border-[var(--success-border)] bg-[var(--success-muted)] text-[var(--success-text-light)]"
+            : "border-[var(--danger-border)] bg-[var(--danger-muted)] text-[var(--danger-text-light)]"
             }`}
         >
           {status.message}
@@ -163,15 +163,15 @@ export default function MyBookings() {
       {loading ? (
         /* Loading state */
         <div className="text-center py-12">
-          <p className="text-zinc-400">Loading your bookings...</p>
+          <p className="text-[var(--text-muted)]">Loading your bookings...</p>
         </div>
       ) : bookings.length === 0 ? (
         /* Empty state encouraging user to create a booking */
-        <div className="text-center py-12 bg-zinc-900 rounded-lg border border-zinc-800">
-          <p className="text-zinc-400 mb-4">You have no upcoming bookings</p>
+        <div className="text-center py-12 bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)]">
+          <p className="text-[var(--text-muted)] mb-4">You have no upcoming bookings</p>
           <button
             onClick={() => navigate("/booking")}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500 shadow-lg shadow-indigo-500/20"
+            className="bg-[var(--accent)] text-[var(--text-primary)] px-6 py-2 rounded-md hover:bg-[var(--accent-hover)] shadow-lg shadow-[var(--accent-shadow)]"
           >
             Book Now
           </button>
@@ -182,16 +182,16 @@ export default function MyBookings() {
           {bookings.map((booking) => (
             <div
               key={booking.id}
-              className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm hover:border-zinc-700 transition overflow-hidden"
+              className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg shadow-sm hover:border-[var(--border-default)] transition overflow-hidden"
             >
               {/* Header section with date - most important info */}
-              <div className="bg-gradient-to-r from-indigo-900/40 to-indigo-900/20 px-6 py-4 border-b border-indigo-900/30">
+              <div className="bg-gradient-to-r from-[var(--accent)]/20 to-[var(--accent)]/10 px-6 py-4 border-b border-[var(--accent)]/20">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-indigo-400 font-medium mb-1">
+                    <p className="text-sm text-[var(--accent-text)] font-medium mb-1">
                       Appointment Date
                     </p>
-                    <p className="text-2xl font-bold text-white">
+                    <p className="text-2xl font-bold text-[var(--text-primary)]">
                       {new Date(booking.bookingDate).toLocaleDateString(
                         "en-US",
                         {
@@ -202,7 +202,7 @@ export default function MyBookings() {
                         }
                       )}
                     </p>
-                    <p className="text-lg font-semibold text-zinc-300 mt-1">
+                    <p className="text-lg font-semibold text-[var(--text-secondary)] mt-1">
                       {booking.startTime.substring(0, 5)}
                     </p>
                   </div>
@@ -221,23 +221,23 @@ export default function MyBookings() {
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                   {/* Service */}
                   <div>
-                    <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                    <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                       Service
                     </p>
-                    <p className="text-lg font-semibold text-white">
+                    <p className="text-lg font-semibold text-[var(--text-primary)]">
                       {booking.service.name}
                     </p>
-                    <p className="text-sm text-zinc-400 mt-1">
+                    <p className="text-sm text-[var(--text-muted)] mt-1">
                       {booking.service.durationMinutes} minutes
                     </p>
                   </div>
 
                   {/* Barber */}
                   <div>
-                    <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                    <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                       Barber
                     </p>
-                    <p className="text-lg font-semibold text-white">
+                    <p className="text-lg font-semibold text-[var(--text-primary)]">
                       {booking.barber.user.firstName}{" "}
                       {booking.barber.user.lastName}
                     </p>
@@ -245,24 +245,24 @@ export default function MyBookings() {
 
                   {/* Total Price */}
                   <div>
-                    <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                    <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                       Total Price
                     </p>
-                    <p className="text-2xl font-bold text-indigo-400">
+                    <p className="text-2xl font-bold text-[var(--accent-text)]">
                       €{booking.service.price.toFixed(2)}
                     </p>
                   </div>
 
                   {/* Payment Status */}
                   <div>
-                    <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                    <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                       Payment Status
                     </p>
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-sm font-medium text-[var(--text-primary)]">
                       {formatPaymentStatus(booking.paymentStatus)}
                     </p>
                     {booking.depositAmount !== undefined && (
-                      <p className="text-xs text-zinc-400 mt-1">
+                      <p className="text-xs text-[var(--text-muted)] mt-1">
                         Deposit: €{booking.depositAmount.toFixed(2)}
                       </p>
                     )}
@@ -272,13 +272,13 @@ export default function MyBookings() {
                   {booking.outstandingBalance !== undefined &&
                     booking.outstandingBalance > 0 && (
                       <div>
-                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                           Outstanding
                         </p>
-                        <p className="text-lg font-medium text-zinc-300">
+                        <p className="text-lg font-medium text-[var(--text-secondary)]">
                           €{booking.outstandingBalance.toFixed(2)}
                         </p>
-                        <p className="text-xs text-zinc-500 mt-1">
+                        <p className="text-xs text-[var(--text-subtle)] mt-1">
                           Pay at shop
                         </p>
                       </div>
@@ -288,10 +288,10 @@ export default function MyBookings() {
                   {(booking.outstandingBalance === undefined ||
                     booking.outstandingBalance === 0) && (
                       <div>
-                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                           Balance
                         </p>
-                        <p className="text-lg font-medium text-emerald-400">
+                        <p className="text-lg font-medium text-[var(--success-text)]">
                           Paid in Full
                         </p>
                       </div>
@@ -300,18 +300,18 @@ export default function MyBookings() {
               </div>
 
               {/* Action footer */}
-              <div className="px-6 py-4 bg-zinc-900/50 border-t border-zinc-800 flex justify-end gap-3">
+              <div className="px-6 py-4 bg-[var(--bg-surface)]/50 border-t border-[var(--border-subtle)] flex justify-end gap-3">
                 <button
                   onClick={() => handleReschedule(booking)}
                   disabled={cancelling === booking.id}
-                  className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-500 disabled:bg-zinc-700 transition shadow-lg shadow-indigo-500/20"
+                  className="px-6 py-2 bg-[var(--accent)] text-[var(--text-primary)] font-medium rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] transition shadow-lg shadow-[var(--accent-shadow)]"
                 >
                   Reschedule
                 </button>
                 <button
                   onClick={() => handleCancel(booking.id)}
                   disabled={cancelling === booking.id}
-                  className="px-6 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-500 disabled:bg-zinc-700 transition shadow-lg shadow-red-500/20"
+                  className="px-6 py-2 bg-[var(--danger)] text-[var(--text-primary)] font-medium rounded-md hover:bg-[var(--danger-hover)] disabled:bg-[var(--bg-muted)] transition shadow-lg shadow-red-500/20"
                 >
                   {cancelling === booking.id
                     ? "Cancelling..."
@@ -328,7 +328,7 @@ export default function MyBookings() {
         <div className="mt-12">
           <button
             onClick={() => setShowPastBookings(!showPastBookings)}
-            className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold py-3 px-6 rounded-lg transition flex items-center justify-between border border-zinc-700"
+            className="w-full bg-[var(--bg-elevated)] hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] font-semibold py-3 px-6 rounded-lg transition flex items-center justify-between border border-[var(--border-default)]"
           >
             <span className="text-lg">
               Past Bookings ({pastBookings.length})
@@ -354,16 +354,16 @@ export default function MyBookings() {
               {pastBookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm overflow-hidden opacity-75"
+                  className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg shadow-sm overflow-hidden opacity-75"
                 >
                   {/* Header section with date */}
-                  <div className="bg-gradient-to-r from-zinc-800 to-zinc-900 px-6 py-4 border-b border-zinc-800">
+                  <div className="bg-gradient-to-r from-[var(--bg-elevated)] to-[var(--bg-surface)] px-6 py-4 border-b border-[var(--border-subtle)]">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-zinc-400 font-medium mb-1">
+                        <p className="text-sm text-[var(--text-muted)] font-medium mb-1">
                           Appointment Date
                         </p>
-                        <p className="text-2xl font-bold text-zinc-300">
+                        <p className="text-2xl font-bold text-[var(--text-secondary)]">
                           {new Date(booking.bookingDate).toLocaleDateString(
                             "en-US",
                             {
@@ -374,7 +374,7 @@ export default function MyBookings() {
                             }
                           )}
                         </p>
-                        <p className="text-lg font-semibold text-zinc-400 mt-1">
+                        <p className="text-lg font-semibold text-[var(--text-muted)] mt-1">
                           {booking.startTime.substring(0, 5)}
                         </p>
                       </div>
@@ -393,23 +393,23 @@ export default function MyBookings() {
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                       {/* Service */}
                       <div>
-                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                           Service
                         </p>
-                        <p className="text-lg font-semibold text-zinc-300">
+                        <p className="text-lg font-semibold text-[var(--text-secondary)]">
                           {booking.service.name}
                         </p>
-                        <p className="text-sm text-zinc-400 mt-1">
+                        <p className="text-sm text-[var(--text-muted)] mt-1">
                           {booking.service.durationMinutes} minutes
                         </p>
                       </div>
 
                       {/* Barber */}
                       <div>
-                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                           Barber
                         </p>
-                        <p className="text-lg font-semibold text-zinc-300">
+                        <p className="text-lg font-semibold text-[var(--text-secondary)]">
                           {booking.barber.user.firstName}{" "}
                           {booking.barber.user.lastName}
                         </p>
@@ -417,24 +417,24 @@ export default function MyBookings() {
 
                       {/* Total Price */}
                       <div>
-                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                           Total Price
                         </p>
-                        <p className="text-2xl font-bold text-zinc-400">
+                        <p className="text-2xl font-bold text-[var(--text-muted)]">
                           €{booking.service.price.toFixed(2)}
                         </p>
                       </div>
 
                       {/* Payment Status */}
                       <div>
-                        <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                        <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                           Payment Status
                         </p>
-                        <p className="text-sm font-medium text-zinc-300">
+                        <p className="text-sm font-medium text-[var(--text-secondary)]">
                           {formatPaymentStatus(booking.paymentStatus)}
                         </p>
                         {booking.depositAmount !== undefined && (
-                          <p className="text-xs text-zinc-400 mt-1">
+                          <p className="text-xs text-[var(--text-muted)] mt-1">
                             Deposit: €{booking.depositAmount.toFixed(2)}
                           </p>
                         )}
@@ -444,13 +444,13 @@ export default function MyBookings() {
                       {booking.outstandingBalance !== undefined &&
                         booking.outstandingBalance > 0 && (
                           <div>
-                            <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                            <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                               Outstanding
                             </p>
-                            <p className="text-lg font-medium text-zinc-400">
+                            <p className="text-lg font-medium text-[var(--text-muted)]">
                               €{booking.outstandingBalance.toFixed(2)}
                             </p>
-                            <p className="text-xs text-zinc-500 mt-1">Unpaid</p>
+                            <p className="text-xs text-[var(--text-subtle)] mt-1">Unpaid</p>
                           </div>
                         )}
 
@@ -458,10 +458,10 @@ export default function MyBookings() {
                       {(booking.outstandingBalance === undefined ||
                         booking.outstandingBalance === 0) && (
                           <div>
-                            <p className="text-xs uppercase text-zinc-500 font-semibold mb-2">
+                            <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                               Balance
                             </p>
-                            <p className="text-lg font-medium text-emerald-400/70">
+                            <p className="text-lg font-medium text-[var(--success-text)]/70">
                               {booking.status === "COMPLETED"
                                 ? "Paid in Full"
                                 : "N/A"}
