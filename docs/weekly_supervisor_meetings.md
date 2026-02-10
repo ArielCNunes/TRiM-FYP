@@ -278,3 +278,29 @@
 #### Next Meeting Date
 **Scheduled:** February 10th, 2026
 
+---
+
+### Meeting 11 - Tuesday 10th of February 2026
+**Duration:** 10 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Update supervisor on project/research progress of phase 2 and demo app.
+
+#### Progress Demonstrated
+- Demoed application and showcased multi tenant architecture.
+
+#### Technical Discussion
+- Agreed to benchmark the program now and then again once optimization is done.
+
+#### Supervisor Feedback
+- UI looks good; make sure to work basic skeleton for dissertation.
+
+#### Decisions Made
+- N/A
+  
+#### Action Items for Next Meeting
+- Demo dissertation.
+
+#### Next Meeting Date
+**Scheduled:** February 17th, 2026
