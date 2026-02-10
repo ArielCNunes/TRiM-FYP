@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { authApi } from "../../api/endpoints";
+import { getBusinessSlug } from "../../api/axios";
 import { useAppDispatch } from "../../store/hooks";
 import { setCredentials } from "../../features/auth/authSlice";
 
@@ -58,6 +59,7 @@ export function LoginForm() {
         lastName,
         role,
         barberId,
+        businessSlug,
       } = response.data;
 
       dispatch(
@@ -69,6 +71,7 @@ export function LoginForm() {
           lastName,
           role,
           barberId,
+          businessSlug: businessSlug ?? getBusinessSlug(),
         })
       );
 

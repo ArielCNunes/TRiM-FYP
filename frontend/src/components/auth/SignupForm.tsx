@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../../api/endpoints";
+import { getBusinessSlug } from "../../api/axios";
 import { useAppDispatch } from "../../store/hooks";
 import { setCredentials } from "../../features/auth/authSlice";
 import { PhoneInput } from "../shared/PhoneInput";
@@ -97,6 +98,7 @@ export function SignupForm() {
         lastName: loginLastName,
         role,
         barberId,
+        businessSlug,
       } = loginResponse.data;
 
       dispatch(
@@ -108,6 +110,7 @@ export function SignupForm() {
           lastName: loginLastName,
           role,
           barberId,
+          businessSlug: businessSlug ?? getBusinessSlug(),
         })
       );
 

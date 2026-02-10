@@ -7,7 +7,7 @@ import axios from "axios";
  *   "shop2.trim.com" → "shop2"
  *   "localhost" → "v7-barbers" (default for development)
  */
-const getBusinessSlug = (): string => {
+export const getBusinessSlug = (): string => {
   const hostname = window.location.hostname;
   const parts = hostname.split(".");
 
@@ -72,15 +72,18 @@ api.interceptors.request.use(
   },
 );
 
-// Response interceptor - Handle 401 errors (expired token)
+// Response interceptor - Handle 401 and 403 errors (expired token or tenant mismatch)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Only redirect on 401 if it's NOT an auth endpoint (login, register, etc.)
+    // Only redirect on 401/403 if it's not an auth endpoint
     const isAuthEndpoint = error.config?.url?.startsWith("/auth");
-    if (error.response?.status === 401 && !isAuthEndpoint) {
+    const status = error.response?.status;
+
+    if ((status === 401 || status === 403) && !isAuthEndpoint) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("businessSlug");
       window.location.href = "/auth"; // Redirect to auth page
     }
     return Promise.reject(error);

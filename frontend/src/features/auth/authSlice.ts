@@ -5,6 +5,7 @@ import { authApi } from "../../api/endpoints";
 // Represents the authenticated user state that the rest of the app can query.
 interface AuthState {
   token: string | null;
+  businessSlug: string | null;
   user: {
     id: number;
     email: string;
@@ -32,17 +33,18 @@ export const exchangeTokenFromUrl = createAsyncThunk(
 
     try {
       const response = await authApi.exchangeToken(exchangeToken);
-      const { token, user: userJson } = response.data;
+      const { token, user: userJson, businessSlug } = response.data;
       const user = JSON.parse(userJson);
 
       // Store in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", userJson);
+      localStorage.setItem("businessSlug", businessSlug);
 
       // Clean URL (remove exchange token from browser history)
       window.history.replaceState({}, document.title, window.location.pathname);
 
-      return { token, user };
+      return { token, user, businessSlug };
     } catch (error) {
       // Clean URL even on failure
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -56,10 +58,12 @@ const loadAuthState = (): AuthState => {
   // Load from localStorage (exchange token is handled async via thunk)
   const token = localStorage.getItem("token");
   const userStr = localStorage.getItem("user");
+  const businessSlug = localStorage.getItem("businessSlug");
 
   if (token && userStr) {
     return {
       token,
+      businessSlug,
       user: JSON.parse(userStr),
       isAuthenticated: true,
     };
@@ -67,6 +71,7 @@ const loadAuthState = (): AuthState => {
 
   return {
     token: null,
+    businessSlug: null,
     user: null,
     isAuthenticated: false,
   };
@@ -89,15 +94,26 @@ const authSlice = createSlice({
         lastName: string;
         role: string;
         barberId?: number;
+        businessSlug: string;
       }>,
     ) => {
-      const { token, email, firstName, lastName, role, id, barberId } =
-        action.payload;
+      const {
+        token,
+        email,
+        firstName,
+        lastName,
+        role,
+        id,
+        barberId,
+        businessSlug,
+      } = action.payload;
       state.token = token;
+      state.businessSlug = businessSlug;
       state.user = { id, email, firstName, lastName, role, barberId };
       state.isAuthenticated = true;
 
       localStorage.setItem("token", token);
+      localStorage.setItem("businessSlug", businessSlug);
       localStorage.setItem(
         "user",
         JSON.stringify({ id, email, firstName, lastName, role, barberId }),
@@ -106,9 +122,11 @@ const authSlice = createSlice({
 
     logout: (state) => {
       state.token = null;
+      state.businessSlug = null;
       state.user = null;
       state.isAuthenticated = false;
       localStorage.removeItem("token");
+      localStorage.removeItem("businessSlug");
       localStorage.removeItem("user");
     },
   },
@@ -116,6 +134,7 @@ const authSlice = createSlice({
     builder
       .addCase(exchangeTokenFromUrl.fulfilled, (state, action) => {
         state.token = action.payload.token;
+        state.businessSlug = action.payload.businessSlug;
         state.user = action.payload.user;
         state.isAuthenticated = true;
       })

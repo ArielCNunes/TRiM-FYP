@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import Navbar from "./components/Sidebar";
 import AppRoutes from "./routes/AppRoutes";
-import { useAppDispatch } from "./store/hooks";
-import { exchangeTokenFromUrl } from "./features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { exchangeTokenFromUrl, logout } from "./features/auth/authSlice";
+import { getBusinessSlug } from "./api/axios";
 import LoadingSpinner from "./components/shared/LoadingSpinner";
 
 /**
@@ -31,6 +32,19 @@ function AppContent() {
         .finally(() => setIsExchangingToken(false));
     }
   }, [dispatch]);
+
+  // Tenant mismatch guard: if the user's stored businessSlug does not match the
+  // current subdomain, log them out so they don't see confusing 403 errors.
+  const { businessSlug, isAuthenticated } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (!isAuthenticated || !businessSlug) return;
+
+    const currentSlug = getBusinessSlug();
+    if (businessSlug !== currentSlug) {
+      dispatch(logout());
+    }
+  }, [isAuthenticated, businessSlug, dispatch]);
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed((prev) => !prev);
