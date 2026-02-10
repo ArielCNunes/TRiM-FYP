@@ -568,6 +568,14 @@ public class DataSeeder implements CommandLineRunner {
             int totalInserted = 0;
             int skippedDueToOverlap = 0;
 
+            // Define break times in minutes from midnight
+            // Lunch break: 12:00-12:30 (720-750)
+            // Afternoon break: 15:00-15:15 (900-915)
+            final int LUNCH_START = 12 * 60;      // 720
+            final int LUNCH_END = 12 * 60 + 30;   // 750
+            final int AFTERNOON_START = 15 * 60;  // 900
+            final int AFTERNOON_END = 15 * 60 + 15; // 915
+
             for (int i = 0; i < bookingsPerBusiness; i++) {
                 // Random customer, barber, service
                 Long customerId = customerIds.get(random.nextInt(customerIds.size()));
@@ -604,6 +612,15 @@ public class DataSeeder implements CommandLineRunner {
 
                 for (int startMinuteOfDay : availableStartMinutes) {
                     int endMinuteOfDay = startMinuteOfDay + duration;
+
+                    // Check if this slot overlaps with break times
+                    boolean overlapsBreak =
+                        !(endMinuteOfDay <= LUNCH_START || startMinuteOfDay >= LUNCH_END) ||
+                        !(endMinuteOfDay <= AFTERNOON_START || startMinuteOfDay >= AFTERNOON_END);
+
+                    if (overlapsBreak) {
+                        continue; // Skip this slot, it overlaps with a break
+                    }
 
                     // Check if this slot overlaps with any existing booking
                     boolean overlaps = false;
