@@ -53,14 +53,14 @@ function AppContent() {
   // Show loading while exchanging token
   if (isExchangingToken) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
         <LoadingSpinner message="Setting up your account..." />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       {/* Fixed sidebar navigation - displayed on all pages */}
       <Navbar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
 
