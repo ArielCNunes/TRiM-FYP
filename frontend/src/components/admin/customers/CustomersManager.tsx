@@ -18,16 +18,26 @@ export default function CustomersManager() {
         "all" | "active" | "blacklisted"
     >("all");
     const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const pageSize = 20;
 
     useEffect(() => {
         fetchCustomers();
-    }, []);
+    }, [currentPage]);
+
+    useEffect(() => {
+        setCurrentPage(0);
+    }, [searchTerm, filterBlacklisted]);
 
     const fetchCustomers = async () => {
         try {
             setLoading(true);
-            const response = await customersApi.getAll();
+            const response = await customersApi.getAll(currentPage, pageSize);
             setCustomers(response.data.customers);
+            setTotalPages(response.data.totalPages);
+            setTotalElements(response.data.totalElements);
             setStatus(null);
         } catch {
             setStatus({ type: "error", message: "Failed to load customers" });
@@ -138,38 +148,82 @@ export default function CustomersManager() {
                     }
                 />
             ) : (
-                <div className="bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-[var(--border-subtle)]">
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--text-muted)]">
-                                        Customer
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--text-muted)]">
-                                        Contact
-                                    </th>
-                                    <th className="px-4 py-3 text-center text-sm font-semibold text-[var(--text-muted)]">
-                                        Status
-                                    </th>
-                                    <th className="px-4 py-3 text-right text-sm font-semibold text-[var(--text-muted)]">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-[var(--border-subtle)]">
-                                {filteredCustomers.map((customer) => (
-                                    <CustomerRow
-                                        key={customer.id}
-                                        customer={customer}
-                                        onBlacklist={() => setBlacklistTarget(customer)}
-                                        onUnblacklist={() => handleUnblacklist(customer)}
-                                    />
-                                ))}
-                            </tbody>
-                        </table>
+                <>
+                    <div className="bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-[var(--border-subtle)]">
+                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--text-muted)]">
+                                            Customer
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--text-muted)]">
+                                            Contact
+                                        </th>
+                                        <th className="px-4 py-3 text-center text-sm font-semibold text-[var(--text-muted)]">
+                                            Status
+                                        </th>
+                                        <th className="px-4 py-3 text-right text-sm font-semibold text-[var(--text-muted)]">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[var(--border-subtle)]">
+                                    {filteredCustomers.map((customer) => (
+                                        <CustomerRow
+                                            key={customer.id}
+                                            customer={customer}
+                                            onBlacklist={() => setBlacklistTarget(customer)}
+                                            onUnblacklist={() => handleUnblacklist(customer)}
+                                        />
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between mt-4 px-2">
+                            <p className="text-sm text-[var(--text-subtle)]">
+                                Showing {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements} customers
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(0)}
+                                    disabled={currentPage === 0}
+                                    className="px-3 py-1.5 text-sm font-medium rounded-md border border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    First
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                                    disabled={currentPage === 0}
+                                    className="px-3 py-1.5 text-sm font-medium rounded-md border border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Previous
+                                </button>
+                                <span className="text-sm text-[var(--text-secondary)] px-2">
+                                    Page {currentPage + 1} of {totalPages}
+                                </span>
+                                <button
+                                    onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+                                    disabled={currentPage >= totalPages - 1}
+                                    className="px-3 py-1.5 text-sm font-medium rounded-md border border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Next
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage(totalPages - 1)}
+                                    disabled={currentPage >= totalPages - 1}
+                                    className="px-3 py-1.5 text-sm font-medium rounded-md border border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Last
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
 
             {/* Blacklist Modal */}
