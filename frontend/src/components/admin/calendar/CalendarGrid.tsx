@@ -220,13 +220,16 @@ export default function CalendarGrid({
                                         const top = ((clampedStartMinutes - shopStartMinutes) / 60) * SLOT_HEIGHT;
                                         const height = ((clampedEndMinutes - clampedStartMinutes) / 60) * SLOT_HEIGHT;
 
+                                        // Use consistent gap calculation to prevent overlaps
+                                        const actualBreakHeight = Math.max(height - 2, 20);
+
                                         return (
                                             <div
                                                 key={`break-${barber.id}-${breakIndex}`}
                                                 className="absolute left-1 right-1 bg-[var(--bg-muted)]/40 border border-dashed border-zinc-500 rounded pointer-events-none overflow-hidden flex items-center"
                                                 style={{
-                                                    top: top + 2,
-                                                    height: Math.max(height - 4, 30),
+                                                    top: top + 1,
+                                                    height: actualBreakHeight,
                                                     zIndex: 5,
                                                 }}
                                                 title={`${barber.user.firstName}'s break: ${breakItem.label || "Break"}`}
@@ -248,14 +251,21 @@ export default function CalendarGrid({
                                     const { top, height } = getBlockStyle(startTime, endTime);
                                     const { className: statusClassName, bgColor, hoverBgColor } = getStatusStyle(booking.status);
 
+                                    // Use a small gap (1px top, 1px bottom) to prevent overlap
+                                    // Don't use a minimum height that would cause overlapping with adjacent bookings
+                                    const actualHeight = Math.max(height - 2, 20);
+
+                                    // Determine if we have enough space to show both lines
+                                    const showServiceName = actualHeight >= 38;
+
                                     return (
                                         <div
                                             key={booking.id}
                                             onClick={() => onBookingClick(booking)}
                                             className={`absolute left-1 right-1 ${statusClassName} rounded cursor-pointer transition-colors overflow-hidden flex items-center`}
                                             style={{
-                                                top: top + 2,
-                                                height: Math.max(height - 4, 30),
+                                                top: top + 1,
+                                                height: actualHeight,
                                                 zIndex: 10,
                                                 backgroundColor: bgColor,
                                             }}
@@ -266,13 +276,15 @@ export default function CalendarGrid({
                                                 e.currentTarget.style.backgroundColor = bgColor;
                                             }}
                                         >
-                                            <div className="px-2 py-1 w-full">
-                                                <div className="text-xs font-bold text-[var(--text-primary)] truncate">
+                                            <div className="px-2 py-0.5 w-full">
+                                                <div className="text-xs font-bold text-[var(--text-primary)] truncate leading-tight">
                                                     {booking.customer.firstName} {booking.customer.lastName}
                                                 </div>
-                                                <div className="text-xs text-[var(--text-muted)] truncate">
-                                                    {booking.service.name}
-                                                </div>
+                                                {showServiceName && (
+                                                    <div className="text-xs text-[var(--text-muted)] truncate leading-tight">
+                                                        {booking.service.name}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     );
