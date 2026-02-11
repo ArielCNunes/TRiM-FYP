@@ -226,16 +226,17 @@ export default function CalendarGrid({
                                         return (
                                             <div
                                                 key={`break-${barber.id}-${breakIndex}`}
-                                                className="absolute left-1 right-1 bg-[var(--bg-muted)]/40 border border-dashed border-zinc-500 rounded pointer-events-none overflow-hidden flex items-center"
+                                                className="absolute left-1 right-1 border border-dashed border-red-400/60 rounded pointer-events-none overflow-hidden flex items-center"
                                                 style={{
                                                     top: top + 1,
                                                     height: actualBreakHeight,
                                                     zIndex: 5,
+                                                    backgroundColor: 'rgba(239, 68, 68, 0.15)',
                                                 }}
                                                 title={`${barber.user.firstName}'s break: ${breakItem.label || "Break"}`}
                                             >
                                                 <div className="px-2 py-1 w-full">
-                                                    <div className="text-xs font-medium text-[var(--text-secondary)] truncate">
+                                                    <div className="text-xs font-medium text-red-300 truncate">
                                                         {breakItem.label || "Break"}
                                                     </div>
                                                 </div>
