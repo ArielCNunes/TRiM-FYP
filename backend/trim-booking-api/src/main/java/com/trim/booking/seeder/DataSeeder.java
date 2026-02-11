@@ -586,24 +586,32 @@ public class DataSeeder implements CommandLineRunner {
                 int depositPercentage = serviceDeposits.get(serviceIndex);
                 int duration = serviceDurations.get(serviceIndex);
 
-                // Random date in the last 12 months
-                LocalDate bookingDate = startDate.plusDays(random.nextInt(totalDays + 1));
+                // Random date in the last 12 months, but skip Sundays (barbers unavailable)
+                LocalDate bookingDate;
+                do {
+                    bookingDate = startDate.plusDays(random.nextInt(totalDays + 1));
+                } while (bookingDate.getDayOfWeek() == DayOfWeek.SUNDAY);
 
                 // Find a non-overlapping time slot for this barber on this day
                 String slotKey = barberId + "_" + bookingDate;
                 List<int[]> bookedSlots = barberDaySlots.computeIfAbsent(slotKey, k -> new ArrayList<>());
 
-                // Try to find a free slot (9:00 - 17:00 in 15-min increments)
+                // Determine working hours based on day of week
+                // Saturday: 09:00-13:00, Mon-Fri: 09:00-17:00
+                int workStartHour = 9;
+                int workEndHour = bookingDate.getDayOfWeek() == DayOfWeek.SATURDAY ? 13 : 17;
+
+                // Try to find a free slot in 15-min increments
                 LocalTime startTime = null;
                 LocalTime endTime = null;
 
                 // Generate available slots and shuffle them
                 List<Integer> availableStartMinutes = new ArrayList<>();
-                for (int hour = 9; hour < 17; hour++) {
+                for (int hour = workStartHour; hour < workEndHour; hour++) {
                     for (int minute = 0; minute < 60; minute += 15) {
                         int startMinuteOfDay = hour * 60 + minute;
                         int endMinuteOfDay = startMinuteOfDay + duration;
-                        if (endMinuteOfDay <= 17 * 60) { // Ensure end time doesn't exceed 17:00
+                        if (endMinuteOfDay <= workEndHour * 60) { // Ensure end time doesn't exceed working hours
                             availableStartMinutes.add(startMinuteOfDay);
                         }
                     }
@@ -614,9 +622,13 @@ public class DataSeeder implements CommandLineRunner {
                     int endMinuteOfDay = startMinuteOfDay + duration;
 
                     // Check if this slot overlaps with break times
-                    boolean overlapsBreak =
-                        !(endMinuteOfDay <= LUNCH_START || startMinuteOfDay >= LUNCH_END) ||
+                    // Lunch break: 12:00-12:30 (only applies if working past 12:00)
+                    // Afternoon break: 15:00-15:15 (only applies on weekdays, not Saturdays)
+                    boolean overlapsLunchBreak = !(endMinuteOfDay <= LUNCH_START || startMinuteOfDay >= LUNCH_END);
+                    boolean overlapsAfternoonBreak = bookingDate.getDayOfWeek() != DayOfWeek.SATURDAY &&
                         !(endMinuteOfDay <= AFTERNOON_START || startMinuteOfDay >= AFTERNOON_END);
+
+                    boolean overlapsBreak = overlapsLunchBreak || overlapsAfternoonBreak;
 
                     if (overlapsBreak) {
                         continue; // Skip this slot, it overlaps with a break
