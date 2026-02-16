@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Gatling logback configuration for cleaner test output -->
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%-5level] %logger{15} - %msg%n%rEx</pattern>
+        </encoder>
+        <immediateFlush>false</immediateFlush>
+    </appender>
+
+    <!-- Reduce Gatling core logging noise -->
+    <logger name="io.gatling.http.engine.response" level="DEBUG"/>
+    <logger name="io.gatling.core.protocol" level="WARN"/>
+    <logger name="io.gatling.http.protocol" level="WARN"/>
+
+    <!-- Reduce Netty logging -->
+    <logger name="io.netty" level="WARN"/>
+
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
+
