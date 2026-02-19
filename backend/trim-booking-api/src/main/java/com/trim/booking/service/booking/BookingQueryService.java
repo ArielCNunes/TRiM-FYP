@@ -5,6 +5,7 @@ import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
  * Single responsibility: querying bookings.
  */
 @Service
+@Transactional(readOnly = true)
 public class BookingQueryService {
     private final BookingRepository bookingRepository;
 

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  * Service for managing customer operations including blacklisting.
  */
 @Service
+@Transactional
 public class CustomerService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;

@@ -11,6 +11,7 @@ import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.ServiceRepository;
 import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class AvailabilityService {
     private final BarberAvailabilityRepository barberAvailabilityRepository;
     private final BookingRepository bookingRepository;

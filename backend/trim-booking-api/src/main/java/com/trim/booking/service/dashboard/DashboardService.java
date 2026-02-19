@@ -7,6 +7,7 @@ import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.UserRepository;
 import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class DashboardService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;

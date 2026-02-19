@@ -16,6 +16,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Service
+@Transactional
 public class BarberBreakService {
     private final BarberBreakRepository barberBreakRepository;
     private final BarberRepository barberRepository;

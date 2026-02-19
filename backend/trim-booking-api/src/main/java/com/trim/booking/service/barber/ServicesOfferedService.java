@@ -9,11 +9,13 @@ import com.trim.booking.repository.ServiceCategoryRepository;
 import com.trim.booking.repository.ServiceRepository;
 import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ServicesOfferedService {
 
     private final ServiceRepository serviceRepository;

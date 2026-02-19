@@ -3,6 +3,7 @@ package com.trim.booking.service.booking;
 import com.trim.booking.dto.booking.UpdateBookingRequest;
 import com.trim.booking.entity.Booking;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,6 +22,7 @@ import java.util.List;
  * - BookingValidationService: Entity validation
  */
 @Service
+@Transactional
 public class BookingService {
     private final BookingCommandService commandService;
     private final BookingQueryService queryService;

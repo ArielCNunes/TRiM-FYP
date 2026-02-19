@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class BarberService {
     private final BarberRepository barberRepository;
     private final UserRepository userRepository;
