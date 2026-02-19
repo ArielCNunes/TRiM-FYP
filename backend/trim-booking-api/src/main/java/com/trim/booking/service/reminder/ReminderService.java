@@ -1,5 +1,6 @@
 package com.trim.booking.service.reminder;
 
+import com.trim.booking.config.RlsBypass;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.service.notification.EmailService;
@@ -24,11 +25,13 @@ public class ReminderService {
     private final BookingRepository bookingRepository;
     private final EmailService emailService;
     private final SmsService smsService;
+    private final RlsBypass rlsBypass;
 
-    public ReminderService(BookingRepository bookingRepository, EmailService emailService, SmsService smsService) {
+    public ReminderService(BookingRepository bookingRepository, EmailService emailService, SmsService smsService, RlsBypass rlsBypass) {
         this.bookingRepository = bookingRepository;
         this.emailService = emailService;
         this.smsService = smsService;
+        this.rlsBypass = rlsBypass;
     }
 
     /**
@@ -45,8 +48,9 @@ public class ReminderService {
 
         logger.info("Running daily reminder job for bookings on: {}", tomorrow);
 
-        // Get all bookings for tomorrow (ordered by business_id)
-        List<Booking> tomorrowBookings = bookingRepository.findByBookingDate(tomorrow);
+        // Get all bookings for tomorrow across all businesses (bypass RLS)
+        List<Booking> tomorrowBookings = rlsBypass.executeWithoutRls(() ->
+                bookingRepository.findByBookingDate(tomorrow));
 
         int remindersSent = 0;
 

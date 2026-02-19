@@ -1,5 +1,6 @@
 package com.trim.booking.service.user;
 
+import com.trim.booking.config.RlsBypass;
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.repository.UserRepository;
@@ -25,14 +26,16 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final RlsBypass rlsBypass;
 
     // Token expiry time: 1 hour
     private static final int TOKEN_EXPIRY_HOURS = 1;
 
-    public PasswordResetService(UserRepository userRepository, EmailService emailService) {
+    public PasswordResetService(UserRepository userRepository, EmailService emailService, RlsBypass rlsBypass) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.rlsBypass = rlsBypass;
     }
 
     /**
@@ -89,7 +92,8 @@ public class PasswordResetService {
      * @return true if token is valid and not expired, false otherwise
      */
     public boolean validateResetToken(String token) {
-        User user = userRepository.findByResetToken(token).orElse(null);
+        User user = rlsBypass.executeWithoutRls(() ->
+                userRepository.findByResetToken(token).orElse(null));
 
         if (user == null) {
             return false;
@@ -132,8 +136,9 @@ public class PasswordResetService {
     @Transactional
     public String resetPassword(String token, String newPassword) {
         // Find user by token
-        User user = userRepository.findByResetToken(token)
-                .orElseThrow(() -> new BadRequestException("Invalid or expired reset token"));
+        User user = rlsBypass.executeWithoutRls(() ->
+                userRepository.findByResetToken(token)
+                        .orElseThrow(() -> new BadRequestException("Invalid or expired reset token")));
 
         // Check if token has expired
         if (user.getResetTokenExpiry() == null ||

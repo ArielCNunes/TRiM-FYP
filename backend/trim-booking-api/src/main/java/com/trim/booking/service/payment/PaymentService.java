@@ -3,6 +3,7 @@ package com.trim.booking.service.payment;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.trim.booking.config.RlsBypass;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.Payment;
 import com.trim.booking.repository.BookingRepository;
@@ -31,15 +32,20 @@ public class PaymentService {
     private final DepositCalculationService depositCalculationService;
     private final EmailService emailService;
     private final SmsService smsService;
+    private final RlsBypass rlsBypass;
 
     public PaymentService(PaymentRepository paymentRepository,
                           BookingRepository bookingRepository,
-                          DepositCalculationService depositCalculationService, EmailService emailService, SmsService smsService) {
+                          DepositCalculationService depositCalculationService,
+                          EmailService emailService,
+                          SmsService smsService,
+                          RlsBypass rlsBypass) {
         this.paymentRepository = paymentRepository;
         this.bookingRepository = bookingRepository;
         this.depositCalculationService = depositCalculationService;
         this.emailService = emailService;
         this.smsService = smsService;
+        this.rlsBypass = rlsBypass;
     }
 
     private Long getBusinessId() {
@@ -135,8 +141,9 @@ public class PaymentService {
      */
     @Transactional
     public void handlePaymentSuccess(String paymentIntentId, Long businessIdFromMetadata) {
-        Payment payment = paymentRepository.findByStripePaymentIntentId(paymentIntentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        Payment payment = rlsBypass.executeWithoutRls(() ->
+                paymentRepository.findByStripePaymentIntentId(paymentIntentId)
+                        .orElseThrow(() -> new RuntimeException("Payment not found")));
 
         // Add business validation
         Booking booking = payment.getBooking();

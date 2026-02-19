@@ -1,5 +1,6 @@
 package com.trim.booking.service.booking;
 
+import com.trim.booking.config.RlsBypass;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.tenant.TenantContext;
@@ -20,9 +21,11 @@ public class BookingCleanupService {
     private static final Logger logger = LoggerFactory.getLogger(BookingCleanupService.class);
 
     private final BookingRepository bookingRepository;
+    private final RlsBypass rlsBypass;
 
-    public BookingCleanupService(BookingRepository bookingRepository) {
+    public BookingCleanupService(BookingRepository bookingRepository, RlsBypass rlsBypass) {
         this.bookingRepository = bookingRepository;
+        this.rlsBypass = rlsBypass;
     }
 
     /**
@@ -33,7 +36,8 @@ public class BookingCleanupService {
     @Scheduled(fixedRate = 300000) // 5 minutes
     @Transactional
     public void cancelExpiredBookings() {
-        List<Booking> expiredBookings = bookingRepository.findExpiredPendingBookings();
+        List<Booking> expiredBookings = rlsBypass.executeWithoutRls(
+                bookingRepository::findExpiredPendingBookings);
 
         int cancelledCount = 0;
 

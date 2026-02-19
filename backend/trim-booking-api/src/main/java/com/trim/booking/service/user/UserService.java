@@ -1,5 +1,6 @@
 package com.trim.booking.service.user;
 
+import com.trim.booking.config.RlsBypass;
 import com.trim.booking.dto.auth.AdminRegisterRequest;
 import com.trim.booking.dto.auth.RegisterRequest;
 import com.trim.booking.entity.Business;
@@ -22,11 +23,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final BusinessRepository businessRepository;
+    private final RlsBypass rlsBypass;
 
-    public UserService(UserRepository userRepository, BusinessRepository businessRepository) {
+    public UserService(UserRepository userRepository, BusinessRepository businessRepository, RlsBypass rlsBypass) {
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.businessRepository = businessRepository;
+        this.rlsBypass = rlsBypass;
     }
 
     private Long getBusinessId() {
@@ -117,7 +120,9 @@ public class UserService {
         }
 
         // For admin registration, check globally since business doesn't exist yet
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        boolean emailExists = rlsBypass.executeWithoutRls(() ->
+                userRepository.findByEmail(request.getEmail()).isPresent());
+        if (emailExists) {
             throw new RuntimeException("Email already registered");
         }
 
