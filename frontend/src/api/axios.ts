@@ -41,7 +41,8 @@ const getApiBaseUrl = (): string => {
 
   // In production, API might be on same domain via proxy
   // In development, use port 8080
-  const isDevelopment = hostname.includes("localhost");
+  const appDomain = import.meta.env.VITE_APP_DOMAIN || "localhost";
+  const isDevelopment = hostname.includes(appDomain);
   const apiHost = isDevelopment ? `${hostname}:8080` : hostname;
 
   return `${protocol}//${apiHost}/api`;
