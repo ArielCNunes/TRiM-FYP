@@ -8,6 +8,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.format.DateTimeFormatter;
 
@@ -18,6 +19,12 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class EmailService {
     private final JavaMailSender mailSender;
+
+    @Value("${app.base-domain}")
+    private String baseDomain;
+
+    @Value("${app.frontend-port:3000}")
+    private String frontendPort;
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -412,10 +419,10 @@ public class EmailService {
         String resetUrl;
         if (businessSlug != null) {
             // Include subdomain so tenant context is set when user clicks the link
-            resetUrl = "http://" + businessSlug + ".localhost:3000/reset-password/" + resetToken;
+            resetUrl = "http://" + businessSlug + "." + baseDomain + ":" + frontendPort + "/reset-password/" + resetToken;
         } else {
             // Fallback (shouldn't happen in normal flow)
-            resetUrl = "http://localhost:3000/reset-password/" + resetToken;
+            resetUrl = "http://" + baseDomain + ":" + frontendPort + "/reset-password/" + resetToken;
         }
 
         return String.format("""
