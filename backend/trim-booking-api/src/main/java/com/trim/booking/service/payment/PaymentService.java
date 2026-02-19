@@ -117,6 +117,7 @@ public class PaymentService {
         payment.setAmount(depositAmount);
         payment.setStripePaymentIntentId(paymentIntent.getId());
         payment.setStatus(Payment.PaymentStatus.PENDING);
+        payment.setBusiness(booking.getBusiness());
         paymentRepository.save(payment);
 
         // Return response for frontend
@@ -141,40 +142,41 @@ public class PaymentService {
      */
     @Transactional
     public void handlePaymentSuccess(String paymentIntentId, Long businessIdFromMetadata) {
-        Payment payment = rlsBypass.executeWithoutRls(() ->
-                paymentRepository.findByStripePaymentIntentId(paymentIntentId)
-                        .orElseThrow(() -> new RuntimeException("Payment not found")));
+        rlsBypass.runWithoutRls(() -> {
+            Payment payment = paymentRepository.findByStripePaymentIntentId(paymentIntentId)
+                    .orElseThrow(() -> new RuntimeException("Payment not found"));
 
-        // Add business validation
-        Booking booking = payment.getBooking();
-        if (booking == null || booking.getBusiness() == null) {
-            throw new RuntimeException("Invalid payment - no associated business");
-        }
+            // Add business validation
+            Booking booking = payment.getBooking();
+            if (booking == null || booking.getBusiness() == null) {
+                throw new RuntimeException("Invalid payment - no associated business");
+            }
 
-        // Verify business_id from Stripe metadata matches the booking's business
-        Long bookingBusinessId = booking.getBusiness().getId();
-        if (businessIdFromMetadata != null && !businessIdFromMetadata.equals(bookingBusinessId)) {
-            logger.error("Business ID mismatch. Metadata: {}, Booking: {}", businessIdFromMetadata, bookingBusinessId);
-            throw new RuntimeException("Payment business verification failed - potential cross-tenant attack");
-        }
+            // Verify business_id from Stripe metadata matches the booking's business
+            Long bookingBusinessId = booking.getBusiness().getId();
+            if (businessIdFromMetadata != null && !businessIdFromMetadata.equals(bookingBusinessId)) {
+                logger.error("Business ID mismatch. Metadata: {}, Booking: {}", businessIdFromMetadata, bookingBusinessId);
+                throw new RuntimeException("Payment business verification failed - potential cross-tenant attack");
+            }
 
-        // Log the business context for audit
-        logger.info("Processing payment for business: {}", bookingBusinessId);
+            // Log the business context for audit
+            logger.info("Processing payment for business: {}", bookingBusinessId);
 
-        // Update payment record
-        payment.setStatus(Payment.PaymentStatus.SUCCEEDED);
-        paymentRepository.save(payment);
+            // Update payment record
+            payment.setStatus(Payment.PaymentStatus.SUCCEEDED);
+            paymentRepository.save(payment);
 
-        // Update booking to CONFIRMED
-        booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
-        booking.setStatus(Booking.BookingStatus.CONFIRMED);
-        booking.setExpiresAt(null); // Clear expiry if booking is confirmed
-        bookingRepository.save(booking);
+            // Update booking to CONFIRMED
+            booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
+            booking.setStatus(Booking.BookingStatus.CONFIRMED);
+            booking.setExpiresAt(null); // Clear expiry if booking is confirmed
+            bookingRepository.save(booking);
 
-        // Send confirmation notifications asynchronously
-        emailService.sendBookingConfirmation(booking);
-        smsService.sendBookingConfirmation(booking);
+            // Send confirmation notifications asynchronously
+            emailService.sendBookingConfirmation(booking);
+            smsService.sendBookingConfirmation(booking);
 
-        System.out.println("Deposit payment succeeded for booking: " + booking.getId());
+            logger.info("Deposit payment succeeded for booking: {}", booking.getId());
+        });
     }
 }
