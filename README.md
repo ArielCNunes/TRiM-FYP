@@ -23,7 +23,6 @@ TRiM is a full-stack booking system for barbershops. Customers can book appointm
 | **Admin** | Manage services & categories, manage barbers, calendar view, analytics dashboard |
 
 **Booking Highlights:**
-- Guest checkout (no account required)
 - Real-time availability based on barber schedules and existing bookings
 - Stripe deposit payments to reduce no-shows
 - Email & SMS reminder notifications
