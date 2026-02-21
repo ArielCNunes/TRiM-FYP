@@ -4,6 +4,7 @@ import type { DashboardStats } from "../../../types";
 import LoadingSpinner from "../../shared/LoadingSpinner";
 import MetricsGrid from "./MetricsGrid";
 import RevenueCards from "./RevenueCards";
+import PopularServices from "./PopularServices";
 import RecentBookingsTable from "./RecentBookingsTable";
 
 export default function AdminDashboard() {
@@ -50,6 +51,7 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <MetricsGrid stats={stats} />
       <RevenueCards stats={stats} />
+      <PopularServices popularServices={stats.popularServices} />
       <RecentBookingsTable recentBookings={stats.recentBookings} />
     </div>
   );

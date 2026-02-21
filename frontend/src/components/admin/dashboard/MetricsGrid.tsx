@@ -6,7 +6,7 @@ interface MetricsGridProps {
 
 export default function MetricsGrid({ stats }: MetricsGridProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
       <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)]">
         <p className="text-sm text-[var(--text-muted)] mb-1">Total Bookings</p>
         <p className="text-3xl font-bold text-[var(--text-primary)]">{stats.totalBookings.toLocaleString()}</p>
@@ -16,6 +16,13 @@ export default function MetricsGrid({ stats }: MetricsGridProps) {
         <p className="text-sm text-[var(--text-muted)] mb-1">Today's Bookings</p>
         <p className="text-3xl font-bold text-[var(--accent-text)]">
           {stats.todaysBookings.toLocaleString()}
+        </p>
+      </div>
+
+      <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)]">
+        <p className="text-sm text-[var(--text-muted)] mb-1">Upcoming Bookings</p>
+        <p className="text-3xl font-bold text-[var(--warning-text)]">
+          {stats.upcomingBookings.toLocaleString()}
         </p>
       </div>
 
