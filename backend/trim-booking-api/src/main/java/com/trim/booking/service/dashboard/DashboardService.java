@@ -63,10 +63,8 @@ public class DashboardService {
         stats.setPopularServices(popularServices);
 
         // Recent bookings (last 5 by creation date)
-        List<Booking> recentBookingsList = bookingRepository.findRecentByBusinessIdOrderByCreatedAtDesc(businessId)
-                .stream()
-                .limit(5)
-                .toList();
+        List<Booking> recentBookingsList = bookingRepository
+                .findTop5ByBusinessIdOrderByCreatedAtDesc(businessId);
 
         List<Map<String, Object>> recentBookings = recentBookingsList.stream()
                 .map(booking -> {

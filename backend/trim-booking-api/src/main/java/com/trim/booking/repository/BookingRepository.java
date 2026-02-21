@@ -70,4 +70,16 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     // Get recent bookings ordered by creation date (for dashboard)
     @Query("SELECT b FROM Booking b WHERE b.business.id = :businessId ORDER BY b.createdAt DESC")
     List<Booking> findRecentByBusinessIdOrderByCreatedAtDesc(@Param("businessId") Long businessId);
+
+    @Query("""
+        SELECT b FROM Booking b
+        JOIN FETCH b.customer
+        JOIN FETCH b.service
+        JOIN FETCH b.barber br
+        JOIN FETCH br.user
+        WHERE b.business.id = :businessId
+        ORDER BY b.createdAt DESC
+        LIMIT 5
+        """)
+    List<Booking> findTop5ByBusinessIdOrderByCreatedAtDesc(@Param("businessId") Long businessId);
 }
