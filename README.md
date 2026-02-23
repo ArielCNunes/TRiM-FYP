@@ -1,4 +1,4 @@
-# TRiM — Barbershop Booking Platform
+# TRiM - A Multi Tenant SaaS Application
 
 **Final Year Project** — BSc (Hons) Computing in Software Development  
 **Student:** Ariel Nunes (G00418763) | **Supervisor:** Andrew Beatty  
