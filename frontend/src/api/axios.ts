@@ -1,11 +1,11 @@
 import axios from "axios";
 
 /**
- * Extract business slug from subdomain or fallback to default
+ * Extract business slug from subdomain or query param
  * Examples:
  *   "v7.localhost" → "v7"
  *   "shop2.trim.com" → "shop2"
- *   "localhost" → "v7-barbers" (default for development)
+ *   "localhost" → "" (no slug)
  */
 export const getBusinessSlug = (): string => {
   const hostname = window.location.hostname;
@@ -27,8 +27,8 @@ export const getBusinessSlug = (): string => {
     return businessParam;
   }
 
-  // Default for development - change this to your business slug
-  return "v7-barbers";
+  // No slug available
+  return "";
 };
 
 /**
@@ -63,8 +63,11 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Always send business slug header
-    config.headers["X-Business-Slug"] = getBusinessSlug();
+    // Send business slug header only when present
+    const businessSlug = getBusinessSlug();
+    if (businessSlug) {
+      config.headers["X-Business-Slug"] = businessSlug;
+    }
 
     return config;
   },

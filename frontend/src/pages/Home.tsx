@@ -72,7 +72,7 @@ export default function Home() {
                   TRiM
                 </h1>
                 {isSubdomain ? (
-                  // Subdomain landing - for customers
+                  // Subdomain landing for customers
                   <>
                     <p className="text-2xl text-[var(--text-secondary)] mb-4">
                       Professional Barbershop Services
@@ -151,7 +151,7 @@ export default function Home() {
 
                     <button
                       onClick={() => navigate("/register-business")}
-                      className="bg-[var(--accent)] text-[var(--text-primary)] px-16 py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-xl shadow-lg shadow-[var(--accent-shadow)] mb-20"
+                      className="bg-[var(--accent)] text-white px-16 py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-xl shadow-lg shadow-[var(--accent-shadow)] mb-20"
                     >
                       Register Your Business
                     </button>
@@ -194,7 +194,7 @@ export default function Home() {
                           Integrated Payments
                         </h3>
                         <p className="text-[var(--text-muted)]">
-                          Accept online payments securely with built-in Stripe integration
+                          Accept online payments securely.
                         </p>
                       </div>
                     </div>
