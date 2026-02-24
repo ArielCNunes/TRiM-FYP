@@ -1,4 +1,5 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart as PieChartIcon } from "lucide-react";
 import type { DashboardStats } from "../../../types";
 
 interface PopularServicesProps {
@@ -16,10 +17,13 @@ const COLORS = [
 export default function PopularServices({ popularServices }: PopularServicesProps) {
     if (!popularServices || popularServices.length === 0) {
         return (
-            <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)]">
-                <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
-                    Popular Services
-                </h2>
+            <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold text-[var(--text-primary)]">
+                        Popular Services
+                    </h2>
+                    <PieChartIcon className="w-5 h-5 text-[var(--text-muted)]" />
+                </div>
                 <p className="text-[var(--text-muted)]">No service data available yet.</p>
             </div>
         );
@@ -34,10 +38,13 @@ export default function PopularServices({ popularServices }: PopularServicesProp
     }));
 
     return (
-        <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)]">
-            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-6">
-                Popular Services
-            </h2>
+        <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-[var(--text-primary)]">
+                    Popular Services
+                </h2>
+                <PieChartIcon className="w-5 h-5 text-[var(--text-muted)]" />
+            </div>
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
                 {/* Pie Chart */}
                 <div className="w-52 h-52 shrink-0">

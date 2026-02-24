@@ -1,3 +1,4 @@
+import { ClipboardList } from "lucide-react";
 import type { DashboardStats } from "../../../types";
 import EmptyState from "../../shared/EmptyState";
 import StatusBadge from "../../shared/StatusBadge";
@@ -10,8 +11,11 @@ export default function RecentBookingsTable({
   recentBookings,
 }: RecentBookingsTableProps) {
   return (
-    <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)]">
-      <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">Recent Bookings</h3>
+    <div className="bg-[var(--bg-surface)] p-6 rounded-lg shadow border border-[var(--border-subtle)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-bold text-[var(--text-primary)]">Recent Bookings</h3>
+        <ClipboardList className="w-5 h-5 text-[var(--text-muted)]" />
+      </div>
       {recentBookings.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full">
