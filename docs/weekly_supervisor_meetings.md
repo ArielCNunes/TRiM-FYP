@@ -304,3 +304,30 @@
 
 #### Next Meeting Date
 **Scheduled:** February 17th, 2026
+
+---
+
+### Meeting 13 - Tuesday 24th of February 2026
+**Duration:** 10 minutes  
+**Location:** Online through Teams
+
+#### Agenda
+- Update supervisor on project/research.
+
+#### Progress Demonstrated
+- Advised supervisor that RLS has been implemented. Moving onto last major component of the application.
+
+#### Technical Discussion
+- Figure out ways of making the application faster and/or more reliable is good but needs something more to get higher marks.
+
+#### Supervisor Feedback
+- 
+
+#### Decisions Made
+- Figure out next implementations steps.
+  
+#### Action Items for Next Meeting
+- 
+
+#### Next Meeting Date
+**Scheduled:** March 3rd, 2026
