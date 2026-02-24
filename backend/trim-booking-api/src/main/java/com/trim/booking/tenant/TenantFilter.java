@@ -6,12 +6,14 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Filter that extracts tenant (business) information from incoming requests
@@ -21,6 +23,7 @@ import java.util.Set;
 public class TenantFilter extends OncePerRequestFilter {
 
     private final BusinessRepository businessRepository;
+    private final ConcurrentHashMap<String, Optional<Business>> slugCache = new ConcurrentHashMap<>();
 
     /**
      * Endpoints that don't require tenant resolution.
@@ -71,7 +74,7 @@ public class TenantFilter extends OncePerRequestFilter {
             }
 
             // Look up the business
-            Optional<Business> business = businessRepository.findBySlug(slug);
+            Optional<Business> business = slugCache.computeIfAbsent(slug, businessRepository::findBySlug);
 
             // Reject if business not found
             if (business.isEmpty()) {
@@ -163,5 +166,10 @@ public class TenantFilter extends OncePerRequestFilter {
         }
 
         return subdomain;
+    }
+
+    @Scheduled(fixedRate = 600000) // 10 minutes
+    public void clearSlugCache() {
+        slugCache.clear();
     }
 }
