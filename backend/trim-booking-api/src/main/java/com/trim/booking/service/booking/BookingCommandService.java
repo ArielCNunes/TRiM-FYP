@@ -13,7 +13,6 @@ import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -57,7 +56,7 @@ public class BookingCommandService {
      * @param paymentMethod Payment method
      * @return Created booking
      */
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     public Booking createBooking(Long customerId, Long barberId, Long serviceId,
                                  LocalDate bookingDate, LocalTime startTime,
                                  String paymentMethod) {
@@ -151,7 +150,7 @@ public class BookingCommandService {
      * @throws ResourceNotFoundException if booking not found
      * @throws BadRequestException       if booking cannot be updated
      */
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     public Booking updateBooking(Long bookingId, UpdateBookingRequest request) {
         // Step 1: Fetch existing booking with tenant validation
         Booking booking = bookingRepository.findByIdAndBusinessId(bookingId, getBusinessId())
