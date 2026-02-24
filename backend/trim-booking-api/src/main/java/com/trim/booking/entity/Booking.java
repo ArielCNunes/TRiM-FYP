@@ -10,7 +10,13 @@ import java.time.LocalTime;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "bookings")
+@Table(name = "bookings", indexes = {
+    @Index(name = "idx_booking_business_barber_date", columnList = "business_id, barber_id, booking_date"),
+    @Index(name = "idx_booking_business_customer", columnList = "business_id, customer_id"),
+    @Index(name = "idx_booking_business_date", columnList = "business_id, booking_date"),
+    @Index(name = "idx_booking_status_expires", columnList = "status, expires_at"),
+    @Index(name = "idx_booking_business_created", columnList = "business_id, created_at DESC")
+})
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
