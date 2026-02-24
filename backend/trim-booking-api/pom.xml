@@ -156,12 +156,10 @@
                 <artifactId>gatling-maven-plugin</artifactId>
                 <version>${gatling-maven-plugin.version}</version>
                 <configuration>
-                    <simulationsFolder>src/test/java</simulationsFolder>
                     <simulationClass>gatling.BookingApiSimulation</simulationClass>
-                    <!-- Skip test compilation, Gatling plugin compiles its own sources -->
-                    <compilerJvmArgs>
-                        <arg>-Xmx1G</arg>
-                    </compilerJvmArgs>
+                    <jvmArgs>
+                        <jvmArg>-Xmx4G</jvmArg>
+                    </jvmArgs>
                 </configuration>
             </plugin>
         </plugins>
