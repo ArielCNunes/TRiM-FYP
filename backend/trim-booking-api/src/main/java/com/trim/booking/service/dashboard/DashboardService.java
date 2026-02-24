@@ -36,7 +36,7 @@ public class DashboardService {
         Long businessId = getBusinessId();
 
         // Basic counts
-        stats.setTotalBookings((long) bookingRepository.findByBusinessIdAndBookingDate(businessId, LocalDate.now()).size());
+        stats.setTotalBookings(bookingRepository.countTodaysBookingsByBusinessId(businessId));
         stats.setTodaysBookings(bookingRepository.countTodaysBookingsByBusinessId(businessId));
         stats.setUpcomingBookings(bookingRepository.countUpcomingBookingsByBusinessId(businessId));
         stats.setActiveCustomers(userRepository.countByBusinessIdAndRole(businessId));
