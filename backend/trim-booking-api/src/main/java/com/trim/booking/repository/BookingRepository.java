@@ -4,6 +4,7 @@ import com.trim.booking.entity.Booking;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -60,6 +61,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "ORDER BY b.business.id")
     List<Booking> findExpiredPendingBookings();
 
+    @Modifying
+    @Query("UPDATE Booking b SET b.status = 'CANCELLED', b.paymentStatus = 'CANCELLED' WHERE b.status = 'PENDING' AND b.expiresAt IS NOT NULL AND b.expiresAt < CURRENT_TIMESTAMP")
+    int cancelAllExpiredPendingBookings();
+
     // Global method for scheduled reminder task - runs across all businesses
     @Query("SELECT b FROM Booking b WHERE b.bookingDate = :bookingDate ORDER BY b.business.id")
     List<Booking> findByBookingDate(@Param("bookingDate") LocalDate bookingDate);
@@ -67,9 +72,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.business.id = :businessId AND b.customer.id = :customerId AND b.status = :status")
     Long countByBusinessIdAndCustomerIdAndStatus(@Param("businessId") Long businessId, @Param("customerId") Long customerId, @Param("status") Booking.BookingStatus status);
 
-    // Get recent bookings ordered by creation date (for dashboard)
-    @Query("SELECT b FROM Booking b WHERE b.business.id = :businessId ORDER BY b.createdAt DESC")
-    List<Booking> findRecentByBusinessIdOrderByCreatedAtDesc(@Param("businessId") Long businessId);
 
     @Query("""
         SELECT b FROM Booking b
