@@ -146,7 +146,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] disabled:text-[var(--text-muted)] text-[var(--text-primary)] font-medium py-2 rounded-md transition shadow-lg shadow-[var(--accent-shadow)]"
+        className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] disabled:text-[var(--text-muted)] text-white font-medium py-2 rounded-md transition shadow-lg shadow-[var(--accent-shadow)]"
       >
         {loading ? "Logging in..." : "Log In"}
       </button>

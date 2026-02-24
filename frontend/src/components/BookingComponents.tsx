@@ -13,8 +13,8 @@ export function StatusBanner({
   return (
     <div
       className={`mb-6 rounded-md border px-4 py-3 text-sm font-medium ${status.type === "success"
-          ? "border-[var(--success-border)] bg-[var(--success-muted)]/20 text-[var(--success-text-light)]"
-          : "border-[var(--danger-border)] bg-[var(--danger-muted)]/20 text-[var(--danger-text-light)]"
+        ? "border-[var(--success-border)] bg-[var(--success-muted)]/20 text-[var(--success-text-light)]"
+        : "border-[var(--danger-border)] bg-[var(--danger-muted)]/20 text-[var(--danger-text-light)]"
         }`}
     >
       {status.message}
@@ -52,7 +52,7 @@ export function StepNavigation({
         <button
           onClick={onContinue}
           disabled={loading}
-          className="bg-[var(--accent)] text-[var(--text-primary)] px-6 py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] shadow-lg shadow-[var(--accent-shadow)]"
+          className="bg-[var(--accent)] text-white px-6 py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] shadow-lg shadow-[var(--accent-shadow)]"
         >
           {continueLabel}
         </button>

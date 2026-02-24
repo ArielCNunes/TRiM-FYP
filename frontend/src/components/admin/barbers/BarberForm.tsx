@@ -223,7 +223,7 @@ export default function BarberForm({ editingBarber, onSuccess, onCancel }: Barbe
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-[var(--accent)] text-[var(--text-primary)] py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] transition"
+            className="flex-1 bg-[var(--accent)] text-white py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] transition"
           >
             {loading
               ? editingBarber

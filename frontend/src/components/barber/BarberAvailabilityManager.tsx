@@ -279,7 +279,7 @@ export default function BarberAvailabilityManager({
           <button
             onClick={handleSave}
             disabled={loading}
-            className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] text-[var(--text-primary)] font-semibold py-3 rounded-md transition mt-4 shadow-lg shadow-[var(--accent-shadow)]"
+            className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] text-white font-semibold py-3 rounded-md transition mt-4 shadow-lg shadow-[var(--accent-shadow)]"
           >
             {loading ? "Saving..." : "Save Availability"}
           </button>

@@ -202,7 +202,7 @@ export default function BarberBreaksManager({
                 {!showAddForm && !editingBreak && (
                     <button
                         onClick={() => setShowAddForm(true)}
-                        className="text-sm bg-[var(--success)] hover:bg-[var(--success-hover)] text-[var(--text-primary)] px-3 py-1.5 rounded-md transition"
+                        className="text-sm bg-[var(--success)] hover:bg-[var(--success-hover)] text-white px-3 py-1.5 rounded-md transition"
                     >
                         + Add Break
                     </button>
@@ -284,7 +284,7 @@ export default function BarberBreaksManager({
                             <button
                                 onClick={editingBreak ? handleUpdateBreak : handleAddBreak}
                                 disabled={saving}
-                                className="flex-1 bg-[var(--success)] hover:bg-[var(--success-hover)] disabled:bg-[var(--bg-muted)] text-[var(--text-primary)] py-2 rounded-md transition text-sm font-medium"
+                                className="flex-1 bg-[var(--success)] hover:bg-[var(--success-hover)] disabled:bg-[var(--bg-muted)] text-white py-2 rounded-md transition text-sm font-medium"
                             >
                                 {saving
                                     ? "Saving..."

@@ -171,7 +171,7 @@ export default function MyBookings() {
           <p className="text-[var(--text-muted)] mb-4">You have no upcoming bookings</p>
           <button
             onClick={() => navigate("/booking")}
-            className="bg-[var(--accent)] text-[var(--text-primary)] px-6 py-2 rounded-md hover:bg-[var(--accent-hover)] shadow-lg shadow-[var(--accent-shadow)]"
+            className="bg-[var(--accent)] text-white px-6 py-2 rounded-md hover:bg-[var(--accent-hover)] shadow-lg shadow-[var(--accent-shadow)]"
           >
             Book Now
           </button>
@@ -304,14 +304,14 @@ export default function MyBookings() {
                 <button
                   onClick={() => handleReschedule(booking)}
                   disabled={cancelling === booking.id}
-                  className="px-6 py-2 bg-[var(--accent)] text-[var(--text-primary)] font-medium rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] transition shadow-lg shadow-[var(--accent-shadow)]"
+                  className="px-6 py-2 bg-[var(--accent)] text-white font-medium rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] transition shadow-lg shadow-[var(--accent-shadow)]"
                 >
                   Reschedule
                 </button>
                 <button
                   onClick={() => handleCancel(booking.id)}
                   disabled={cancelling === booking.id}
-                  className="px-6 py-2 bg-[var(--danger)] text-[var(--text-primary)] font-medium rounded-md hover:bg-[var(--danger-hover)] disabled:bg-[var(--bg-muted)] transition shadow-lg shadow-red-500/20"
+                  className="px-6 py-2 bg-[var(--danger)] text-white font-medium rounded-md hover:bg-[var(--danger-hover)] disabled:bg-[var(--bg-muted)] transition shadow-lg shadow-red-500/20"
                 >
                   {cancelling === booking.id
                     ? "Cancelling..."

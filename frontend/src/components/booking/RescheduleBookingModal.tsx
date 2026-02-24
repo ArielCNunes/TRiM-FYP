@@ -139,13 +139,13 @@ export default function RescheduleBookingModal({
         {/* Header */}
         <div className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] px-6 py-4 rounded-t-lg">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+            <h2 className="text-2xl font-bold text-white">
               Reschedule Appointment
             </h2>
             <button
               onClick={onClose}
               disabled={submitting}
-              className="text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition"
+              className="text-white/90 hover:text-white transition"
             >
               <svg
                 className="w-6 h-6"
@@ -253,8 +253,8 @@ export default function RescheduleBookingModal({
                       type="button"
                       onClick={() => setSelectedTime(slot)}
                       className={`px-3 py-2 rounded-md text-sm font-medium transition ${selectedTime === slot
-                          ? "bg-[var(--accent)] text-[var(--text-primary)] ring-2 ring-[var(--focus-ring)] ring-offset-2 ring-offset-[var(--bg-surface)]"
-                          : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)] border border-[var(--border-default)]"
+                        ? "bg-[var(--accent)] text-white ring-2 ring-[var(--focus-ring)] ring-offset-2 ring-offset-[var(--bg-surface)]"
+                        : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)] border border-[var(--border-default)]"
                         }`}
                       disabled={submitting}
                     >
@@ -313,7 +313,7 @@ export default function RescheduleBookingModal({
             <button
               type="submit"
               disabled={submitting || !selectedDate || !selectedTime}
-              className="px-6 py-2 bg-[var(--accent)] text-[var(--text-primary)] font-medium rounded-md hover:bg-[var(--accent-hover)] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-lg shadow-[var(--accent-shadow)]"
+              className="px-6 py-2 bg-[var(--accent)] text-white font-medium rounded-md hover:bg-[var(--accent-hover)] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-lg shadow-[var(--accent-shadow)]"
             >
               {submitting ? (
                 <>

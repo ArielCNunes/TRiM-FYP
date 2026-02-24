@@ -84,7 +84,7 @@ export default function Home() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
                       <button
                         onClick={() => navigate("/auth")}
-                        className="bg-[var(--accent)] text-[var(--text-primary)] px-12 py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-xl shadow-lg shadow-[var(--accent-shadow)]"
+                        className="bg-[var(--accent)] text-white px-12 py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-xl shadow-lg shadow-[var(--accent-shadow)]"
                       >
                         Sign In
                       </button>
@@ -215,7 +215,7 @@ export default function Home() {
                   <div className="flex gap-4 justify-center">
                     <button
                       onClick={() => navigate("/booking")}
-                      className="bg-[var(--accent)] text-[var(--text-primary)] px-12 py-4 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-lg shadow-lg shadow-[var(--accent-shadow)]"
+                      className="bg-[var(--accent)] text-white px-12 py-4 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-lg shadow-lg shadow-[var(--accent-shadow)]"
                     >
                       Book New Appointment
                     </button>

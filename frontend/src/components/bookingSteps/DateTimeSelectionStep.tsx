@@ -71,8 +71,8 @@ export function DateTimeSelectionStep({
                     key={slot}
                     onClick={() => onTimeSelect(slot)}
                     className={`border rounded-lg p-3 text-center font-semibold transition ${selectedTime === slot
-                        ? "bg-[var(--accent)] text-[var(--text-primary)] border-[var(--accent)]"
-                        : "bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-default)] hover:border-[var(--focus-ring)] hover:text-[var(--text-primary)]"
+                      ? "bg-[var(--accent)] text-white border-[var(--accent)]"
+                      : "bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-default)] hover:border-[var(--focus-ring)] hover:text-[var(--text-primary)]"
                       }`}
                   >
                     {slot}

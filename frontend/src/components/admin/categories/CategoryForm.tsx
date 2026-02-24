@@ -107,7 +107,7 @@ export default function CategoryForm({
                     <button
                         type="submit"
                         disabled={loading || !name.trim()}
-                        className="flex-1 bg-[var(--accent)] text-[var(--text-primary)] py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] disabled:cursor-not-allowed transition"
+                        className="flex-1 bg-[var(--accent)] text-white py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] disabled:cursor-not-allowed transition"
                     >
                         {loading
                             ? editingCategory

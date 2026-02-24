@@ -164,12 +164,12 @@ export function PaymentForm({
           <button
             type="submit"
             disabled={!stripe || isProcessing}
-            className="w-full bg-[var(--accent)] text-[var(--text-primary)] px-6 py-3 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] font-semibold text-lg transition shadow-lg shadow-[var(--accent-shadow)]"
+            className="w-full bg-[var(--accent)] text-white px-6 py-3 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] font-semibold text-lg transition shadow-lg shadow-[var(--accent-shadow)]"
           >
             {isProcessing ? (
               <span className="flex items-center justify-center">
                 <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-[var(--text-primary)]"
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"

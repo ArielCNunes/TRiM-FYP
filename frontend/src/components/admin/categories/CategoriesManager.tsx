@@ -88,7 +88,7 @@ export default function CategoriesManager({ onCategoryClick }: CategoriesManager
                         setEditingCategory(null);
                         setShowForm(!showForm);
                     }}
-                    className="bg-[var(--accent)] text-[var(--text-primary)] px-4 py-2 rounded-md hover:bg-[var(--accent-hover)] transition shadow-lg shadow-[var(--accent-shadow)]"
+                    className="bg-[var(--accent)] text-white px-4 py-2 rounded-md hover:bg-[var(--accent-hover)] transition shadow-lg shadow-[var(--accent-shadow)]"
                 >
                     {showForm && !editingCategory ? "Cancel" : "Add Category"}
                 </button>
