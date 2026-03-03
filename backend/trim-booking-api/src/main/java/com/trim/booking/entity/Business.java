@@ -26,6 +26,12 @@ public class Business {
     @JsonIgnore
     private User adminUser;
 
+    @Column(name = "stripe_account_id")
+    private String stripeAccountId;
+
+    @Column(name = "stripe_onboarding_complete")
+    private Boolean stripeOnboardingComplete = false;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -83,6 +89,22 @@ public class Business {
 
     public void setAdminUser(User adminUser) {
         this.adminUser = adminUser;
+    }
+
+    public String getStripeAccountId() {
+        return stripeAccountId;
+    }
+
+    public void setStripeAccountId(String stripeAccountId) {
+        this.stripeAccountId = stripeAccountId;
+    }
+
+    public Boolean getStripeOnboardingComplete() {
+        return stripeOnboardingComplete;
+    }
+
+    public void setStripeOnboardingComplete(Boolean stripeOnboardingComplete) {
+        this.stripeOnboardingComplete = stripeOnboardingComplete;
     }
 
     public LocalDateTime getCreatedAt() {

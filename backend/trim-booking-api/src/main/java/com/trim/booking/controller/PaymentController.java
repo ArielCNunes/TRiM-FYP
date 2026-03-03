@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.net.Webhook;
+import com.trim.booking.entity.Business;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.service.payment.PaymentService;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -23,13 +25,15 @@ public class PaymentController {
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     private final PaymentService paymentService;
+    private final BusinessRepository businessRepository;
     private final Environment environment;
 
     @Value("${stripe.webhook.secret:}")
     private String webhookSecret;
 
-    public PaymentController(PaymentService paymentService, Environment environment) {
+    public PaymentController(PaymentService paymentService, BusinessRepository businessRepository, Environment environment) {
         this.paymentService = paymentService;
+        this.businessRepository = businessRepository;
         this.environment = environment;
     }
 
@@ -110,6 +114,18 @@ public class PaymentController {
                 if (dataObject.has("metadata") && dataObject.getAsJsonObject("metadata").has("business_id")) {
                     String businessIdStr = dataObject.getAsJsonObject("metadata").get("business_id").getAsString();
                     businessIdFromMetadata = Long.parseLong(businessIdStr);
+                }
+
+                // Verify connected account matches the business's stored stripeAccountId
+                String eventAccount = eventJson.has("account") ? eventJson.get("account").getAsString() : null;
+                if (businessIdFromMetadata != null && eventAccount != null) {
+                    Business business = businessRepository.findById(businessIdFromMetadata).orElse(null);
+                    if (business == null || !eventAccount.equals(business.getStripeAccountId())) {
+                        logger.error("Connected account mismatch. Event account: {}, Business {}: {}",
+                                eventAccount, businessIdFromMetadata,
+                                business != null ? business.getStripeAccountId() : "not found");
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account verification failed");
+                    }
                 }
 
                 logger.info("Processing payment success for: {}, business: {}", paymentIntentId, businessIdFromMetadata);

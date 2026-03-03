@@ -2,8 +2,10 @@ package com.trim.booking.service.payment;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import com.stripe.net.RequestOptions;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.trim.booking.config.RlsBypass;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.Payment;
 import com.trim.booking.repository.BookingRepository;
@@ -97,7 +99,13 @@ public class PaymentService {
             throw new IllegalArgumentException("Deposit amount must be at least 0.50 EUR. Calculated amount was too low.");
         }
 
-        // Create PaymentIntent in Stripe
+        // Verify business has a connected Stripe account
+        Business business = booking.getBusiness();
+        if (business.getStripeAccountId() == null || !Boolean.TRUE.equals(business.getStripeOnboardingComplete())) {
+            throw new RuntimeException("Business has not connected a Stripe account");
+        }
+
+        // Create PaymentIntent in Stripe on the connected account
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount(amountInCents)
                 .setCurrency("eur")
@@ -109,7 +117,11 @@ public class PaymentService {
                         booking.getBarber().getUser().getFirstName())
                 .build();
 
-        PaymentIntent paymentIntent = PaymentIntent.create(params);
+        RequestOptions requestOptions = RequestOptions.builder()
+                .setStripeAccount(business.getStripeAccountId())
+                .build();
+
+        PaymentIntent paymentIntent = PaymentIntent.create(params, requestOptions);
 
         // Create Payment record
         Payment payment = new Payment();
@@ -127,6 +139,7 @@ public class PaymentService {
         response.put("depositAmount", depositAmount);
         response.put("outstandingBalance", outstandingBalance);
         response.put("bookingId", bookingId);
+        response.put("stripeAccountId", business.getStripeAccountId());
 
         return response;
     }
