@@ -56,6 +56,7 @@ export function useBookingFlow() {
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [createdBookingId, setCreatedBookingId] = useState<number | null>(null);
+  const [stripeAccountId, setStripeAccountId] = useState<string | null>(null);
 
   // Fetch services on mount, fetch slots when date changes
   useEffect(() => {
@@ -175,6 +176,7 @@ export function useBookingFlow() {
       setPaymentIntentId(response.data.paymentIntentId);
       setDepositAmount(response.data.depositAmount);
       setOutstandingBalance(response.data.outstandingBalance);
+      setStripeAccountId(response.data.stripeAccountId);
       setStatus(null);
       return true;
     } catch (error: any) {
@@ -236,6 +238,7 @@ export function useBookingFlow() {
     isPaymentProcessing,
     setIsPaymentProcessing,
     createdBookingId,
+    stripeAccountId,
 
     // Status & error handling
     status,

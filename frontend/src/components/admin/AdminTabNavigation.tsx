@@ -1,4 +1,4 @@
-type AdminTab = "dashboard" | "categories" | "services" | "barbers" | "customers";
+type AdminTab = "dashboard" | "categories" | "services" | "barbers" | "customers" | "payments";
 
 interface AdminTabNavigationProps {
   activeTab: AdminTab;
@@ -15,6 +15,7 @@ export default function AdminTabNavigation({
     { id: "services", label: "Services" },
     { id: "barbers", label: "Barbers" },
     { id: "customers", label: "Customers" },
+    { id: "payments", label: "Payments" },
   ];
 
   return (

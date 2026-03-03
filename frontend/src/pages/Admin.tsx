@@ -9,6 +9,7 @@ import CategoriesManager from "../components/admin/categories/CategoriesManager"
 import ServicesManager from "../components/admin/services/ServicesManager";
 import BarbersManager from "../components/admin/barbers/BarbersManager";
 import CustomersManager from "../components/admin/customers/CustomersManager";
+import PaymentsSettings from "../components/admin/payments/PaymentsSettings";
 
 /**
  * Admin Dashboard
@@ -71,6 +72,7 @@ export default function Admin() {
         )}
         {activeTab === "barbers" && <BarbersManager />}
         {activeTab === "customers" && <CustomersManager />}
+        {activeTab === "payments" && <PaymentsSettings />}
       </div>
     </div>
   );

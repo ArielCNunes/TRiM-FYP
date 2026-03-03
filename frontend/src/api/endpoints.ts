@@ -251,7 +251,31 @@ export const paymentsApi = {
       depositAmount: number;
       outstandingBalance: number;
       bookingId: number;
+      stripeAccountId: string;
     }>("/payments/create-intent", { bookingId }),
+};
+
+/** Stripe Connect endpoints for business onboarding (admin only). */
+export const stripeConnectApi = {
+  /** Create a connected account and get the onboarding URL. */
+  createAccount: () =>
+    api.post<{ url: string }>("/stripe-connect/create-account"),
+
+  /** Get a fresh onboarding link (for refresh/retry). */
+  getAccountLink: () =>
+    api.get<{ url: string }>("/stripe-connect/account-link"),
+
+  /** Check onboarding completion status. */
+  getStatus: () =>
+    api.get<{
+      connected: boolean;
+      chargesEnabled: boolean;
+      detailsSubmitted: boolean;
+    }>("/stripe-connect/status"),
+
+  /** Get the Stripe Dashboard URL. */
+  getDashboardLink: () =>
+    api.get<{ url: string }>("/stripe-connect/dashboard-link"),
 };
 
 /** Dashboard endpoints for admin statistics. */

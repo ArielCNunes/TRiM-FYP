@@ -7,10 +7,8 @@ import { DateTimeSelectionStep } from '../components/bookingSteps/DateTimeSelect
 import { ConfirmationStep } from '../components/bookingSteps/ConfirmationStep';
 import { PaymentForm } from '../components/bookingSteps/PaymentForm';
 import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import { getStripePromise } from '../config/stripe';
 import { useTheme } from '../context/ThemeContext';
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 /**
  * BookingFlow Page
@@ -202,6 +200,7 @@ export default function BookingFlow() {
   // STEP 5: PAYMENT
   // ============================================
   if (bookingFlow.currentStep === 'payment' && bookingFlow.clientSecret) {
+    const stripePromise = getStripePromise(bookingFlow.stripeAccountId || undefined);
     return (
       <Elements stripe={stripePromise} options={{ clientSecret: bookingFlow.clientSecret, appearance: stripeAppearance }}>
         <PaymentForm
