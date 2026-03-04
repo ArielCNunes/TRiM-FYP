@@ -105,48 +105,6 @@ booking-system-fyp/
 
 ---
 
-## Quick Start
-
-### Prerequisites
-
-- **Java 21** and **Maven 3.9+**
-- **Node.js 20+** and **npm**
-- **PostgreSQL 15+**
-- Accounts for **Stripe**, **Twilio**, and a **Gmail** app password (for notifications)
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/<your-username>/booking-system-fyp.git
-cd booking-system-fyp
-```
-
-### 2. Start the backend
-
-See the full [Backend README](backend/README.md) for detailed environment and database setup.
-
-```bash
-cd backend/trim-booking-api
-# Create a .env file with required variables (see backend README)
-./mvnw spring-boot:run
-```
-
-The API will be available at `http://localhost:8080`. Swagger UI is at `http://localhost:8080/swagger-ui.html`.
-
-### 3. Start the frontend
-
-See the full [Frontend README](frontend/README.md) for configuration details.
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The app will be available at `http://localhost:3000`.
-
----
-
 ## API Documentation
 
 When the backend is running, interactive API documentation is available via Swagger UI:
