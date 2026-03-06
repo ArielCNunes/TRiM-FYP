@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +16,21 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:}")
+    @Value("${jwt.secret}")
     private String secretKey;
+
+    @PostConstruct
+    public void validateSecret() {
+        if (secretKey == null || secretKey.isBlank()) {
+            throw new IllegalStateException(
+                    "jwt.secret must be configured. Set the JWT_SECRET environment variable.");
+        }
+        if (secretKey.getBytes().length < 32) {
+            throw new IllegalStateException(
+                    "jwt.secret must be at least 32 bytes (256 bits) for HS256. " +
+                            "Current length: " + secretKey.getBytes().length + " bytes.");
+        }
+    }
 
     // Token expirees in 24 hours
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
