@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,7 +35,7 @@ public class DashboardService {
         Long businessId = getBusinessId();
 
         // Basic counts
-        stats.setTotalBookings(bookingRepository.countTodaysBookingsByBusinessId(businessId));
+        stats.setTotalBookings(bookingRepository.countByBusinessId(businessId));
         stats.setTodaysBookings(bookingRepository.countTodaysBookingsByBusinessId(businessId));
         stats.setUpcomingBookings(bookingRepository.countUpcomingBookingsByBusinessId(businessId));
         stats.setActiveCustomers(userRepository.countByBusinessIdAndRole(businessId));
