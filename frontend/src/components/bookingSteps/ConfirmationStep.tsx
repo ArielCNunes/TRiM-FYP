@@ -85,6 +85,7 @@ export function ConfirmationStep({
         </button>
         <button
           onClick={onConfirm}
+          disabled={submitting}
           className="flex-1 bg-[var(--accent)] text-white px-6 py-2 rounded-md hover:bg-[var(--accent-hover)] disabled:bg-[var(--bg-muted)] shadow-lg shadow-[var(--accent-shadow)]"
         >
           {submitting ? "Creating Booking..." : "Confirm Booking"}
