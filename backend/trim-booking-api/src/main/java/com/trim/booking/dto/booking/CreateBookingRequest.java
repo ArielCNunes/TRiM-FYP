@@ -1,5 +1,6 @@
 package com.trim.booking.dto.booking;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ public class CreateBookingRequest {
     private Long serviceId;
 
     @NotNull(message = "Booking date is required")
+    @FutureOrPresent(message = "Booking date cannot be in the past")
     private LocalDate bookingDate;
 
     @NotNull(message = "Start time is required")
