@@ -33,6 +33,7 @@ export function PaymentForm({
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showExpressCheckout, setShowExpressCheckout] = useState(true);
+  const paymentReturnUrl = `${window.location.origin}/my-bookings`;
 
   const handleExpressCheckoutConfirm = async (_event: StripeExpressCheckoutElementConfirmEvent) => {
     if (!stripe || !elements) {
@@ -46,7 +47,7 @@ export function PaymentForm({
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/booking-success`,
+          return_url: paymentReturnUrl,
         },
         redirect: "if_required",
       });
@@ -80,7 +81,7 @@ export function PaymentForm({
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/booking-success`,
+          return_url: paymentReturnUrl,
         },
         redirect: "if_required",
       });
