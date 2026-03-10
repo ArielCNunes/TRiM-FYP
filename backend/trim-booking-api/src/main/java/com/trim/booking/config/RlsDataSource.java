@@ -5,8 +5,8 @@ import org.springframework.jdbc.datasource.DelegatingDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * A DataSource wrapper that sets the PostgreSQL session variable
@@ -42,9 +42,10 @@ public class RlsDataSource extends DelegatingDataSource {
         if (TenantContext.isSet()) {
             Long businessId = TenantContext.getCurrentBusinessId();
             if (businessId != null) {
-                try (Statement stmt = connection.createStatement()) {
-                    // Use SET LOCAL so the variable is transaction-scoped.
-                    stmt.execute("SET LOCAL app.current_business_id = '" + businessId + "'");
+                try (PreparedStatement pstmt = connection.prepareStatement(
+                        "SELECT set_config('app.current_business_id', ?, true)")) {
+                    pstmt.setString(1, String.valueOf(businessId));
+                    pstmt.execute();
                 }
             }
         }

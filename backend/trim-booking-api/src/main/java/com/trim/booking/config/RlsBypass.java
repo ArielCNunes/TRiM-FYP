@@ -32,8 +32,9 @@ public class RlsBypass {
      */
     public <T> T executeWithoutRls(Supplier<T> action) {
         // Drop to bypass value — '0' is never a real business_id
-        entityManager.createNativeQuery("SET LOCAL app.current_business_id = '0'")
-                .executeUpdate();
+        entityManager.createNativeQuery("SELECT set_config('app.current_business_id', ?1, true)")
+                .setParameter(1, "0")
+                .getSingleResult();
         try {
             return action.get();
         } finally {
@@ -41,8 +42,9 @@ public class RlsBypass {
             Long businessId = TenantContext.getCurrentBusinessId();
             if (businessId != null) {
                 entityManager.createNativeQuery(
-                        "SET LOCAL app.current_business_id = '" + businessId + "'"
-                ).executeUpdate();
+                        "SELECT set_config('app.current_business_id', ?1, true)"
+                ).setParameter(1, String.valueOf(businessId))
+                .getSingleResult();
             }
         }
     }
