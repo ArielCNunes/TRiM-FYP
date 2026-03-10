@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.trim.booking.dto.auth.LoginRequest;
 import com.trim.booking.entity.Barber;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
 import com.trim.booking.repository.BarberRepository;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,9 @@ class AuthControllerLoginIntegrationTest {
     @Autowired
     private BarberRepository barberRepository;
 
+    @Autowired
+    private BusinessRepository businessRepository;
+
     private ObjectMapper objectMapper;
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -52,6 +57,7 @@ class AuthControllerLoginIntegrationTest {
     private User barberUser;
     private User admin;
     private Barber barber;
+    private Business business;
 
     private static final String VALID_PASSWORD = "password123";
 
@@ -60,11 +66,16 @@ class AuthControllerLoginIntegrationTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         passwordEncoder = new BCryptPasswordEncoder();
+
+        // Create a business (persists across all tests in this class)
+        business = new Business();
+        business.setName("Test Barbershop");
+        business = businessRepository.save(business);
     }
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test
+        // Clean up before each test (business persists from @BeforeAll)
         barberRepository.deleteAll();
         userRepository.deleteAll();
 
@@ -76,6 +87,7 @@ class AuthControllerLoginIntegrationTest {
         customer.setPasswordHash(passwordEncoder.encode(VALID_PASSWORD));
         customer.setPhone("+353871234567");
         customer.setRole(User.Role.CUSTOMER);
+        customer.setBusiness(business);
         customer = userRepository.save(customer);
 
         // Create a barber user
@@ -86,6 +98,7 @@ class AuthControllerLoginIntegrationTest {
         barberUser.setPasswordHash(passwordEncoder.encode(VALID_PASSWORD));
         barberUser.setPhone("+353877654321");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create barber entity linked to barber user
@@ -93,6 +106,7 @@ class AuthControllerLoginIntegrationTest {
         barber.setUser(barberUser);
         barber.setBio("Expert barber");
         barber.setActive(true);
+        barber.setBusiness(business);
         barber = barberRepository.save(barber);
 
         // Create an admin
@@ -103,6 +117,7 @@ class AuthControllerLoginIntegrationTest {
         admin.setPasswordHash(passwordEncoder.encode(VALID_PASSWORD));
         admin.setPhone("+353879999999");
         admin.setRole(User.Role.ADMIN);
+        admin.setBusiness(business);
         admin = userRepository.save(admin);
     }
 
@@ -117,6 +132,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(customer.getId()))
@@ -126,7 +142,8 @@ class AuthControllerLoginIntegrationTest {
                 .andExpect(jsonPath("$.role").value("CUSTOMER"))
                 .andExpect(jsonPath("$.token").exists())
                 .andExpect(jsonPath("$.token").isNotEmpty())
-                .andExpect(jsonPath("$.barberId").isEmpty());
+                .andExpect(jsonPath("$.barberId").isEmpty())
+                .andExpect(jsonPath("$.businessSlug").value(business.getSlug()));
     }
 
     @Test
@@ -138,6 +155,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(barberUser.getId()))
@@ -146,7 +164,8 @@ class AuthControllerLoginIntegrationTest {
                 .andExpect(jsonPath("$.lastName").value("Barber"))
                 .andExpect(jsonPath("$.role").value("BARBER"))
                 .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.barberId").value(barber.getId()));
+                .andExpect(jsonPath("$.barberId").value(barber.getId()))
+                .andExpect(jsonPath("$.businessSlug").value(business.getSlug()));
     }
 
     @Test
@@ -158,6 +177,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(admin.getId()))
@@ -166,7 +186,8 @@ class AuthControllerLoginIntegrationTest {
                 .andExpect(jsonPath("$.lastName").value("User"))
                 .andExpect(jsonPath("$.role").value("ADMIN"))
                 .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.barberId").isEmpty());
+                .andExpect(jsonPath("$.barberId").isEmpty())
+                .andExpect(jsonPath("$.businessSlug").value(business.getSlug()));
     }
 
     @Test
@@ -178,6 +199,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value(matchesPattern("^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$")));
@@ -194,6 +216,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value(containsString("Invalid email or password")));
@@ -208,6 +231,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value(containsString("Invalid email or password")));
@@ -222,6 +246,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
     }
@@ -236,6 +261,7 @@ class AuthControllerLoginIntegrationTest {
 
         String wrongEmailResponse = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(wrongEmailRequest)))
                 .andExpect(status().isUnauthorized())
                 .andReturn().getResponse().getContentAsString();
@@ -247,6 +273,7 @@ class AuthControllerLoginIntegrationTest {
 
         String wrongPasswordResponse = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(wrongPasswordRequest)))
                 .andExpect(status().isUnauthorized())
                 .andReturn().getResponse().getContentAsString();
@@ -269,6 +296,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
@@ -282,6 +310,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
@@ -295,6 +324,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
@@ -308,6 +338,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
@@ -321,6 +352,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
@@ -339,6 +371,7 @@ class AuthControllerLoginIntegrationTest {
         // If case-sensitive: expect 401
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Business-Slug", business.getSlug())
                 .content(objectMapper.writeValueAsString(request)));
         // Not asserting specific result - just documenting behavior
     }
@@ -353,6 +386,7 @@ class AuthControllerLoginIntegrationTest {
         // Depends on whether service trims email
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Business-Slug", business.getSlug())
                 .content(objectMapper.writeValueAsString(request)));
     }
 
@@ -367,6 +401,7 @@ class AuthControllerLoginIntegrationTest {
         specialUser.setPasswordHash(passwordEncoder.encode("P@ss!w0rd#$%"));
         specialUser.setPhone("+353871111111");
         specialUser.setRole(User.Role.CUSTOMER);
+        specialUser.setBusiness(business);
         userRepository.save(specialUser);
 
         LoginRequest request = new LoginRequest();
@@ -375,6 +410,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").exists());
@@ -391,6 +427,7 @@ class AuthControllerLoginIntegrationTest {
         unicodeUser.setPasswordHash(passwordEncoder.encode("пароль123"));
         unicodeUser.setPhone("+353872222222");
         unicodeUser.setRole(User.Role.CUSTOMER);
+        unicodeUser.setBusiness(business);
         userRepository.save(unicodeUser);
 
         LoginRequest request = new LoginRequest();
@@ -399,6 +436,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").exists());
@@ -417,6 +455,7 @@ class AuthControllerLoginIntegrationTest {
         orphanBarberUser.setPasswordHash(passwordEncoder.encode(VALID_PASSWORD));
         orphanBarberUser.setPhone("+353873333333");
         orphanBarberUser.setRole(User.Role.BARBER);
+        orphanBarberUser.setBusiness(business);
         userRepository.save(orphanBarberUser);
 
         LoginRequest request = new LoginRequest();
@@ -425,6 +464,7 @@ class AuthControllerLoginIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.role").value("BARBER"))
@@ -438,6 +478,7 @@ class AuthControllerLoginIntegrationTest {
     void login_InvalidJson_ReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content("{ invalid json }"))
                 .andExpect(status().isBadRequest());
     }
@@ -447,6 +488,7 @@ class AuthControllerLoginIntegrationTest {
     void login_NonJsonContentType_ReturnsError() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.TEXT_PLAIN)
+                        .header("X-Business-Slug", business.getSlug())
                         .content("email=customer@test.com&password=password123"))
                 .andExpect(status().is5xxServerError()); // GlobalExceptionHandler converts to 500
     }
