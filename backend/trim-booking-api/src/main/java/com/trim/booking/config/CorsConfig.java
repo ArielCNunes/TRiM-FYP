@@ -23,13 +23,10 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow subdomain-based origins for multi-tenancy
-        // In production, you'd want to validate these dynamically or use a pattern
+        // Allow configured local origins and explicit production origins
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://" + baseDomain + ":" + frontendPort,
-                "http://*." + baseDomain + ":" + frontendPort,
-                "https://*.trim.com",
-                "https://trim.com"
+                "http://*." + baseDomain + ":" + frontendPort
         ));
 
         configuration.setAllowedMethods(Arrays.asList(
