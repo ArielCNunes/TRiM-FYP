@@ -4,8 +4,8 @@ services:
     container_name: postgres_local
     restart: always
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
+      POSTGRES_USER: ${DB_USERNAME:-root}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
       POSTGRES_DB: barbershop_db
     ports:
       - "5433:5432"
