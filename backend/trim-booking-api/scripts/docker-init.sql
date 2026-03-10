@@ -33,14 +33,20 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 ALTER DATABASE barbershop_db SET app.current_business_id = '0';
 
   -- 3. Enable RLS on all tenant-scoped tables
+  -- Sentinel values:
+  --   '0'  — database default, matches no real business → sees nothing (safe)
+  --   '-1' — explicit bypass set by RlsBypass → sees all rows (intentional)
+  --   '1', '2', … — normal tenant IDs → sees own data only
 
   -- USERS
 ALTER TABLE IF EXISTS users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS users FORCE ROW LEVEL SECURITY;
 DO $$ BEGIN
       CREATE POLICY tenant_isolation_users ON users
-          USING (business_id = current_setting('app.current_business_id')::bigint)
-          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint);
+          USING (business_id = current_setting('app.current_business_id')::bigint
+                 OR current_setting('app.current_business_id') = '-1')
+          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint
+                      OR current_setting('app.current_business_id') = '-1');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -49,8 +55,10 @@ ALTER TABLE IF EXISTS barbers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS barbers FORCE ROW LEVEL SECURITY;
 DO $$ BEGIN
       CREATE POLICY tenant_isolation_barbers ON barbers
-          USING (business_id = current_setting('app.current_business_id')::bigint)
-          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint);
+          USING (business_id = current_setting('app.current_business_id')::bigint
+                 OR current_setting('app.current_business_id') = '-1')
+          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint
+                      OR current_setting('app.current_business_id') = '-1');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -59,8 +67,10 @@ ALTER TABLE IF EXISTS bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS bookings FORCE ROW LEVEL SECURITY;
 DO $$ BEGIN
       CREATE POLICY tenant_isolation_bookings ON bookings
-          USING (business_id = current_setting('app.current_business_id')::bigint)
-          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint);
+          USING (business_id = current_setting('app.current_business_id')::bigint
+                 OR current_setting('app.current_business_id') = '-1')
+          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint
+                      OR current_setting('app.current_business_id') = '-1');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -69,8 +79,10 @@ ALTER TABLE IF EXISTS barber_availability ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS barber_availability FORCE ROW LEVEL SECURITY;
 DO $$ BEGIN
       CREATE POLICY tenant_isolation_barber_availability ON barber_availability
-          USING (business_id = current_setting('app.current_business_id')::bigint)
-          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint);
+          USING (business_id = current_setting('app.current_business_id')::bigint
+                 OR current_setting('app.current_business_id') = '-1')
+          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint
+                      OR current_setting('app.current_business_id') = '-1');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -79,8 +91,10 @@ ALTER TABLE IF EXISTS barber_breaks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS barber_breaks FORCE ROW LEVEL SECURITY;
 DO $$ BEGIN
       CREATE POLICY tenant_isolation_barber_breaks ON barber_breaks
-          USING (business_id = current_setting('app.current_business_id')::bigint)
-          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint);
+          USING (business_id = current_setting('app.current_business_id')::bigint
+                 OR current_setting('app.current_business_id') = '-1')
+          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint
+                      OR current_setting('app.current_business_id') = '-1');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -89,8 +103,10 @@ ALTER TABLE IF EXISTS payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS payments FORCE ROW LEVEL SECURITY;
 DO $$ BEGIN
       CREATE POLICY tenant_isolation_payments ON payments
-          USING (business_id = current_setting('app.current_business_id')::bigint)
-          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint);
+          USING (business_id = current_setting('app.current_business_id')::bigint
+                 OR current_setting('app.current_business_id') = '-1')
+          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint
+                      OR current_setting('app.current_business_id') = '-1');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -99,8 +115,10 @@ ALTER TABLE IF EXISTS services_offered ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS services_offered FORCE ROW LEVEL SECURITY;
 DO $$ BEGIN
       CREATE POLICY tenant_isolation_services_offered ON services_offered
-          USING (business_id = current_setting('app.current_business_id')::bigint)
-          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint);
+          USING (business_id = current_setting('app.current_business_id')::bigint
+                 OR current_setting('app.current_business_id') = '-1')
+          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint
+                      OR current_setting('app.current_business_id') = '-1');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -109,7 +127,9 @@ ALTER TABLE IF EXISTS service_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS service_categories FORCE ROW LEVEL SECURITY;
 DO $$ BEGIN
       CREATE POLICY tenant_isolation_service_categories ON service_categories
-          USING (business_id = current_setting('app.current_business_id')::bigint)
-          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint);
+          USING (business_id = current_setting('app.current_business_id')::bigint
+                 OR current_setting('app.current_business_id') = '-1')
+          WITH CHECK (business_id = current_setting('app.current_business_id')::bigint
+                      OR current_setting('app.current_business_id') = '-1');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
