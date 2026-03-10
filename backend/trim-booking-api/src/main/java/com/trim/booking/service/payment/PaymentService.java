@@ -4,7 +4,6 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.net.RequestOptions;
 import com.stripe.param.PaymentIntentCreateParams;
-import com.trim.booking.config.RlsBypass;
 import com.trim.booking.entity.Business;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.Payment;
@@ -13,6 +12,8 @@ import com.trim.booking.repository.PaymentRepository;
 import com.trim.booking.service.notification.EmailService;
 import com.trim.booking.service.notification.SmsService;
 import com.trim.booking.tenant.TenantContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -34,20 +35,20 @@ public class PaymentService {
     private final DepositCalculationService depositCalculationService;
     private final EmailService emailService;
     private final SmsService smsService;
-    private final RlsBypass rlsBypass;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public PaymentService(PaymentRepository paymentRepository,
                           BookingRepository bookingRepository,
                           DepositCalculationService depositCalculationService,
                           EmailService emailService,
-                          SmsService smsService,
-                          RlsBypass rlsBypass) {
+                          SmsService smsService) {
         this.paymentRepository = paymentRepository;
         this.bookingRepository = bookingRepository;
         this.depositCalculationService = depositCalculationService;
         this.emailService = emailService;
         this.smsService = smsService;
-        this.rlsBypass = rlsBypass;
     }
 
     private Long getBusinessId() {
@@ -155,41 +156,62 @@ public class PaymentService {
      */
     @Transactional
     public void handlePaymentSuccess(String paymentIntentId, Long businessIdFromMetadata) {
-        rlsBypass.runWithoutRls(() -> {
-            Payment payment = paymentRepository.findByStripePaymentIntentId(paymentIntentId)
-                    .orElseThrow(() -> new RuntimeException("Payment not found"));
+        // Set RLS context inside the transaction via EntityManager so SET LOCAL
+        // persists for all queries. RlsDataSource's connection-checkout set_config
+        // runs before the transaction BEGIN, so SET LOCAL has no effect there.
+        if (businessIdFromMetadata != null && entityManager != null) {
+            entityManager.createNativeQuery("SELECT set_config('app.current_business_id', ?1, true)")
+                    .setParameter(1, String.valueOf(businessIdFromMetadata))
+                    .getSingleResult();
+        }
 
-            // Add business validation
-            Booking booking = payment.getBooking();
-            if (booking == null || booking.getBusiness() == null) {
-                throw new RuntimeException("Invalid payment - no associated business");
-            }
+        processPaymentSuccess(paymentIntentId, businessIdFromMetadata);
+    }
 
-            // Verify business_id from Stripe metadata matches the booking's business
-            Long bookingBusinessId = booking.getBusiness().getId();
-            if (businessIdFromMetadata != null && !businessIdFromMetadata.equals(bookingBusinessId)) {
-                logger.error("Business ID mismatch. Metadata: {}, Booking: {}", businessIdFromMetadata, bookingBusinessId);
-                throw new RuntimeException("Payment business verification failed - potential cross-tenant attack");
-            }
+    /**
+     * Overload without business ID for backward compatibility.
+     *
+     * @param paymentIntentId Stripe PaymentIntent ID
+     */
+    @Transactional
+    public void handlePaymentSuccess(String paymentIntentId) {
+        processPaymentSuccess(paymentIntentId, null);
+    }
 
-            // Log the business context for audit
-            logger.info("Processing payment for business: {}", bookingBusinessId);
+    private void processPaymentSuccess(String paymentIntentId, Long businessIdFromMetadata) {
+        Payment payment = paymentRepository.findByStripePaymentIntentId(paymentIntentId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
 
-            // Update payment record
-            payment.setStatus(Payment.PaymentStatus.SUCCEEDED);
-            paymentRepository.save(payment);
+        // Add business validation
+        Booking booking = payment.getBooking();
+        if (booking == null || booking.getBusiness() == null) {
+            throw new RuntimeException("Invalid payment - no associated business");
+        }
 
-            // Update booking to CONFIRMED
-            booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
-            booking.setStatus(Booking.BookingStatus.CONFIRMED);
-            booking.setExpiresAt(null); // Clear expiry if booking is confirmed
-            bookingRepository.save(booking);
+        // Verify business_id from Stripe metadata matches the booking's business
+        Long bookingBusinessId = booking.getBusiness().getId();
+        if (businessIdFromMetadata != null && !businessIdFromMetadata.equals(bookingBusinessId)) {
+            logger.error("Business ID mismatch. Metadata: {}, Booking: {}", businessIdFromMetadata, bookingBusinessId);
+            throw new RuntimeException("Payment business verification failed - potential cross-tenant attack");
+        }
 
-            // Send confirmation notifications asynchronously
-            emailService.sendBookingConfirmation(booking);
-            smsService.sendBookingConfirmation(booking);
+        // Log the business context for audit
+        logger.info("Processing payment for business: {}", bookingBusinessId);
 
-            logger.info("Deposit payment succeeded for booking: {}", booking.getId());
-        });
+        // Update payment record
+        payment.setStatus(Payment.PaymentStatus.SUCCEEDED);
+        paymentRepository.save(payment);
+
+        // Update booking to CONFIRMED
+        booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
+        booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking.setExpiresAt(null); // Clear expiry if booking is confirmed
+        bookingRepository.save(booking);
+
+        // Send confirmation notifications asynchronously
+        emailService.sendBookingConfirmation(booking);
+        smsService.sendBookingConfirmation(booking);
+
+        logger.info("Deposit payment succeeded for booking: {}", booking.getId());
     }
 }

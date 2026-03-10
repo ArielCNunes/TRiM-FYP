@@ -10,14 +10,21 @@ import java.util.function.Supplier;
 /**
  * Utility for executing operations that need to bypass Row-Level Security.
  *
- * This temporarily sets app.current_business_id to '0' (the bypass value),
+ * This temporarily sets app.current_business_id to '-1' (the bypass sentinel),
  * then restores the original tenant value after the operation completes.
+ *
+ * Sentinel values:
+ *   '0'  — database default, matches no real business → sees nothing (safe)
+ *   '-1' — explicit bypass, RLS policies grant access to all rows (intentional)
+ *   '1', '2', … — normal tenant IDs → sees own data only
  *
  * Must be called within an active @Transactional context: SET LOCAL
  * only persists for the duration of a transaction.
  */
 @Component
 public class RlsBypass {
+
+    private static final String BYPASS_SENTINEL = "-1";
 
     @Autowired
     private EntityManager entityManager;
@@ -31,9 +38,9 @@ public class RlsBypass {
      * @return The result of the action
      */
     public <T> T executeWithoutRls(Supplier<T> action) {
-        // Drop to bypass value — '0' is never a real business_id
+        // Set to bypass sentinel — '-1' is never a real business_id
         entityManager.createNativeQuery("SELECT set_config('app.current_business_id', ?1, true)")
-                .setParameter(1, "0")
+                .setParameter(1, BYPASS_SENTINEL)
                 .getSingleResult();
         try {
             return action.get();

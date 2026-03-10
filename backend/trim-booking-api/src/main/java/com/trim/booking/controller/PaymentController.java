@@ -7,6 +7,7 @@ import com.stripe.net.Webhook;
 import com.trim.booking.entity.Business;
 import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.service.payment.PaymentService;
+import com.trim.booking.tenant.TenantContext;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,6 +116,10 @@ public class PaymentController {
                     String businessIdStr = dataObject.getAsJsonObject("metadata").get("business_id").getAsString();
                     businessIdFromMetadata = Long.parseLong(businessIdStr);
                 }
+
+                // Set tenant context before any DB call so RlsDataSource sets the
+                // correct app.current_business_id on the first connection checkout
+                TenantContext.setCurrentBusiness(businessIdFromMetadata, null);
 
                 // Verify connected account matches the business's stored stripeAccountId
                 String eventAccount = eventJson.has("account") ? eventJson.get("account").getAsString() : null;
