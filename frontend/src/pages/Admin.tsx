@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAppSelector } from "../store/hooks";
-import { useNavigate } from "react-router-dom";
 import AdminTabNavigation, {
   type AdminTab,
 } from "../components/admin/AdminTabNavigation";
@@ -20,8 +19,7 @@ import PaymentsSettings from "../components/admin/payments/PaymentsSettings";
  * 3. View all services and barbers in the system
  */
 export default function Admin() {
-  const navigate = useNavigate();
-  const user = useAppSelector((state) => state.auth.user);
+  const user = useAppSelector((state) => state.auth.user)!;
 
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -39,21 +37,6 @@ export default function Admin() {
     }
     setActiveTab(tab);
   };
-
-  // Verify admin role - redirect if unauthorized (after all hooks)
-  if (!user || user.role !== "ADMIN") {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-red-600">Access denied. Admin role required.</p>
-        <button
-          onClick={() => navigate("/")}
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md"
-        >
-          Go Home
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">

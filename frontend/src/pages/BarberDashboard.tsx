@@ -12,24 +12,8 @@ type BarberTab = "availability" | "bookings";
  * Barber Dashboard - Main dashboard for barbers to manage their availability and bookings
  */
 export default function BarberDashboard() {
-  const user = useAppSelector((state) => state.auth.user);
+  const user = useAppSelector((state) => state.auth.user)!;
   const [activeTab, setActiveTab] = useState<BarberTab>("bookings");
-
-  if (!user) {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-red-600">Please log in</p>
-      </div>
-    );
-  }
-
-  if (user.role !== "BARBER") {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-red-600">Access denied</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
@@ -45,8 +29,8 @@ export default function BarberDashboard() {
           <button
             onClick={() => setActiveTab("bookings")}
             className={`px-6 py-3 font-semibold transition ${activeTab === "bookings"
-                ? "border-b-2 border-[var(--focus-ring)] text-[var(--accent-text)]"
-                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              ? "border-b-2 border-[var(--focus-ring)] text-[var(--accent-text)]"
+              : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
           >
             My Bookings
@@ -54,8 +38,8 @@ export default function BarberDashboard() {
           <button
             onClick={() => setActiveTab("availability")}
             className={`px-6 py-3 font-semibold transition ${activeTab === "availability"
-                ? "border-b-2 border-[var(--focus-ring)] text-[var(--accent-text)]"
-                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              ? "border-b-2 border-[var(--focus-ring)] text-[var(--accent-text)]"
+              : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
           >
             Availability

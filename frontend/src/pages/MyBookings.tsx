@@ -15,7 +15,7 @@ import RescheduleBookingModal from "../components/booking/RescheduleBookingModal
  */
 export default function MyBookings() {
   const navigate = useNavigate();
-  const user = useAppSelector((state) => state.auth.user);
+  const user = useAppSelector((state) => state.auth.user)!;
 
   // Local state for bookings list, loading indicator, and in-flight cancellation
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
@@ -32,21 +32,6 @@ export default function MyBookings() {
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
   const [bookingToReschedule, setBookingToReschedule] =
     useState<BookingResponse | null>(null);
-
-  // Redirect if not authenticated
-  if (!user) {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-[var(--danger-text)]">Please log in to view your bookings</p>
-        <button
-          onClick={() => navigate("/login")}
-          className="mt-4 bg-[var(--accent)] text-[var(--text-primary)] px-4 py-2 rounded-md"
-        >
-          Go to Login
-        </button>
-      </div>
-    );
-  }
 
   // Fetch bookings once when the page mounts
   useEffect(() => {

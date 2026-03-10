@@ -8,6 +8,7 @@ import BarberDashboard from "@/pages/BarberDashboard";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import RegisterBusiness from "@/pages/RegisterBusiness";
+import ProtectedRoute from "./ProtectedRoute";
 
 /**
  * AppRoutes Component
@@ -26,16 +27,28 @@ export default function AppRoutes() {
       <Route path="/booking" element={<BookingFlow />} />
 
       {/* Admin page route */}
-      <Route path="/admin" element={<Admin />} />
+      <Route path="/admin" element={
+        <ProtectedRoute roles={["ADMIN"]}>
+          <Admin />
+        </ProtectedRoute>
+      } />
 
       {/* My Bookings page route */}
-      <Route path="/my-bookings" element={<MyBookings />} />
+      <Route path="/my-bookings" element={
+        <ProtectedRoute>
+          <MyBookings />
+        </ProtectedRoute>
+      } />
 
       {/* Auth page route */}
       <Route path="/auth" element={<Auth />} />
 
       {/* Barber Dashboard route */}
-      <Route path="/barber" element={<BarberDashboard />} />
+      <Route path="/barber" element={
+        <ProtectedRoute roles={["BARBER"]}>
+          <BarberDashboard />
+        </ProtectedRoute>
+      } />
 
       {/* Password Reset routes */}
       <Route path="/forgot-password" element={<ForgotPassword />} />
