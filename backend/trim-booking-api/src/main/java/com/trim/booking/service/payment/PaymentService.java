@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -186,6 +187,7 @@ public class PaymentService {
 
         // Update payment record
         payment.setStatus(Payment.PaymentStatus.SUCCEEDED);
+        payment.setPaymentDate(LocalDateTime.now());
         paymentRepository.save(payment);
 
         // Update booking to CONFIRMED
