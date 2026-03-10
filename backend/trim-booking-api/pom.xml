@@ -11,8 +11,8 @@
     <groupId>com.barbershop</groupId>
     <artifactId>trim-booking-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>v7-booking-api</name>
-    <description>v7-booking-api</description>
+    <name>trim-booking-api</name>
+    <description>trim-booking-api</description>
     <url/>
     <licenses>
         <license/>
