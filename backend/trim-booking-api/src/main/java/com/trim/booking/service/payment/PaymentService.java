@@ -165,20 +165,6 @@ public class PaymentService {
                     .getSingleResult();
         }
 
-        processPaymentSuccess(paymentIntentId, businessIdFromMetadata);
-    }
-
-    /**
-     * Overload without business ID for backward compatibility.
-     *
-     * @param paymentIntentId Stripe PaymentIntent ID
-     */
-    @Transactional
-    public void handlePaymentSuccess(String paymentIntentId) {
-        processPaymentSuccess(paymentIntentId, null);
-    }
-
-    private void processPaymentSuccess(String paymentIntentId, Long businessIdFromMetadata) {
         Payment payment = paymentRepository.findByStripePaymentIntentId(paymentIntentId)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
 
