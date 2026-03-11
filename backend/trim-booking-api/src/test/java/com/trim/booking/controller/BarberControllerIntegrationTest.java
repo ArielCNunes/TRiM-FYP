@@ -6,8 +6,10 @@ import com.trim.booking.config.JwtUtil;
 import com.trim.booking.dto.barber.CreateBarberRequest;
 import com.trim.booking.dto.barber.UpdateBarberRequest;
 import com.trim.booking.entity.Barber;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
 import com.trim.booking.repository.BarberRepository;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,9 +54,13 @@ class BarberControllerIntegrationTest {
     private BarberRepository barberRepository;
 
     @Autowired
+    private BusinessRepository businessRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     private ObjectMapper objectMapper;
+    private Business business;
 
     private User admin;
     private User customer;
@@ -67,11 +73,16 @@ class BarberControllerIntegrationTest {
     void setupOnce() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+
+        // Create a business (persists across all tests in this class)
+        business = new Business();
+        business.setName("Test Barbershop Barbers");
+        business = businessRepository.save(business);
     }
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test
+        // Clean up before each test (business persists from @BeforeAll)
         barberRepository.deleteAll();
         userRepository.deleteAll();
 
@@ -83,6 +94,7 @@ class BarberControllerIntegrationTest {
         admin.setPasswordHash("hashedpassword");
         admin.setPhone("+353871111111");
         admin.setRole(User.Role.ADMIN);
+        admin.setBusiness(business);
         admin = userRepository.save(admin);
 
         // Create a customer
@@ -93,6 +105,7 @@ class BarberControllerIntegrationTest {
         customer.setPasswordHash("hashedpassword");
         customer.setPhone("+353872222222");
         customer.setRole(User.Role.CUSTOMER);
+        customer.setBusiness(business);
         customer = userRepository.save(customer);
 
         // Create a barber user
@@ -103,6 +116,7 @@ class BarberControllerIntegrationTest {
         barberUser.setPasswordHash("hashedpassword");
         barberUser.setPhone("+353873333333");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create barber entity
@@ -111,11 +125,12 @@ class BarberControllerIntegrationTest {
         barber.setBio("Expert barber with 10 years experience");
         barber.setProfileImageUrl("https://example.com/image.jpg");
         barber.setActive(true);
+        barber.setBusiness(business);
         barber = barberRepository.save(barber);
 
-        // Generate JWT tokens
-        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId());
-        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId());
+        // Generate JWT tokens with businessId
+        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId(), business.getId());
+        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId(), business.getId());
     }
 
     // ==================== CREATE BARBER TESTS ====================
@@ -134,6 +149,7 @@ class BarberControllerIntegrationTest {
 
         mockMvc.perform(post("/api/barbers")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -155,6 +171,7 @@ class BarberControllerIntegrationTest {
 
         mockMvc.perform(post("/api/barbers")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -171,6 +188,7 @@ class BarberControllerIntegrationTest {
         request.setPassword("password123");
 
         mockMvc.perform(post("/api/barbers")
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -184,6 +202,7 @@ class BarberControllerIntegrationTest {
 
         mockMvc.perform(post("/api/barbers")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -201,6 +220,7 @@ class BarberControllerIntegrationTest {
 
         mockMvc.perform(post("/api/barbers")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -218,6 +238,7 @@ class BarberControllerIntegrationTest {
 
         mockMvc.perform(post("/api/barbers")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -235,6 +256,7 @@ class BarberControllerIntegrationTest {
 
         mockMvc.perform(put("/api/barbers/" + barber.getId())
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -249,6 +271,7 @@ class BarberControllerIntegrationTest {
 
         mockMvc.perform(put("/api/barbers/" + barber.getId())
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -262,6 +285,7 @@ class BarberControllerIntegrationTest {
 
         mockMvc.perform(put("/api/barbers/99999")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -273,7 +297,8 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should return all barbers when authenticated")
     void getAllBarbers_WithAuth_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/barbers")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
                 .andExpect(jsonPath("$[0].id").exists());
@@ -287,7 +312,8 @@ class BarberControllerIntegrationTest {
         barberRepository.save(barber);
 
         mockMvc.perform(get("/api/barbers")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))));
     }
@@ -298,7 +324,7 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should return only active barbers")
     void getActiveBarbers_ReturnsOnlyActive() throws Exception {
         mockMvc.perform(get("/api/barbers/active")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].active").value(true));
@@ -312,7 +338,7 @@ class BarberControllerIntegrationTest {
         barberRepository.save(barber);
 
         mockMvc.perform(get("/api/barbers/active")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -323,7 +349,8 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should return barber by ID")
     void getBarberById_ExistingId_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/barbers/" + barber.getId())
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(barber.getId()))
                 .andExpect(jsonPath("$.bio").value("Expert barber with 10 years experience"))
@@ -334,7 +361,8 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should return not found for non-existent barber ID")
     void getBarberById_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/barbers/99999")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -344,12 +372,14 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should successfully deactivate barber when admin")
     void deactivateBarber_AsAdmin_ReturnsNoContent() throws Exception {
         mockMvc.perform(patch("/api/barbers/" + barber.getId() + "/deactivate")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNoContent());
 
         // Verify barber is deactivated
         mockMvc.perform(get("/api/barbers/" + barber.getId())
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.active").value(false));
     }
@@ -358,7 +388,8 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should reject deactivate barber when not admin")
     void deactivateBarber_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(patch("/api/barbers/" + barber.getId() + "/deactivate")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
@@ -366,7 +397,8 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should return not found when deactivating non-existent barber")
     void deactivateBarber_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(patch("/api/barbers/99999/deactivate")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -380,12 +412,14 @@ class BarberControllerIntegrationTest {
         barberRepository.save(barber);
 
         mockMvc.perform(patch("/api/barbers/" + barber.getId() + "/activate")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNoContent());
 
         // Verify barber is reactivated
         mockMvc.perform(get("/api/barbers/" + barber.getId())
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.active").value(true));
     }
@@ -394,7 +428,8 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should reject reactivate barber when not admin")
     void reactivateBarber_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(patch("/api/barbers/" + barber.getId() + "/activate")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
@@ -402,7 +437,8 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should return not found when reactivating non-existent barber")
     void reactivateBarber_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(patch("/api/barbers/99999/activate")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -414,12 +450,14 @@ class BarberControllerIntegrationTest {
         Long barberIdToDelete = barber.getId();
 
         mockMvc.perform(delete("/api/barbers/" + barberIdToDelete)
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNoContent());
 
         // Verify barber is deleted
         mockMvc.perform(get("/api/barbers/" + barberIdToDelete)
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -427,16 +465,17 @@ class BarberControllerIntegrationTest {
     @DisplayName("Should reject delete barber when not admin")
     void deleteBarber_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(delete("/api/barbers/" + barber.getId())
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("Should return no content when deleting non-existent barber (service doesn't validate)")
-    void deleteBarber_NonExistentId_ReturnsNoContent() throws Exception {
+    @DisplayName("Should return not found when deleting non-existent barber")
+    void deleteBarber_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(delete("/api/barbers/99999")
-                        .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isNoContent());
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
+                .andExpect(status().isNotFound());
     }
 }
-

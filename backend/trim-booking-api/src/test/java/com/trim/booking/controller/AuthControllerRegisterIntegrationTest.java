@@ -3,7 +3,9 @@ package com.trim.booking.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.trim.booking.dto.auth.RegisterRequest;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +42,12 @@ class AuthControllerRegisterIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BusinessRepository businessRepository;
+
     private ObjectMapper objectMapper;
     private BCryptPasswordEncoder passwordEncoder;
+    private Business business;
 
     private static final String VALID_PASSWORD = "password123";
     private static final String VALID_PHONE = "+353871234567";
@@ -52,11 +58,16 @@ class AuthControllerRegisterIntegrationTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         passwordEncoder = new BCryptPasswordEncoder();
+
+        // Create a business (persists across all tests in this class)
+        business = new Business();
+        business.setName("Test Barbershop Register");
+        business = businessRepository.save(business);
     }
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test
+        // Clean up before each test (business persists from @BeforeAll)
         userRepository.deleteAll();
     }
 
@@ -74,6 +85,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
@@ -84,8 +96,8 @@ class AuthControllerRegisterIntegrationTest {
                 .andExpect(jsonPath("$.phone").value(VALID_PHONE));
 
         // Verify user was saved in database
-        assertTrue(userRepository.existsByEmail(VALID_EMAIL));
-        User savedUser = userRepository.findByEmail(VALID_EMAIL).orElseThrow();
+        assertTrue(userRepository.existsByBusinessIdAndEmail(business.getId(), VALID_EMAIL));
+        User savedUser = userRepository.findByBusinessIdAndEmail(business.getId(), VALID_EMAIL).orElseThrow();
         assertEquals("John", savedUser.getFirstName());
         assertEquals("Doe", savedUser.getLastName());
         assertEquals(User.Role.CUSTOMER, savedUser.getRole());
@@ -104,6 +116,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.phone").value("+353871234567"));
@@ -121,6 +134,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.phone").value("+353871234567"));
@@ -131,7 +145,7 @@ class AuthControllerRegisterIntegrationTest {
     @Test
     @DisplayName("Should return error when email already exists")
     void register_DuplicateEmail_ReturnsError() throws Exception {
-        // Create existing user
+        // Create existing user with business association
         User existingUser = new User();
         existingUser.setFirstName("Existing");
         existingUser.setLastName("User");
@@ -139,6 +153,7 @@ class AuthControllerRegisterIntegrationTest {
         existingUser.setPasswordHash(passwordEncoder.encode(VALID_PASSWORD));
         existingUser.setPhone(VALID_PHONE);
         existingUser.setRole(User.Role.CUSTOMER);
+        existingUser.setBusiness(business);
         userRepository.save(existingUser);
 
         // Attempt to register with same email
@@ -151,6 +166,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(containsString("Email already registered")));
@@ -169,6 +185,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.firstName").value("First name is required"));
@@ -185,6 +202,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.lastName").value("Last name is required"));
@@ -201,6 +219,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.email").value("Email is required"));
@@ -218,6 +237,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.email").value("Email must be valid"));
@@ -234,6 +254,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.password").value("Password is required"));
@@ -251,6 +272,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.password").value("Password must be at least 8 characters"));
@@ -267,6 +289,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.phone").value("Phone number is required"));
@@ -284,6 +307,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.phoneValid").value("Phone must be in valid international format"));
@@ -296,6 +320,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
@@ -314,6 +339,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
@@ -330,6 +356,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
@@ -346,6 +373,7 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
@@ -362,9 +390,9 @@ class AuthControllerRegisterIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Business-Slug", business.getSlug())
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.password").value("Password must be at least 8 characters"));
     }
 }
-

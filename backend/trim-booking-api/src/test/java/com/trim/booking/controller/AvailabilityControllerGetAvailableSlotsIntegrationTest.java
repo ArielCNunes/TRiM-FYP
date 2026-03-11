@@ -2,20 +2,16 @@ package com.trim.booking.controller;
 
 import com.trim.booking.entity.*;
 import com.trim.booking.repository.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import static org.hamcrest.Matchers.*;
@@ -35,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
 
     @Autowired
@@ -62,14 +58,26 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
     @Autowired
     private ServiceCategoryRepository serviceCategoryRepository;
 
+    @Autowired
+    private BusinessRepository businessRepository;
+
+    private Business business;
     private Barber testBarber;
     private ServiceOffered testService;
     private User testCustomer;
     private LocalDate futureDate;
 
+    @BeforeAll
+    void setupOnce() {
+        // Create a business (persists across all tests in this class)
+        business = new Business();
+        business.setName("Test Barbershop Availability");
+        business = businessRepository.save(business);
+    }
+
     @BeforeEach
     void setUp() {
-        // Clean up
+        // Clean up in order respecting foreign key constraints
         bookingRepository.deleteAll();
         barberBreakRepository.deleteAll();
         barberAvailabilityRepository.deleteAll();
@@ -83,9 +91,10 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         testCustomer.setFirstName("Test");
         testCustomer.setLastName("Customer");
         testCustomer.setEmail("customer@test.com");
-        testCustomer.setPhone("9876543210");
+        testCustomer.setPhone("+353871234567");
         testCustomer.setPasswordHash("password123");
         testCustomer.setRole(User.Role.CUSTOMER);
+        testCustomer.setBusiness(business);
         testCustomer = userRepository.save(testCustomer);
 
         // Create barber user
@@ -93,9 +102,10 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         barberUser.setFirstName("John");
         barberUser.setLastName("Barber");
         barberUser.setEmail("john@trim.com");
-        barberUser.setPhone("1234567890");
+        barberUser.setPhone("+353879876543");
         barberUser.setPasswordHash("password123");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create test barber
@@ -103,12 +113,14 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         testBarber.setUser(barberUser);
         testBarber.setBio("Specializes in haircuts");
         testBarber.setActive(true);
+        testBarber.setBusiness(business);
         testBarber = barberRepository.save(testBarber);
 
         // Create service category
         ServiceCategory category = new ServiceCategory();
         category.setName("Haircuts");
         category.setActive(true);
+        category.setBusiness(business);
         category = serviceCategoryRepository.save(category);
 
         // Create test service (30 minutes)
@@ -120,6 +132,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         testService.setDepositPercentage(50);
         testService.setActive(true);
         testService.setCategory(category);
+        testService.setBusiness(business);
         testService = serviceRepository.save(testService);
 
         // Use a future Monday for testing (to avoid today's time filtering issues)
@@ -139,10 +152,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Execute & Verify: Should return slots from 9:00 to 16:30 (last slot that allows 30min service)
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -164,6 +179,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Create existing booking at 10:00-10:30
@@ -178,11 +194,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         existingBooking.setPaymentStatus(Booking.PaymentStatus.FULLY_PAID);
         existingBooking.setDepositAmount(testService.getPrice());
         existingBooking.setOutstandingBalance(BigDecimal.ZERO);
-        existingBooking.setCreatedAt(LocalDateTime.now());
+        existingBooking.setBusiness(business);
         bookingRepository.save(existingBooking);
 
         // Execute & Verify: Should not include slots that would overlap with 10:00-10:30 booking
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -204,6 +221,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Create cancelled booking at 10:00-10:30
@@ -218,11 +236,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         cancelledBooking.setPaymentStatus(Booking.PaymentStatus.CANCELLED);
         cancelledBooking.setDepositAmount(BigDecimal.ZERO);
         cancelledBooking.setOutstandingBalance(BigDecimal.ZERO);
-        cancelledBooking.setCreatedAt(LocalDateTime.now());
+        cancelledBooking.setBusiness(business);
         bookingRepository.save(cancelledBooking);
 
         // Execute & Verify: Should include 10:00 slot (cancelled booking doesn't block)
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -241,6 +260,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Create break from 12:00-13:00 (lunch)
@@ -249,10 +269,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         lunchBreak.setLabel("Lunch Break");
         lunchBreak.setStartTime(LocalTime.of(12, 0));
         lunchBreak.setEndTime(LocalTime.of(13, 0));
+        lunchBreak.setBusiness(business);
         barberBreakRepository.save(lunchBreak);
 
         // Execute & Verify: 11:30-12:00 fits, but 11:45-12:15 would overlap with lunch
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -275,6 +297,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Query for Tuesday
@@ -282,6 +305,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
 
         // Execute & Verify
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", tuesday.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -299,10 +323,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(false); // Marked unavailable
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Execute & Verify
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -322,6 +348,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         longService.setDepositPercentage(50);
         longService.setActive(true);
         longService.setCategory(testService.getCategory());
+        longService.setBusiness(business);
         longService = serviceRepository.save(longService);
 
         // Setup: Barber works Monday 9:00-17:00
@@ -331,10 +358,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Execute & Verify: Last slot should be 16:00 (not 16:30) for 60-min service
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", longService.getId().toString()))
@@ -355,6 +384,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Create multiple bookings
@@ -364,6 +394,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
 
         // Execute & Verify
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -390,6 +421,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Create back-to-back bookings
@@ -398,6 +430,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
 
         // Execute & Verify
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -420,10 +453,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(10, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Execute & Verify: Should include 9:30 (9:30 + 30min = 10:00 exactly)
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -444,10 +479,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Execute & Verify
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", "99999")) // Non-existent service
@@ -461,6 +498,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
 
         // Execute & Verify
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -478,6 +516,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Add booking at 10:00-10:30
@@ -489,6 +528,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         lunchBreak.setLabel("Lunch");
         lunchBreak.setStartTime(LocalTime.of(12, 0));
         lunchBreak.setEndTime(LocalTime.of(13, 0));
+        lunchBreak.setBusiness(business);
         barberBreakRepository.save(lunchBreak);
 
         // Add another booking at 15:00-15:30
@@ -496,6 +536,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
 
         // Execute & Verify
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -514,18 +555,21 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
     void testGetAvailableSlots_MissingParameters() throws Exception {
         // Missing barberId - returns 500 due to missing required parameter
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
                 .andExpect(status().is5xxServerError());
 
         // Missing date
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("serviceId", testService.getId().toString()))
                 .andExpect(status().is5xxServerError());
 
         // Missing serviceId
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString()))
                 .andExpect(status().is5xxServerError());
@@ -543,6 +587,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         shortService.setDepositPercentage(50);
         shortService.setActive(true);
         shortService.setCategory(testService.getCategory());
+        shortService.setBusiness(business);
         shortService = serviceRepository.save(shortService);
 
         // Setup: Barber works Monday 9:00-10:00
@@ -552,10 +597,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(10, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Execute & Verify: Should include 9:45 (9:45 + 15min = 10:00 exactly)
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", shortService.getId().toString()))
@@ -573,6 +620,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
 
         // Break from 12:00-12:30
@@ -581,10 +629,12 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         shortBreak.setLabel("Short Break");
         shortBreak.setStartTime(LocalTime.of(12, 0));
         shortBreak.setEndTime(LocalTime.of(12, 30));
+        shortBreak.setBusiness(business);
         barberBreakRepository.save(shortBreak);
 
         // Execute & Verify
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -607,6 +657,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         monday.setStartTime(LocalTime.of(9, 0));
         monday.setEndTime(LocalTime.of(17, 0));
         monday.setIsAvailable(true);
+        monday.setBusiness(business);
         barberAvailabilityRepository.save(monday);
 
         // Tuesday: 10:00-15:00
@@ -616,12 +667,14 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         tuesday.setStartTime(LocalTime.of(10, 0));
         tuesday.setEndTime(LocalTime.of(15, 0));
         tuesday.setIsAvailable(true);
+        tuesday.setBusiness(business);
         barberAvailabilityRepository.save(tuesday);
 
         LocalDate tuesdayDate = futureDate.plusDays(1);
 
         // Verify Monday has more slots
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", futureDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -630,6 +683,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
 
         // Verify Tuesday has fewer slots
         mockMvc.perform(get("/api/availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .param("barberId", testBarber.getId().toString())
                         .param("date", tuesdayDate.toString())
                         .param("serviceId", testService.getId().toString()))
@@ -652,8 +706,7 @@ public class AvailabilityControllerGetAvailableSlotsIntegrationTest {
         booking.setPaymentStatus(Booking.PaymentStatus.FULLY_PAID);
         booking.setDepositAmount(testService.getPrice());
         booking.setOutstandingBalance(BigDecimal.ZERO);
-        booking.setCreatedAt(LocalDateTime.now());
+        booking.setBusiness(business);
         bookingRepository.save(booking);
     }
 }
-

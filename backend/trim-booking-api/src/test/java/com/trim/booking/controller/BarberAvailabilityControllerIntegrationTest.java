@@ -5,9 +5,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.trim.booking.config.JwtUtil;
 import com.trim.booking.entity.Barber;
 import com.trim.booking.entity.BarberAvailability;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
 import com.trim.booking.repository.BarberAvailabilityRepository;
 import com.trim.booking.repository.BarberRepository;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,9 +58,13 @@ class BarberAvailabilityControllerIntegrationTest {
     private BarberAvailabilityRepository availabilityRepository;
 
     @Autowired
+    private BusinessRepository businessRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     private ObjectMapper objectMapper;
+    private Business business;
 
     private User admin;
     private User customer;
@@ -73,11 +79,16 @@ class BarberAvailabilityControllerIntegrationTest {
     void setupOnce() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+
+        // Create a business (persists across all tests in this class)
+        business = new Business();
+        business.setName("Test Barbershop Availability Ctrl");
+        business = businessRepository.save(business);
     }
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test
+        // Clean up before each test (business persists from @BeforeAll)
         availabilityRepository.deleteAll();
         barberRepository.deleteAll();
         userRepository.deleteAll();
@@ -90,6 +101,7 @@ class BarberAvailabilityControllerIntegrationTest {
         admin.setPasswordHash("hashedpassword");
         admin.setPhone("+353871111111");
         admin.setRole(User.Role.ADMIN);
+        admin.setBusiness(business);
         admin = userRepository.save(admin);
 
         // Create a customer
@@ -100,6 +112,7 @@ class BarberAvailabilityControllerIntegrationTest {
         customer.setPasswordHash("hashedpassword");
         customer.setPhone("+353872222222");
         customer.setRole(User.Role.CUSTOMER);
+        customer.setBusiness(business);
         customer = userRepository.save(customer);
 
         // Create a barber user
@@ -110,6 +123,7 @@ class BarberAvailabilityControllerIntegrationTest {
         barberUser.setPasswordHash("hashedpassword");
         barberUser.setPhone("+353873333333");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create barber entity
@@ -117,6 +131,7 @@ class BarberAvailabilityControllerIntegrationTest {
         barber.setUser(barberUser);
         barber.setBio("Expert barber");
         barber.setActive(true);
+        barber.setBusiness(business);
         barber = barberRepository.save(barber);
 
         // Create availability
@@ -126,12 +141,13 @@ class BarberAvailabilityControllerIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         availability = availabilityRepository.save(availability);
 
-        // Generate JWT tokens
-        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId());
-        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId());
-        barberToken = jwtUtil.generateToken(barberUser.getEmail(), "BARBER", barberUser.getId());
+        // Generate JWT tokens with businessId
+        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId(), business.getId());
+        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId(), business.getId());
+        barberToken = jwtUtil.generateToken(barberUser.getEmail(), "BARBER", barberUser.getId(), business.getId());
     }
 
     // ==================== SET AVAILABILITY TESTS ====================
@@ -148,6 +164,7 @@ class BarberAvailabilityControllerIntegrationTest {
 
         mockMvc.perform(post("/api/barber-availability")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -170,6 +187,7 @@ class BarberAvailabilityControllerIntegrationTest {
 
         mockMvc.perform(post("/api/barber-availability")
                         .header("Authorization", "Bearer " + barberToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -188,6 +206,7 @@ class BarberAvailabilityControllerIntegrationTest {
 
         mockMvc.perform(post("/api/barber-availability")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -204,6 +223,7 @@ class BarberAvailabilityControllerIntegrationTest {
         request.put("isAvailable", true);
 
         mockMvc.perform(post("/api/barber-availability")
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -221,6 +241,7 @@ class BarberAvailabilityControllerIntegrationTest {
 
         mockMvc.perform(post("/api/barber-availability")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -237,6 +258,7 @@ class BarberAvailabilityControllerIntegrationTest {
 
         mockMvc.perform(put("/api/barber-availability/" + availability.getId())
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -252,6 +274,7 @@ class BarberAvailabilityControllerIntegrationTest {
 
         mockMvc.perform(put("/api/barber-availability/" + availability.getId())
                         .header("Authorization", "Bearer " + barberToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -266,6 +289,7 @@ class BarberAvailabilityControllerIntegrationTest {
 
         mockMvc.perform(put("/api/barber-availability/" + availability.getId())
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -279,6 +303,7 @@ class BarberAvailabilityControllerIntegrationTest {
 
         mockMvc.perform(put("/api/barber-availability/99999")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -290,7 +315,8 @@ class BarberAvailabilityControllerIntegrationTest {
     @DisplayName("Should return barber availability when authenticated")
     void getBarberAvailability_WithAuth_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/barber-availability/barber/" + barber.getId())
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].dayOfWeek").value("MONDAY"))
@@ -309,15 +335,18 @@ class BarberAvailabilityControllerIntegrationTest {
         anotherBarberUser.setPasswordHash("hashedpassword");
         anotherBarberUser.setPhone("+353874444444");
         anotherBarberUser.setRole(User.Role.BARBER);
+        anotherBarberUser.setBusiness(business);
         anotherBarberUser = userRepository.save(anotherBarberUser);
 
         Barber anotherBarber = new Barber();
         anotherBarber.setUser(anotherBarberUser);
         anotherBarber.setActive(true);
+        anotherBarber.setBusiness(business);
         anotherBarber = barberRepository.save(anotherBarber);
 
         mockMvc.perform(get("/api/barber-availability/barber/" + anotherBarber.getId())
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -328,7 +357,8 @@ class BarberAvailabilityControllerIntegrationTest {
     @DisplayName("Should return all availability when authenticated")
     void getAllAvailability_WithAuth_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/barber-availability")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))));
     }
@@ -339,12 +369,14 @@ class BarberAvailabilityControllerIntegrationTest {
     @DisplayName("Should successfully delete availability when admin")
     void deleteAvailability_AsAdmin_ReturnsNoContent() throws Exception {
         mockMvc.perform(delete("/api/barber-availability/" + availability.getId())
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNoContent());
 
         // Verify deleted
         mockMvc.perform(get("/api/barber-availability/barber/" + barber.getId())
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -353,7 +385,8 @@ class BarberAvailabilityControllerIntegrationTest {
     @DisplayName("Should successfully delete availability when barber")
     void deleteAvailability_AsBarber_ReturnsNoContent() throws Exception {
         mockMvc.perform(delete("/api/barber-availability/" + availability.getId())
-                        .header("Authorization", "Bearer " + barberToken))
+                        .header("Authorization", "Bearer " + barberToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNoContent());
     }
 
@@ -361,16 +394,17 @@ class BarberAvailabilityControllerIntegrationTest {
     @DisplayName("Should reject delete availability when customer")
     void deleteAvailability_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(delete("/api/barber-availability/" + availability.getId())
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("Should return no content when deleting non-existent availability")
-    void deleteAvailability_NonExistentId_ReturnsNoContent() throws Exception {
+    @DisplayName("Should return not found when deleting non-existent availability")
+    void deleteAvailability_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(delete("/api/barber-availability/99999")
-                        .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isNoContent());
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
+                .andExpect(status().isNotFound());
     }
 }
-
