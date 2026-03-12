@@ -14,8 +14,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,6 +63,12 @@ class PaymentControllerWebhookIntegrationTest {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private BusinessRepository businessRepository;
+
+    @Autowired
+    private BarberAvailabilityRepository barberAvailabilityRepository;
+
     // Mock external services to avoid actual email/SMS sending
     @MockitoBean
     private EmailService emailService;
@@ -67,17 +76,29 @@ class PaymentControllerWebhookIntegrationTest {
     @MockitoBean
     private SmsService smsService;
 
+    private static final String TEST_WEBHOOK_SECRET = "test_webhook_secret_for_tests";
+
     private User customer;
     private Barber barber;
     private ServiceOffered service;
     private Booking booking;
     private Payment payment;
+    private Business business;
+
+    @BeforeAll
+    void setupOnce() {
+        // Create a business (persists across all tests in this class)
+        business = new Business();
+        business.setName("Test Barbershop Payment Webhook");
+        business = businessRepository.save(business);
+    }
 
     @BeforeEach
     void setUp() {
         // Clean up before each test
         paymentRepository.deleteAll();
         bookingRepository.deleteAll();
+        barberAvailabilityRepository.deleteAll();
         barberRepository.deleteAll();
         serviceRepository.deleteAll();
         categoryRepository.deleteAll();
@@ -91,6 +112,7 @@ class PaymentControllerWebhookIntegrationTest {
         customer.setPasswordHash("hashedpassword");
         customer.setPhone("+353871234567");
         customer.setRole(User.Role.CUSTOMER);
+        customer.setBusiness(business);
         customer = userRepository.save(customer);
 
         // Create a barber user
@@ -101,6 +123,7 @@ class PaymentControllerWebhookIntegrationTest {
         barberUser.setPasswordHash("hashedpassword");
         barberUser.setPhone("+353877654321");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create barber entity
@@ -108,11 +131,13 @@ class PaymentControllerWebhookIntegrationTest {
         barber.setUser(barberUser);
         barber.setBio("Expert barber");
         barber.setActive(true);
+        barber.setBusiness(business);
         barber = barberRepository.save(barber);
 
         // Create service category
         ServiceCategory category = new ServiceCategory("Haircuts");
         category.setActive(true);
+        category.setBusiness(business);
         category = categoryRepository.save(category);
 
         // Create a service
@@ -124,6 +149,7 @@ class PaymentControllerWebhookIntegrationTest {
         service.setDepositPercentage(20);
         service.setActive(true);
         service.setCategory(category);
+        service.setBusiness(business);
         service = serviceRepository.save(service);
 
         // Create a pending booking
@@ -139,6 +165,7 @@ class PaymentControllerWebhookIntegrationTest {
         booking.setDepositAmount(new BigDecimal("5.00")); // 20% of 25
         booking.setOutstandingBalance(new BigDecimal("20.00"));
         booking.setExpiresAt(java.time.LocalDateTime.now().plusMinutes(10));
+        booking.setBusiness(business);
         booking = bookingRepository.save(booking);
 
         // Create a pending payment record
@@ -147,6 +174,7 @@ class PaymentControllerWebhookIntegrationTest {
         payment.setAmount(new BigDecimal("5.00"));
         payment.setStripePaymentIntentId("pi_test_123456");
         payment.setStatus(Payment.PaymentStatus.PENDING);
+        payment.setBusiness(business);
         payment = paymentRepository.save(payment);
 
         // Reset mocks
@@ -162,6 +190,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Webhook received"));
@@ -178,6 +207,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isOk());
 
@@ -193,6 +223,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isOk());
 
@@ -211,6 +242,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isOk());
 
@@ -226,6 +258,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isOk());
 
@@ -240,6 +273,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isOk());
 
@@ -256,6 +290,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Webhook processing failed"));
@@ -274,7 +309,7 @@ class PaymentControllerWebhookIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidPayload))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid payload"));
+                .andExpect(content().string("Webhook signature verification required"));
     }
 
     @Test
@@ -284,6 +319,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Webhook received"));
@@ -300,6 +336,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isInternalServerError());
 
@@ -317,6 +354,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Webhook received"));
@@ -350,6 +388,7 @@ class PaymentControllerWebhookIntegrationTest {
         booking2.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PENDING);
         booking2.setDepositAmount(new BigDecimal("5.00"));
         booking2.setOutstandingBalance(new BigDecimal("20.00"));
+        booking2.setBusiness(business);
         booking2 = bookingRepository.save(booking2);
 
         Payment payment2 = new Payment();
@@ -357,6 +396,7 @@ class PaymentControllerWebhookIntegrationTest {
         payment2.setAmount(new BigDecimal("5.00"));
         payment2.setStripePaymentIntentId("pi_test_second_789");
         payment2.setStatus(Payment.PaymentStatus.PENDING);
+        payment2.setBusiness(business);
         paymentRepository.save(payment2);
 
         // Process webhook for first booking only
@@ -364,6 +404,7 @@ class PaymentControllerWebhookIntegrationTest {
 
         mockMvc.perform(post("/api/payments/webhook")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", generateStripeSignature(webhookPayload))
                         .content(webhookPayload))
                 .andExpect(status().isOk());
 
@@ -377,6 +418,26 @@ class PaymentControllerWebhookIntegrationTest {
     }
 
     // ==================== HELPER METHODS ====================
+
+    /**
+     * Generates a valid Stripe webhook signature header value for the given payload.
+     */
+    private String generateStripeSignature(String payload) {
+        try {
+            long timestamp = System.currentTimeMillis() / 1000;
+            String signedPayload = timestamp + "." + payload;
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(TEST_WEBHOOK_SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            byte[] hash = mac.doFinal(signedPayload.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexHash = new StringBuilder();
+            for (byte b : hash) {
+                hexHash.append(String.format("%02x", b));
+            }
+            return "t=" + timestamp + ",v1=" + hexHash;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate Stripe signature", e);
+        }
+    }
 
     /**
      * Create a Stripe webhook payload for payment_intent.succeeded event.
@@ -402,12 +463,14 @@ class PaymentControllerWebhookIntegrationTest {
                             "currency": "eur",
                             "status": "succeeded",
                             "metadata": {
-                                "booking_id": "%d"
+                                "booking_id": "%d",
+                                "business_id": "%d"
                             }
                         }
                     }
                 }
-                """, System.currentTimeMillis(), eventType, paymentIntentId, booking != null ? booking.getId() : 1);
+                """, System.currentTimeMillis(), eventType, paymentIntentId,
+                booking != null ? booking.getId() : 1,
+                business != null ? business.getId() : 1);
     }
 }
-

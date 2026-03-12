@@ -518,7 +518,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
         @DisplayName("Cancelled bookings don't cause conflicts")
         void testUpdateBooking_CancelledBookingNoConflict() throws Exception {
             // Create a cancelled booking at 14:00
-            Booking cancelledBooking = createBooking(Booking.BookingStatus.CANCELLED, futureDate, LocalTime.of(14, 0), otherCustomer);
+            createBooking(Booking.BookingStatus.CANCELLED, futureDate, LocalTime.of(14, 0), otherCustomer);
 
             // Create booking to update
             Booking bookingToUpdate = createBooking(Booking.BookingStatus.CONFIRMED, futureDate, LocalTime.of(10, 0), testCustomer);
