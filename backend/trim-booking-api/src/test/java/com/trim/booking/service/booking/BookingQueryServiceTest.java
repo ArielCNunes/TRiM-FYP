@@ -3,6 +3,8 @@ package com.trim.booking.service.booking;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
+import com.trim.booking.tenant.TenantContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,9 +31,17 @@ class BookingQueryServiceTest {
 
     private BookingQueryService bookingQueryService;
 
+    private static final Long BUSINESS_ID = 1L;
+
     @BeforeEach
     void setUp() {
+        TenantContext.setCurrentBusiness(BUSINESS_ID, "test-business");
         bookingQueryService = new BookingQueryService(bookingRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
     }
 
     @Nested
@@ -44,7 +54,7 @@ class BookingQueryServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBooking(bookingId, LocalDate.now().plusDays(1));
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
 
             // When
             Booking result = bookingQueryService.getBookingById(bookingId);
@@ -59,7 +69,7 @@ class BookingQueryServiceTest {
         void shouldThrowWhenBookingNotFound() {
             // Given
             Long bookingId = 999L;
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> bookingQueryService.getBookingById(bookingId))
@@ -81,7 +91,7 @@ class BookingQueryServiceTest {
                     createBooking(1L, LocalDate.now().plusDays(1)),
                     createBooking(2L, LocalDate.now().plusDays(2))
             );
-            when(bookingRepository.findByCustomerId(customerId)).thenReturn(bookings);
+            when(bookingRepository.findByBusinessIdAndCustomerId(BUSINESS_ID, customerId)).thenReturn(bookings);
 
             // When
             List<Booking> result = bookingQueryService.getCustomerBookings(customerId);
@@ -95,7 +105,7 @@ class BookingQueryServiceTest {
         void shouldReturnEmptyListWhenNoBookings() {
             // Given
             Long customerId = 1L;
-            when(bookingRepository.findByCustomerId(customerId)).thenReturn(Collections.emptyList());
+            when(bookingRepository.findByBusinessIdAndCustomerId(BUSINESS_ID, customerId)).thenReturn(Collections.emptyList());
 
             // When
             List<Booking> result = bookingQueryService.getCustomerBookings(customerId);
@@ -115,7 +125,7 @@ class BookingQueryServiceTest {
             // Given
             Long barberId = 1L;
             List<Booking> bookings = List.of(createBooking(1L, LocalDate.now().plusDays(1)));
-            when(bookingRepository.findByBarberId(barberId)).thenReturn(bookings);
+            when(bookingRepository.findByBusinessIdAndBarberId(BUSINESS_ID, barberId)).thenReturn(bookings);
 
             // When
             List<Booking> result = bookingQueryService.getBarberBookings(barberId);
@@ -136,7 +146,7 @@ class BookingQueryServiceTest {
             Long barberId = 1L;
             LocalDate date = LocalDate.now().plusDays(1);
             List<Booking> bookings = List.of(createBooking(1L, date));
-            when(bookingRepository.findByBarberIdAndBookingDate(barberId, date)).thenReturn(bookings);
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDate(BUSINESS_ID, barberId, date)).thenReturn(bookings);
 
             // When
             List<Booking> result = bookingQueryService.getBarberScheduleForDate(barberId, date);
@@ -170,7 +180,7 @@ class BookingQueryServiceTest {
             Booking cancelledBooking = createBooking(4L, today.plusDays(2));
             cancelledBooking.setStatus(Booking.BookingStatus.CANCELLED);
 
-            when(bookingRepository.findByCustomerId(customerId))
+            when(bookingRepository.findByBusinessIdAndCustomerId(BUSINESS_ID, customerId))
                     .thenReturn(List.of(futureBooking, todayBooking, pastBooking, cancelledBooking));
 
             // When
@@ -186,7 +196,7 @@ class BookingQueryServiceTest {
         void shouldReturnEmptyListWhenNoUpcomingBookings() {
             // Given
             Long customerId = 1L;
-            when(bookingRepository.findByCustomerId(customerId)).thenReturn(Collections.emptyList());
+            when(bookingRepository.findByBusinessIdAndCustomerId(BUSINESS_ID, customerId)).thenReturn(Collections.emptyList());
 
             // When
             List<Booking> result = bookingQueryService.getUpcomingBookingsForCustomer(customerId);
@@ -211,7 +221,7 @@ class BookingQueryServiceTest {
             Booking futureBooking = createBooking(2L, today.plusDays(1));
             Booking todayBooking = createBooking(3L, today);
 
-            when(bookingRepository.findByCustomerId(customerId))
+            when(bookingRepository.findByBusinessIdAndCustomerId(BUSINESS_ID, customerId))
                     .thenReturn(List.of(pastBooking, futureBooking, todayBooking));
 
             // When
@@ -234,7 +244,7 @@ class BookingQueryServiceTest {
             LocalDate date = LocalDate.now().plusDays(1);
             Booking.BookingStatus status = Booking.BookingStatus.CONFIRMED;
             List<Booking> bookings = List.of(createBooking(1L, date));
-            when(bookingRepository.findByBookingDateAndStatus(date, status)).thenReturn(bookings);
+            when(bookingRepository.findByBusinessIdAndBookingDateAndStatus(BUSINESS_ID, date, status)).thenReturn(bookings);
 
             // When
             List<Booking> result = bookingQueryService.getAllBookings(status, date);
@@ -249,7 +259,7 @@ class BookingQueryServiceTest {
             // Given
             LocalDate date = LocalDate.now().plusDays(1);
             List<Booking> bookings = List.of(createBooking(1L, date));
-            when(bookingRepository.findByBookingDate(date)).thenReturn(bookings);
+            when(bookingRepository.findByBusinessIdAndBookingDate(BUSINESS_ID, date)).thenReturn(bookings);
 
             // When
             List<Booking> result = bookingQueryService.getAllBookings(null, date);
@@ -264,7 +274,7 @@ class BookingQueryServiceTest {
             // Given
             Booking.BookingStatus status = Booking.BookingStatus.CONFIRMED;
             List<Booking> bookings = List.of(createBooking(1L, LocalDate.now()));
-            when(bookingRepository.findByStatus(status)).thenReturn(bookings);
+            when(bookingRepository.findByBusinessIdAndStatus(BUSINESS_ID, status)).thenReturn(bookings);
 
             // When
             List<Booking> result = bookingQueryService.getAllBookings(status, null);
@@ -274,14 +284,15 @@ class BookingQueryServiceTest {
         }
 
         @Test
-        @DisplayName("Should return all bookings when no filters")
-        void shouldReturnAllBookingsWhenNoFilters() {
+        @DisplayName("Should return today's bookings when no filters")
+        void shouldReturnTodaysBookingsWhenNoFilters() {
             // Given
+            LocalDate today = LocalDate.now();
             List<Booking> bookings = List.of(
-                    createBooking(1L, LocalDate.now()),
-                    createBooking(2L, LocalDate.now().plusDays(1))
+                    createBooking(1L, today),
+                    createBooking(2L, today)
             );
-            when(bookingRepository.findAll()).thenReturn(bookings);
+            when(bookingRepository.findByBusinessIdAndBookingDate(BUSINESS_ID, today)).thenReturn(bookings);
 
             // When
             List<Booking> result = bookingQueryService.getAllBookings(null, null);
@@ -300,4 +311,3 @@ class BookingQueryServiceTest {
         return booking;
     }
 }
-

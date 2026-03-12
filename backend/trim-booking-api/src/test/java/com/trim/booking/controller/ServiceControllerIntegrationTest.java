@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.trim.booking.config.JwtUtil;
 import com.trim.booking.dto.service.ServiceRequest;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.ServiceCategory;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.entity.User;
-import com.trim.booking.repository.ServiceCategoryRepository;
-import com.trim.booking.repository.ServiceRepository;
-import com.trim.booking.repository.UserRepository;
+import com.trim.booking.repository.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -57,10 +56,23 @@ class ServiceControllerIntegrationTest {
     private ServiceCategoryRepository categoryRepository;
 
     @Autowired
+    private BarberRepository barberRepository;
+
+    @Autowired
+    private BarberAvailabilityRepository barberAvailabilityRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private BusinessRepository businessRepository;
 
     private ObjectMapper objectMapper;
 
+    private Business business;
     private User admin;
     private User customer;
     private ServiceCategory category;
@@ -72,13 +84,20 @@ class ServiceControllerIntegrationTest {
     void setupOnce() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+
+        business = new Business();
+        business.setName("Test Barbershop Services");
+        business = businessRepository.save(business);
     }
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test
+        // Clean up before each test (comprehensive to avoid FK violations from other test classes)
+        bookingRepository.deleteAll();
+        barberAvailabilityRepository.deleteAll();
         serviceRepository.deleteAll();
         categoryRepository.deleteAll();
+        barberRepository.deleteAll();
         userRepository.deleteAll();
 
         // Create an admin user
@@ -89,6 +108,7 @@ class ServiceControllerIntegrationTest {
         admin.setPasswordHash("hashedpassword");
         admin.setPhone("+353871111111");
         admin.setRole(User.Role.ADMIN);
+        admin.setBusiness(business);
         admin = userRepository.save(admin);
 
         // Create a customer
@@ -99,11 +119,13 @@ class ServiceControllerIntegrationTest {
         customer.setPasswordHash("hashedpassword");
         customer.setPhone("+353872222222");
         customer.setRole(User.Role.CUSTOMER);
+        customer.setBusiness(business);
         customer = userRepository.save(customer);
 
         // Create service category
         category = new ServiceCategory("Haircuts");
         category.setActive(true);
+        category.setBusiness(business);
         category = categoryRepository.save(category);
 
         // Create a service
@@ -115,11 +137,12 @@ class ServiceControllerIntegrationTest {
         service.setDepositPercentage(20);
         service.setActive(true);
         service.setCategory(category);
+        service.setBusiness(business);
         service = serviceRepository.save(service);
 
         // Generate JWT tokens
-        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId());
-        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId());
+        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId(), business.getId());
+        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId(), business.getId());
     }
 
     // ==================== CREATE SERVICE TESTS ====================
@@ -137,6 +160,7 @@ class ServiceControllerIntegrationTest {
 
         mockMvc.perform(post("/api/services")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -161,6 +185,7 @@ class ServiceControllerIntegrationTest {
 
         mockMvc.perform(post("/api/services")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -177,6 +202,7 @@ class ServiceControllerIntegrationTest {
         request.setCategoryId(category.getId());
 
         mockMvc.perform(post("/api/services")
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -190,6 +216,7 @@ class ServiceControllerIntegrationTest {
 
         mockMvc.perform(post("/api/services")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -207,6 +234,7 @@ class ServiceControllerIntegrationTest {
 
         mockMvc.perform(post("/api/services")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -224,6 +252,7 @@ class ServiceControllerIntegrationTest {
 
         mockMvc.perform(post("/api/services")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -244,6 +273,7 @@ class ServiceControllerIntegrationTest {
 
         mockMvc.perform(put("/api/services/" + service.getId())
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -265,6 +295,7 @@ class ServiceControllerIntegrationTest {
 
         mockMvc.perform(put("/api/services/" + service.getId())
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -282,6 +313,7 @@ class ServiceControllerIntegrationTest {
 
         mockMvc.perform(put("/api/services/99999")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -293,7 +325,8 @@ class ServiceControllerIntegrationTest {
     @DisplayName("Should return all services when authenticated")
     void getAllServices_WithAuth_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/services")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
                 .andExpect(jsonPath("$[0].id").exists())
@@ -308,7 +341,8 @@ class ServiceControllerIntegrationTest {
         serviceRepository.save(service);
 
         mockMvc.perform(get("/api/services")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))));
     }
@@ -319,7 +353,8 @@ class ServiceControllerIntegrationTest {
     @DisplayName("Should return only active services")
     void getActiveServices_ReturnsOnlyActive() throws Exception {
         mockMvc.perform(get("/api/services/active")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].active").value(true));
@@ -333,7 +368,8 @@ class ServiceControllerIntegrationTest {
         serviceRepository.save(service);
 
         mockMvc.perform(get("/api/services/active")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -344,7 +380,8 @@ class ServiceControllerIntegrationTest {
     @DisplayName("Should return service by ID")
     void getServiceById_ExistingId_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/services/" + service.getId())
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(service.getId()))
                 .andExpect(jsonPath("$.name").value("Standard Haircut"))
@@ -357,7 +394,8 @@ class ServiceControllerIntegrationTest {
     @DisplayName("Should return not found for non-existent service ID")
     void getServiceById_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/services/99999")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -367,12 +405,14 @@ class ServiceControllerIntegrationTest {
     @DisplayName("Should successfully deactivate service when admin")
     void deactivateService_AsAdmin_ReturnsNoContent() throws Exception {
         mockMvc.perform(patch("/api/services/" + service.getId() + "/deactivate")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNoContent());
 
         // Verify service is deactivated
         mockMvc.perform(get("/api/services/" + service.getId())
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.active").value(false));
     }
@@ -381,7 +421,8 @@ class ServiceControllerIntegrationTest {
     @DisplayName("Should reject deactivate service when not admin")
     void deactivateService_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(patch("/api/services/" + service.getId() + "/deactivate")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
@@ -389,7 +430,8 @@ class ServiceControllerIntegrationTest {
     @DisplayName("Should return not found when deactivating non-existent service")
     void deactivateService_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(patch("/api/services/99999/deactivate")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -401,12 +443,14 @@ class ServiceControllerIntegrationTest {
         Long serviceIdToDelete = service.getId();
 
         mockMvc.perform(delete("/api/services/" + serviceIdToDelete)
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNoContent());
 
         // Verify service is deleted
         mockMvc.perform(get("/api/services/" + serviceIdToDelete)
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -414,16 +458,17 @@ class ServiceControllerIntegrationTest {
     @DisplayName("Should reject delete service when not admin")
     void deleteService_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(delete("/api/services/" + service.getId())
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("Should return no content when deleting non-existent service")
-    void deleteService_NonExistentId_ReturnsNoContent() throws Exception {
+    @DisplayName("Should return not found when deleting non-existent service")
+    void deleteService_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(delete("/api/services/99999")
-                        .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isNoContent());
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
+                .andExpect(status().isNotFound());
     }
 }
-

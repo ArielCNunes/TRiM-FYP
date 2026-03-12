@@ -8,6 +8,8 @@ import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.PaymentRepository;
 import com.trim.booking.service.notification.EmailService;
 import com.trim.booking.service.notification.SmsService;
+import com.trim.booking.tenant.TenantContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,8 +53,11 @@ class PaymentServiceTest {
 
     private PaymentService paymentService;
 
+    private static final Long BUSINESS_ID = 1L;
+
     @BeforeEach
     void setUp() {
+        TenantContext.setCurrentBusiness(BUSINESS_ID, "test-business");
         paymentService = new PaymentService(
                 paymentRepository,
                 bookingRepository,
@@ -60,6 +65,11 @@ class PaymentServiceTest {
                 emailService,
                 smsService
         );
+    }
+
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
     }
 
     @Nested
@@ -71,7 +81,7 @@ class PaymentServiceTest {
         void shouldThrowWhenBookingNotFound() {
             // Given
             Long bookingId = 999L;
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> paymentService.createDepositPaymentIntent(bookingId))
@@ -86,7 +96,7 @@ class PaymentServiceTest {
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, BigDecimal.valueOf(0.30), 50);
 
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
             // Return deposit of 0.15 EUR (15 cents - below Stripe minimum)
             when(depositCalculationService.calculateDeposit(any(), any()))
                     .thenReturn(BigDecimal.valueOf(0.15));
@@ -114,7 +124,7 @@ class PaymentServiceTest {
 
             Booking booking = createBookingWithService(bookingId, servicePrice, depositPercentage);
 
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
             when(depositCalculationService.calculateDeposit(servicePrice, depositPercentage))
                     .thenReturn(depositAmount);
             when(depositCalculationService.calculateOutstandingBalance(servicePrice, depositPercentage))
@@ -128,7 +138,7 @@ class PaymentServiceTest {
             when(mockPaymentIntent.getClientSecret()).thenReturn(clientSecret);
 
             try (MockedStatic<PaymentIntent> paymentIntentMockedStatic = mockStatic(PaymentIntent.class)) {
-                paymentIntentMockedStatic.when(() -> PaymentIntent.create(any(PaymentIntentCreateParams.class)))
+                paymentIntentMockedStatic.when(() -> PaymentIntent.create(any(PaymentIntentCreateParams.class), any(com.stripe.net.RequestOptions.class)))
                         .thenReturn(mockPaymentIntent);
 
                 // When
@@ -175,7 +185,7 @@ class PaymentServiceTest {
                     .thenReturn(Optional.empty());
 
             // When/Then
-            assertThatThrownBy(() -> paymentService.handlePaymentSuccess(paymentIntentId))
+            assertThatThrownBy(() -> paymentService.handlePaymentSuccess(paymentIntentId, 1L))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("Payment not found");
         }
@@ -205,7 +215,7 @@ class PaymentServiceTest {
             when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
-            paymentService.handlePaymentSuccess(paymentIntentId);
+            paymentService.handlePaymentSuccess(paymentIntentId, 1L);
 
             // Then - Verify payment status updated
             ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
@@ -252,11 +262,17 @@ class PaymentServiceTest {
         service.setDepositPercentage(depositPercentage);
         service.setDurationMinutes(30);
 
+        Business business = new Business();
+        business.setId(BUSINESS_ID);
+        business.setStripeAccountId("acct_test_123");
+        business.setStripeOnboardingComplete(true);
+
         Booking booking = new Booking();
         booking.setId(bookingId);
         booking.setCustomer(customer);
         booking.setBarber(barber);
         booking.setService(service);
+        booking.setBusiness(business);
         booking.setBookingDate(LocalDate.now().plusDays(1));
         booking.setStartTime(LocalTime.of(10, 0));
         booking.setEndTime(LocalTime.of(10, 30));
@@ -268,4 +284,3 @@ class PaymentServiceTest {
         return booking;
     }
 }
-

@@ -6,6 +6,7 @@ import com.trim.booking.config.JwtUtil;
 import com.trim.booking.dto.customer.BlacklistRequest;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.Barber;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.ServiceCategory;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.entity.User;
@@ -58,6 +59,9 @@ class CustomerControllerIntegrationTest {
     private BookingRepository bookingRepository;
 
     @Autowired
+    private BarberAvailabilityRepository barberAvailabilityRepository;
+
+    @Autowired
     private ServiceRepository serviceRepository;
 
     @Autowired
@@ -66,8 +70,12 @@ class CustomerControllerIntegrationTest {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private BusinessRepository businessRepository;
+
     private ObjectMapper objectMapper;
 
+    private Business business;
     private User admin;
     private User customer;
     private User customer2;
@@ -82,12 +90,17 @@ class CustomerControllerIntegrationTest {
     void setupOnce() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+
+        business = new Business();
+        business.setName("Test Barbershop Customer");
+        business = businessRepository.save(business);
     }
 
     @BeforeEach
     void setUp() {
         // Clean up before each test
         bookingRepository.deleteAll();
+        barberAvailabilityRepository.deleteAll();
         serviceRepository.deleteAll();
         serviceCategoryRepository.deleteAll();
         barberRepository.deleteAll();
@@ -101,6 +114,7 @@ class CustomerControllerIntegrationTest {
         admin.setPasswordHash("hashedpassword");
         admin.setPhone("+353871111111");
         admin.setRole(User.Role.ADMIN);
+        admin.setBusiness(business);
         admin = userRepository.save(admin);
 
         // Create a customer
@@ -111,6 +125,7 @@ class CustomerControllerIntegrationTest {
         customer.setPasswordHash("hashedpassword");
         customer.setPhone("+353872222222");
         customer.setRole(User.Role.CUSTOMER);
+        customer.setBusiness(business);
         customer = userRepository.save(customer);
 
         // Create another customer
@@ -121,6 +136,7 @@ class CustomerControllerIntegrationTest {
         customer2.setPasswordHash("hashedpassword");
         customer2.setPhone("+353872223333");
         customer2.setRole(User.Role.CUSTOMER);
+        customer2.setBusiness(business);
         customer2 = userRepository.save(customer2);
 
         // Create a barber user
@@ -131,6 +147,7 @@ class CustomerControllerIntegrationTest {
         barberUser.setPasswordHash("hashedpassword");
         barberUser.setPhone("+353873333333");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create barber entity
@@ -138,11 +155,13 @@ class CustomerControllerIntegrationTest {
         barber.setUser(barberUser);
         barber.setBio("Expert barber");
         barber.setActive(true);
+        barber.setBusiness(business);
         barber = barberRepository.save(barber);
 
         // Create service category and service for bookings
         ServiceCategory category = new ServiceCategory("Haircuts");
         category.setActive(true);
+        category.setBusiness(business);
         category = serviceCategoryRepository.save(category);
 
         service = new ServiceOffered();
@@ -153,12 +172,13 @@ class CustomerControllerIntegrationTest {
         service.setDepositPercentage(20);
         service.setCategory(category);
         service.setActive(true);
+        service.setBusiness(business);
         service = serviceRepository.save(service);
 
         // Generate JWT tokens
-        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId());
-        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId());
-        barberToken = jwtUtil.generateToken(barberUser.getEmail(), "BARBER", barberUser.getId());
+        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId(), business.getId());
+        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId(), business.getId());
+        barberToken = jwtUtil.generateToken(barberUser.getEmail(), "BARBER", barberUser.getId(), business.getId());
     }
 
     // ==================== GET ALL CUSTOMERS TESTS ====================
@@ -167,7 +187,8 @@ class CustomerControllerIntegrationTest {
     @DisplayName("Should return paginated list of customers for admin")
     void getCustomers_AsAdmin_ReturnsPaginatedList() throws Exception {
         mockMvc.perform(get("/api/admin/customers")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.customers", hasSize(2)))
                 .andExpect(jsonPath("$.page", is(0)))
@@ -182,7 +203,8 @@ class CustomerControllerIntegrationTest {
         mockMvc.perform(get("/api/admin/customers")
                         .param("page", "0")
                         .param("size", "1")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.customers", hasSize(1)))
                 .andExpect(jsonPath("$.size", is(1)))
@@ -194,7 +216,8 @@ class CustomerControllerIntegrationTest {
     @DisplayName("Should return 403 when customer tries to access customer list")
     void getCustomers_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(get("/api/admin/customers")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
@@ -202,14 +225,16 @@ class CustomerControllerIntegrationTest {
     @DisplayName("Should return 403 when barber tries to access customer list")
     void getCustomers_AsBarber_ReturnsForbidden() throws Exception {
         mockMvc.perform(get("/api/admin/customers")
-                        .header("Authorization", "Bearer " + barberToken))
+                        .header("Authorization", "Bearer " + barberToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @DisplayName("Should return 403 when no authentication provided")
     void getCustomers_NoAuth_ReturnsForbidden() throws Exception {
-        mockMvc.perform(get("/api/admin/customers"))
+        mockMvc.perform(get("/api/admin/customers")
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
@@ -219,7 +244,8 @@ class CustomerControllerIntegrationTest {
     @DisplayName("Should return customer details for admin")
     void getCustomer_AsAdmin_ReturnsCustomerDetails() throws Exception {
         mockMvc.perform(get("/api/admin/customers/{id}", customer.getId())
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(customer.getId().intValue())))
                 .andExpect(jsonPath("$.firstName", is("John")))
@@ -234,7 +260,8 @@ class CustomerControllerIntegrationTest {
     @DisplayName("Should return 404 when customer not found")
     void getCustomer_NotFound_Returns404() throws Exception {
         mockMvc.perform(get("/api/admin/customers/{id}", 99999L)
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -243,7 +270,8 @@ class CustomerControllerIntegrationTest {
     void getCustomer_NonCustomerUser_Returns404() throws Exception {
         // Trying to get the admin user (who is not a CUSTOMER role)
         mockMvc.perform(get("/api/admin/customers/{id}", admin.getId())
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -256,7 +284,8 @@ class CustomerControllerIntegrationTest {
         createBookingWithStatus(customer, Booking.BookingStatus.COMPLETED);
 
         mockMvc.perform(get("/api/admin/customers/{id}", customer.getId())
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.noShowCount", is(2)));
     }
@@ -270,6 +299,7 @@ class CustomerControllerIntegrationTest {
 
         mockMvc.perform(put("/api/admin/customers/{id}/blacklist", customer.getId())
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -292,6 +322,7 @@ class CustomerControllerIntegrationTest {
 
         mockMvc.perform(put("/api/admin/customers/{id}/blacklist", customer.getId())
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -305,6 +336,7 @@ class CustomerControllerIntegrationTest {
 
         mockMvc.perform(put("/api/admin/customers/{id}/blacklist", customer.getId())
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -317,6 +349,7 @@ class CustomerControllerIntegrationTest {
 
         mockMvc.perform(put("/api/admin/customers/{id}/blacklist", customer.getId())
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -329,6 +362,7 @@ class CustomerControllerIntegrationTest {
 
         mockMvc.perform(put("/api/admin/customers/{id}/blacklist", 99999L)
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -346,7 +380,8 @@ class CustomerControllerIntegrationTest {
         userRepository.save(customer);
 
         mockMvc.perform(put("/api/admin/customers/{id}/unblacklist", customer.getId())
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(customer.getId().intValue())))
                 .andExpect(jsonPath("$.blacklisted", is(false)))
@@ -364,7 +399,8 @@ class CustomerControllerIntegrationTest {
     @DisplayName("Should return 403 when customer tries to unblacklist")
     void unblacklistCustomer_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(put("/api/admin/customers/{id}/unblacklist", customer.getId())
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
@@ -372,7 +408,8 @@ class CustomerControllerIntegrationTest {
     @DisplayName("Should return 404 when unblacklisting non-existent customer")
     void unblacklistCustomer_NotFound_Returns404() throws Exception {
         mockMvc.perform(put("/api/admin/customers/{id}/unblacklist", 99999L)
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -390,7 +427,7 @@ class CustomerControllerIntegrationTest {
         booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
         booking.setDepositAmount(new BigDecimal("5.00"));
         booking.setOutstandingBalance(new BigDecimal("20.00"));
+        booking.setBusiness(business);
         return bookingRepository.save(booking);
     }
 }
-

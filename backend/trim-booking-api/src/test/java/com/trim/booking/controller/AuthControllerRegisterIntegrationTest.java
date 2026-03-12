@@ -5,8 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.trim.booking.dto.auth.RegisterRequest;
 import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
-import com.trim.booking.repository.BusinessRepository;
-import com.trim.booking.repository.UserRepository;
+import com.trim.booking.repository.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -45,6 +44,21 @@ class AuthControllerRegisterIntegrationTest {
     @Autowired
     private BusinessRepository businessRepository;
 
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
+    private BarberAvailabilityRepository barberAvailabilityRepository;
+
+    @Autowired
+    private BarberRepository barberRepository;
+
+    @Autowired
+    private ServiceRepository serviceRepository;
+
+    @Autowired
+    private ServiceCategoryRepository serviceCategoryRepository;
+
     private ObjectMapper objectMapper;
     private BCryptPasswordEncoder passwordEncoder;
     private Business business;
@@ -67,7 +81,12 @@ class AuthControllerRegisterIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test (business persists from @BeforeAll)
+        // Comprehensive cleanup before each test (business persists from @BeforeAll)
+        bookingRepository.deleteAll();
+        barberAvailabilityRepository.deleteAll();
+        serviceRepository.deleteAll();
+        serviceCategoryRepository.deleteAll();
+        barberRepository.deleteAll();
         userRepository.deleteAll();
     }
 

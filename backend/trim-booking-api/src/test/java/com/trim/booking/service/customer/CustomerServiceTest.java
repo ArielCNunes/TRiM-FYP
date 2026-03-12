@@ -7,6 +7,8 @@ import com.trim.booking.entity.User;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.UserRepository;
+import com.trim.booking.tenant.TenantContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -42,9 +44,17 @@ class CustomerServiceTest {
 
     private CustomerService customerService;
 
+    private static final Long BUSINESS_ID = 1L;
+
     @BeforeEach
     void setUp() {
+        TenantContext.setCurrentBusiness(BUSINESS_ID, "test-business");
         customerService = new CustomerService(userRepository, bookingRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
     }
 
     private User createCustomer(Long id, String firstName, String lastName, String email) {
@@ -73,9 +83,9 @@ class CustomerServiceTest {
             Pageable pageable = PageRequest.of(0, 20);
             Page<User> customerPage = new PageImpl<>(Arrays.asList(customer1, customer2), pageable, 2);
 
-            when(userRepository.findByRole(User.Role.CUSTOMER, pageable)).thenReturn(customerPage);
-            when(bookingRepository.countByCustomerIdAndStatus(eq(1L), eq(Booking.BookingStatus.NO_SHOW))).thenReturn(2L);
-            when(bookingRepository.countByCustomerIdAndStatus(eq(2L), eq(Booking.BookingStatus.NO_SHOW))).thenReturn(0L);
+            when(userRepository.findByBusinessIdAndRole(BUSINESS_ID, User.Role.CUSTOMER, pageable)).thenReturn(customerPage);
+            when(bookingRepository.countByBusinessIdAndCustomerIdAndStatus(eq(BUSINESS_ID), eq(1L), eq(Booking.BookingStatus.NO_SHOW))).thenReturn(2L);
+            when(bookingRepository.countByBusinessIdAndCustomerIdAndStatus(eq(BUSINESS_ID), eq(2L), eq(Booking.BookingStatus.NO_SHOW))).thenReturn(0L);
 
             // When
             CustomerListResponse response = customerService.getCustomers(pageable);
@@ -99,7 +109,7 @@ class CustomerServiceTest {
             // Given
             Pageable pageable = PageRequest.of(0, 20);
             Page<User> emptyPage = new PageImpl<>(Arrays.asList(), pageable, 0);
-            when(userRepository.findByRole(User.Role.CUSTOMER, pageable)).thenReturn(emptyPage);
+            when(userRepository.findByBusinessIdAndRole(BUSINESS_ID, User.Role.CUSTOMER, pageable)).thenReturn(emptyPage);
 
             // When
             CustomerListResponse response = customerService.getCustomers(pageable);
@@ -119,8 +129,8 @@ class CustomerServiceTest {
         void shouldReturnCustomerWhenFound() {
             // Given
             User customer = createCustomer(1L, "John", "Doe", "john@test.com");
-            when(userRepository.findById(1L)).thenReturn(Optional.of(customer));
-            when(bookingRepository.countByCustomerIdAndStatus(1L, Booking.BookingStatus.NO_SHOW)).thenReturn(3L);
+            when(userRepository.findByIdAndBusinessId(1L, BUSINESS_ID)).thenReturn(Optional.of(customer));
+            when(bookingRepository.countByBusinessIdAndCustomerIdAndStatus(BUSINESS_ID, 1L, Booking.BookingStatus.NO_SHOW)).thenReturn(3L);
 
             // When
             CustomerResponse response = customerService.getCustomerById(1L);
@@ -137,7 +147,7 @@ class CustomerServiceTest {
         @DisplayName("Should throw ResourceNotFoundException when customer not found")
         void shouldThrowWhenCustomerNotFound() {
             // Given
-            when(userRepository.findById(999L)).thenReturn(Optional.empty());
+            when(userRepository.findByIdAndBusinessId(999L, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> customerService.getCustomerById(999L))
@@ -152,7 +162,7 @@ class CustomerServiceTest {
             User admin = new User();
             admin.setId(1L);
             admin.setRole(User.Role.ADMIN);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(admin));
+            when(userRepository.findByIdAndBusinessId(1L, BUSINESS_ID)).thenReturn(Optional.of(admin));
 
             // When/Then
             assertThatThrownBy(() -> customerService.getCustomerById(1L))
@@ -172,9 +182,9 @@ class CustomerServiceTest {
             User customer = createCustomer(1L, "John", "Doe", "john@test.com");
             String reason = "Repeated no-shows";
 
-            when(userRepository.findById(1L)).thenReturn(Optional.of(customer));
+            when(userRepository.findByIdAndBusinessId(1L, BUSINESS_ID)).thenReturn(Optional.of(customer));
             when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
-            when(bookingRepository.countByCustomerIdAndStatus(1L, Booking.BookingStatus.NO_SHOW)).thenReturn(0L);
+            when(bookingRepository.countByBusinessIdAndCustomerIdAndStatus(BUSINESS_ID, 1L, Booking.BookingStatus.NO_SHOW)).thenReturn(0L);
 
             // When
             CustomerResponse response = customerService.blacklistCustomer(1L, reason);
@@ -197,7 +207,7 @@ class CustomerServiceTest {
         @DisplayName("Should throw ResourceNotFoundException when customer not found")
         void shouldThrowWhenCustomerNotFound() {
             // Given
-            when(userRepository.findById(999L)).thenReturn(Optional.empty());
+            when(userRepository.findByIdAndBusinessId(999L, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> customerService.blacklistCustomer(999L, "reason"))
@@ -212,7 +222,7 @@ class CustomerServiceTest {
             User barber = new User();
             barber.setId(1L);
             barber.setRole(User.Role.BARBER);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(barber));
+            when(userRepository.findByIdAndBusinessId(1L, BUSINESS_ID)).thenReturn(Optional.of(barber));
 
             // When/Then
             assertThatThrownBy(() -> customerService.blacklistCustomer(1L, "reason"))
@@ -234,9 +244,9 @@ class CustomerServiceTest {
             customer.setBlacklistReason("Previous offense");
             customer.setBlacklistedAt(LocalDateTime.now());
 
-            when(userRepository.findById(1L)).thenReturn(Optional.of(customer));
+            when(userRepository.findByIdAndBusinessId(1L, BUSINESS_ID)).thenReturn(Optional.of(customer));
             when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
-            when(bookingRepository.countByCustomerIdAndStatus(1L, Booking.BookingStatus.NO_SHOW)).thenReturn(0L);
+            when(bookingRepository.countByBusinessIdAndCustomerIdAndStatus(BUSINESS_ID, 1L, Booking.BookingStatus.NO_SHOW)).thenReturn(0L);
 
             // When
             CustomerResponse response = customerService.unblacklistCustomer(1L);
@@ -259,7 +269,7 @@ class CustomerServiceTest {
         @DisplayName("Should throw ResourceNotFoundException when customer not found")
         void shouldThrowWhenCustomerNotFound() {
             // Given
-            when(userRepository.findById(999L)).thenReturn(Optional.empty());
+            when(userRepository.findByIdAndBusinessId(999L, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> customerService.unblacklistCustomer(999L))
@@ -278,7 +288,7 @@ class CustomerServiceTest {
             // Given
             User customer = createCustomer(1L, "John", "Doe", "john@test.com");
             customer.setBlacklisted(true);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(customer));
+            when(userRepository.findByIdAndBusinessId(1L, BUSINESS_ID)).thenReturn(Optional.of(customer));
 
             // When
             boolean result = customerService.isBlacklisted(1L);
@@ -293,7 +303,7 @@ class CustomerServiceTest {
             // Given
             User customer = createCustomer(1L, "John", "Doe", "john@test.com");
             customer.setBlacklisted(false);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(customer));
+            when(userRepository.findByIdAndBusinessId(1L, BUSINESS_ID)).thenReturn(Optional.of(customer));
 
             // When
             boolean result = customerService.isBlacklisted(1L);
@@ -306,7 +316,7 @@ class CustomerServiceTest {
         @DisplayName("Should throw ResourceNotFoundException when customer not found")
         void shouldThrowWhenCustomerNotFound() {
             // Given
-            when(userRepository.findById(999L)).thenReturn(Optional.empty());
+            when(userRepository.findByIdAndBusinessId(999L, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> customerService.isBlacklisted(999L))
@@ -325,7 +335,7 @@ class CustomerServiceTest {
             User customer = createCustomer(1L, "John", "Doe", "john@test.com");
             customer.setBlacklisted(true);
             customer.setBlacklistReason("Too many no-shows");
-            when(userRepository.findById(1L)).thenReturn(Optional.of(customer));
+            when(userRepository.findByIdAndBusinessId(1L, BUSINESS_ID)).thenReturn(Optional.of(customer));
 
             // When
             String reason = customerService.getBlacklistReason(1L);
@@ -341,7 +351,7 @@ class CustomerServiceTest {
             User customer = createCustomer(1L, "John", "Doe", "john@test.com");
             customer.setBlacklisted(false);
             customer.setBlacklistReason(null);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(customer));
+            when(userRepository.findByIdAndBusinessId(1L, BUSINESS_ID)).thenReturn(Optional.of(customer));
 
             // When
             String reason = customerService.getBlacklistReason(1L);
@@ -351,4 +361,3 @@ class CustomerServiceTest {
         }
     }
 }
-

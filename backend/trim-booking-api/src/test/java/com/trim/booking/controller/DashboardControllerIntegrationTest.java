@@ -53,10 +53,17 @@ class DashboardControllerIntegrationTest {
     private BookingRepository bookingRepository;
 
     @Autowired
+    private BarberAvailabilityRepository barberAvailabilityRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private BusinessRepository businessRepository;
 
     private ObjectMapper objectMapper;
 
+    private Business business;
     private User admin;
     private User customer;
     private User barberUser;
@@ -71,12 +78,17 @@ class DashboardControllerIntegrationTest {
     void setupOnce() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+
+        business = new Business();
+        business.setName("Test Barbershop Dashboard");
+        business = businessRepository.save(business);
     }
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test
+        // Clean up before each test (comprehensive to avoid FK violations from other test classes)
         bookingRepository.deleteAll();
+        barberAvailabilityRepository.deleteAll();
         serviceRepository.deleteAll();
         categoryRepository.deleteAll();
         barberRepository.deleteAll();
@@ -90,6 +102,7 @@ class DashboardControllerIntegrationTest {
         admin.setPasswordHash("hashedpassword");
         admin.setPhone("+353871111111");
         admin.setRole(User.Role.ADMIN);
+        admin.setBusiness(business);
         admin = userRepository.save(admin);
 
         // Create a customer
@@ -100,6 +113,7 @@ class DashboardControllerIntegrationTest {
         customer.setPasswordHash("hashedpassword");
         customer.setPhone("+353872222222");
         customer.setRole(User.Role.CUSTOMER);
+        customer.setBusiness(business);
         customer = userRepository.save(customer);
 
         // Create a barber user
@@ -110,6 +124,7 @@ class DashboardControllerIntegrationTest {
         barberUser.setPasswordHash("hashedpassword");
         barberUser.setPhone("+353873333333");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create barber entity
@@ -117,11 +132,13 @@ class DashboardControllerIntegrationTest {
         barber.setUser(barberUser);
         barber.setBio("Expert barber");
         barber.setActive(true);
+        barber.setBusiness(business);
         barber = barberRepository.save(barber);
 
         // Create service category
         category = new ServiceCategory("Haircuts");
         category.setActive(true);
+        category.setBusiness(business);
         category = categoryRepository.save(category);
 
         // Create a service
@@ -133,12 +150,13 @@ class DashboardControllerIntegrationTest {
         service.setDepositPercentage(20);
         service.setActive(true);
         service.setCategory(category);
+        service.setBusiness(business);
         service = serviceRepository.save(service);
 
         // Generate JWT tokens
-        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId());
-        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId());
-        barberToken = jwtUtil.generateToken(barberUser.getEmail(), "BARBER", barberUser.getId());
+        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId(), business.getId());
+        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId(), business.getId());
+        barberToken = jwtUtil.generateToken(barberUser.getEmail(), "BARBER", barberUser.getId(), business.getId());
     }
 
     // ==================== GET ADMIN DASHBOARD TESTS ====================
@@ -147,7 +165,8 @@ class DashboardControllerIntegrationTest {
     @DisplayName("Should return dashboard stats when admin")
     void getAdminDashboard_AsAdmin_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/dashboard/admin")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalBookings").exists())
                 .andExpect(jsonPath("$.todaysBookings").exists())
@@ -164,7 +183,8 @@ class DashboardControllerIntegrationTest {
     @DisplayName("Should reject dashboard access when customer")
     void getAdminDashboard_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(get("/api/dashboard/admin")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
@@ -172,14 +192,16 @@ class DashboardControllerIntegrationTest {
     @DisplayName("Should reject dashboard access when barber")
     void getAdminDashboard_AsBarber_ReturnsForbidden() throws Exception {
         mockMvc.perform(get("/api/dashboard/admin")
-                        .header("Authorization", "Bearer " + barberToken))
+                        .header("Authorization", "Bearer " + barberToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @DisplayName("Should reject dashboard access without authentication")
     void getAdminDashboard_WithoutAuth_ReturnsForbidden() throws Exception {
-        mockMvc.perform(get("/api/dashboard/admin"))
+        mockMvc.perform(get("/api/dashboard/admin")
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
@@ -198,6 +220,7 @@ class DashboardControllerIntegrationTest {
         todayBooking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
         todayBooking.setDepositAmount(new BigDecimal("5.00"));
         todayBooking.setOutstandingBalance(new BigDecimal("20.00"));
+        todayBooking.setBusiness(business);
         bookingRepository.save(todayBooking);
 
         // Create an upcoming booking
@@ -212,10 +235,12 @@ class DashboardControllerIntegrationTest {
         upcomingBooking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
         upcomingBooking.setDepositAmount(new BigDecimal("5.00"));
         upcomingBooking.setOutstandingBalance(new BigDecimal("20.00"));
+        upcomingBooking.setBusiness(business);
         bookingRepository.save(upcomingBooking);
 
         mockMvc.perform(get("/api/dashboard/admin")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalBookings").value(greaterThanOrEqualTo(2)))
                 .andExpect(jsonPath("$.todaysBookings").value(greaterThanOrEqualTo(1)))
@@ -229,10 +254,10 @@ class DashboardControllerIntegrationTest {
         bookingRepository.deleteAll();
 
         mockMvc.perform(get("/api/dashboard/admin")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalBookings").value(0))
                 .andExpect(jsonPath("$.todaysBookings").value(0));
     }
 }
-

@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.trim.booking.config.JwtUtil;
 import com.trim.booking.dto.service.CategoryRequest;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.ServiceCategory;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.entity.User;
-import com.trim.booking.repository.ServiceCategoryRepository;
-import com.trim.booking.repository.ServiceRepository;
-import com.trim.booking.repository.UserRepository;
+import com.trim.booking.repository.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -56,10 +55,23 @@ class ServiceCategoryControllerIntegrationTest {
     private ServiceRepository serviceRepository;
 
     @Autowired
+    private BarberRepository barberRepository;
+
+    @Autowired
+    private BarberAvailabilityRepository barberAvailabilityRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private BusinessRepository businessRepository;
 
     private ObjectMapper objectMapper;
 
+    private Business business;
     private User admin;
     private User customer;
     private ServiceCategory category;
@@ -70,13 +82,20 @@ class ServiceCategoryControllerIntegrationTest {
     void setupOnce() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+
+        business = new Business();
+        business.setName("Test Barbershop Categories");
+        business = businessRepository.save(business);
     }
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test
+        // Clean up before each test (comprehensive to avoid FK violations from other test classes)
+        bookingRepository.deleteAll();
+        barberAvailabilityRepository.deleteAll();
         serviceRepository.deleteAll();
         categoryRepository.deleteAll();
+        barberRepository.deleteAll();
         userRepository.deleteAll();
 
         // Create an admin user
@@ -87,6 +106,7 @@ class ServiceCategoryControllerIntegrationTest {
         admin.setPasswordHash("hashedpassword");
         admin.setPhone("+353871111111");
         admin.setRole(User.Role.ADMIN);
+        admin.setBusiness(business);
         admin = userRepository.save(admin);
 
         // Create a customer
@@ -97,16 +117,18 @@ class ServiceCategoryControllerIntegrationTest {
         customer.setPasswordHash("hashedpassword");
         customer.setPhone("+353872222222");
         customer.setRole(User.Role.CUSTOMER);
+        customer.setBusiness(business);
         customer = userRepository.save(customer);
 
         // Create service category
         category = new ServiceCategory("Haircuts");
         category.setActive(true);
+        category.setBusiness(business);
         category = categoryRepository.save(category);
 
         // Generate JWT tokens
-        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId());
-        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId());
+        adminToken = jwtUtil.generateToken(admin.getEmail(), "ADMIN", admin.getId(), business.getId());
+        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId(), business.getId());
     }
 
     // ==================== CREATE CATEGORY TESTS ====================
@@ -119,6 +141,7 @@ class ServiceCategoryControllerIntegrationTest {
 
         mockMvc.perform(post("/api/categories")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -135,6 +158,7 @@ class ServiceCategoryControllerIntegrationTest {
 
         mockMvc.perform(post("/api/categories")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -147,6 +171,7 @@ class ServiceCategoryControllerIntegrationTest {
         request.setName("Beard Trims");
 
         mockMvc.perform(post("/api/categories")
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -160,6 +185,7 @@ class ServiceCategoryControllerIntegrationTest {
 
         mockMvc.perform(post("/api/categories")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -175,6 +201,7 @@ class ServiceCategoryControllerIntegrationTest {
 
         mockMvc.perform(put("/api/categories/" + category.getId())
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -189,6 +216,7 @@ class ServiceCategoryControllerIntegrationTest {
 
         mockMvc.perform(put("/api/categories/" + category.getId())
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -202,6 +230,7 @@ class ServiceCategoryControllerIntegrationTest {
 
         mockMvc.perform(put("/api/categories/99999")
                         .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -213,7 +242,8 @@ class ServiceCategoryControllerIntegrationTest {
     @DisplayName("Should return all categories when authenticated")
     void getAllCategories_WithAuth_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/categories")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
                 .andExpect(jsonPath("$[0].id").exists())
@@ -234,10 +264,12 @@ class ServiceCategoryControllerIntegrationTest {
         service.setDepositPercentage(20);
         service.setActive(true);
         service.setCategory(category);
+        service.setBusiness(business);
         serviceRepository.save(service);
 
         mockMvc.perform(get("/api/categories/with-services")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
                 .andExpect(jsonPath("$[0].name").value("Haircuts"))
@@ -249,7 +281,8 @@ class ServiceCategoryControllerIntegrationTest {
     @DisplayName("Should return empty services array for category without services")
     void getCategoriesWithServices_NoServices_ReturnsEmptyArray() throws Exception {
         mockMvc.perform(get("/api/categories/with-services")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].services", hasSize(0)));
     }
@@ -260,7 +293,8 @@ class ServiceCategoryControllerIntegrationTest {
     @DisplayName("Should return category by ID")
     void getCategoryById_ExistingId_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/categories/" + category.getId())
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(category.getId()))
                 .andExpect(jsonPath("$.name").value("Haircuts"))
@@ -271,7 +305,8 @@ class ServiceCategoryControllerIntegrationTest {
     @DisplayName("Should return not found for non-existent category ID")
     void getCategoryById_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/categories/99999")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 
@@ -281,7 +316,8 @@ class ServiceCategoryControllerIntegrationTest {
     @DisplayName("Should successfully deactivate category when admin")
     void deactivateCategory_AsAdmin_ReturnsOk() throws Exception {
         mockMvc.perform(patch("/api/categories/" + category.getId() + "/deactivate")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.active").value(false));
     }
@@ -290,7 +326,8 @@ class ServiceCategoryControllerIntegrationTest {
     @DisplayName("Should reject deactivate category when not admin")
     void deactivateCategory_AsCustomer_ReturnsForbidden() throws Exception {
         mockMvc.perform(patch("/api/categories/" + category.getId() + "/deactivate")
-                        .header("Authorization", "Bearer " + customerToken))
+                        .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isForbidden());
     }
 
@@ -298,8 +335,8 @@ class ServiceCategoryControllerIntegrationTest {
     @DisplayName("Should return not found when deactivating non-existent category")
     void deactivateCategory_NonExistentId_ReturnsNotFound() throws Exception {
         mockMvc.perform(patch("/api/categories/99999/deactivate")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug()))
                 .andExpect(status().isNotFound());
     }
 }
-

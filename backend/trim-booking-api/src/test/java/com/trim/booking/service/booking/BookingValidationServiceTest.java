@@ -7,10 +7,8 @@ import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberRepository;
 import com.trim.booking.repository.ServiceRepository;
 import com.trim.booking.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import com.trim.booking.tenant.TenantContext;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,10 +36,18 @@ class BookingValidationServiceTest {
 
     private BookingValidationService bookingValidationService;
 
+    private static final Long BUSINESS_ID = 1L;
+
     @BeforeEach
     void setUp() {
+        TenantContext.setCurrentBusiness(BUSINESS_ID, "test-business");
         bookingValidationService = new BookingValidationService(
                 userRepository, barberRepository, serviceRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
     }
 
     @Nested
@@ -57,7 +63,7 @@ class BookingValidationServiceTest {
             customer.setId(customerId);
             customer.setFirstName("John");
             customer.setLastName("Doe");
-            when(userRepository.findById(customerId)).thenReturn(Optional.of(customer));
+            when(userRepository.findByIdAndBusinessId(customerId, BUSINESS_ID)).thenReturn(Optional.of(customer));
 
             // When
             User result = bookingValidationService.validateAndGetCustomer(customerId);
@@ -73,7 +79,7 @@ class BookingValidationServiceTest {
         void shouldThrowExceptionWhenCustomerNotFound() {
             // Given
             Long customerId = 999L;
-            when(userRepository.findById(customerId)).thenReturn(Optional.empty());
+            when(userRepository.findByIdAndBusinessId(customerId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> bookingValidationService.validateAndGetCustomer(customerId))
@@ -94,7 +100,7 @@ class BookingValidationServiceTest {
             Barber barber = new Barber();
             barber.setId(barberId);
             barber.setBio("Expert barber");
-            when(barberRepository.findById(barberId)).thenReturn(Optional.of(barber));
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.of(barber));
 
             // When
             Barber result = bookingValidationService.validateAndGetBarber(barberId);
@@ -110,7 +116,7 @@ class BookingValidationServiceTest {
         void shouldThrowExceptionWhenBarberNotFound() {
             // Given
             Long barberId = 999L;
-            when(barberRepository.findById(barberId)).thenReturn(Optional.empty());
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> bookingValidationService.validateAndGetBarber(barberId))
@@ -131,7 +137,7 @@ class BookingValidationServiceTest {
             ServiceOffered service = new ServiceOffered();
             service.setId(serviceId);
             service.setName("Haircut");
-            when(serviceRepository.findById(serviceId)).thenReturn(Optional.of(service));
+            when(serviceRepository.findByIdAndBusinessId(serviceId, BUSINESS_ID)).thenReturn(Optional.of(service));
 
             // When
             ServiceOffered result = bookingValidationService.validateAndGetService(serviceId);
@@ -147,7 +153,7 @@ class BookingValidationServiceTest {
         void shouldThrowExceptionWhenServiceNotFound() {
             // Given
             Long serviceId = 999L;
-            when(serviceRepository.findById(serviceId)).thenReturn(Optional.empty());
+            when(serviceRepository.findByIdAndBusinessId(serviceId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> bookingValidationService.validateAndGetService(serviceId))
@@ -211,4 +217,3 @@ class BookingValidationServiceTest {
         }
     }
 }
-

@@ -4,10 +4,8 @@ import com.trim.booking.entity.Booking;
 import com.trim.booking.entity.ServiceOffered;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BookingRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import com.trim.booking.tenant.TenantContext;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -31,9 +29,17 @@ class BookingStatusServiceTest {
 
     private BookingStatusService bookingStatusService;
 
+    private static final Long BUSINESS_ID = 1L;
+
     @BeforeEach
     void setUp() {
+        TenantContext.setCurrentBusiness(BUSINESS_ID, "test-business");
         bookingStatusService = new BookingStatusService(bookingRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
     }
 
     @Nested
@@ -46,7 +52,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
             when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
@@ -63,7 +69,7 @@ class BookingStatusServiceTest {
         void shouldThrowWhenBookingNotFound() {
             // Given
             Long bookingId = 999L;
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.markAsCompleted(bookingId))
@@ -77,7 +83,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.CANCELLED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.markAsCompleted(bookingId))
@@ -91,7 +97,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.COMPLETED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.markAsCompleted(bookingId))
@@ -111,7 +117,7 @@ class BookingStatusServiceTest {
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.CONFIRMED);
             booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
             when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
@@ -128,7 +134,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.CANCELLED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.markAsPaid(bookingId))
@@ -143,7 +149,7 @@ class BookingStatusServiceTest {
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.CONFIRMED);
             booking.setPaymentStatus(Booking.PaymentStatus.FULLY_PAID);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.markAsPaid(bookingId))
@@ -162,7 +168,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
             when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
@@ -178,7 +184,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.CANCELLED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.markAsNoShow(bookingId))
@@ -192,7 +198,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.COMPLETED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.markAsNoShow(bookingId))
@@ -211,7 +217,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
             when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
@@ -227,7 +233,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.PENDING);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
             when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
@@ -243,7 +249,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.CANCELLED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.cancelBooking(bookingId))
@@ -257,7 +263,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.COMPLETED);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.cancelBooking(bookingId))
@@ -276,7 +282,7 @@ class BookingStatusServiceTest {
             // Given
             Long bookingId = 1L;
             Booking booking = createBookingWithService(bookingId, Booking.BookingStatus.PENDING);
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.of(booking));
             when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
@@ -292,7 +298,7 @@ class BookingStatusServiceTest {
         void shouldThrowWhenBookingNotFound() {
             // Given
             Long bookingId = 999L;
-            when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+            when(bookingRepository.findByIdAndBusinessId(bookingId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> bookingStatusService.confirmBooking(bookingId))
@@ -315,4 +321,3 @@ class BookingStatusServiceTest {
         return booking;
     }
 }
-

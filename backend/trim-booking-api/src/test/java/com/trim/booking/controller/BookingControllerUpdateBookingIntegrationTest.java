@@ -5,17 +5,13 @@ import com.trim.booking.config.JwtUtil;
 import com.trim.booking.dto.booking.UpdateBookingRequest;
 import com.trim.booking.entity.*;
 import com.trim.booking.repository.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -43,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BookingControllerUpdateBookingIntegrationTest {
 
     @Autowired
@@ -73,6 +69,10 @@ public class BookingControllerUpdateBookingIntegrationTest {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private BusinessRepository businessRepository;
+
+    private Business business;
     private User testCustomer;
     private User otherCustomer;
     private User testAdmin;
@@ -86,6 +86,13 @@ public class BookingControllerUpdateBookingIntegrationTest {
     private String barberToken;
     private LocalDate futureDate;
     private LocalDate futureDate2;
+
+    @BeforeAll
+    void setupOnce() {
+        business = new Business();
+        business.setName("Test Barbershop Update");
+        business = businessRepository.save(business);
+    }
 
     @BeforeEach
     void setUp() {
@@ -105,6 +112,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
         testCustomer.setPhone("9876543210");
         testCustomer.setPasswordHash("password123");
         testCustomer.setRole(User.Role.CUSTOMER);
+        testCustomer.setBusiness(business);
         testCustomer = userRepository.save(testCustomer);
 
         // Create another customer
@@ -115,6 +123,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
         otherCustomer.setPhone("5555555555");
         otherCustomer.setPasswordHash("password123");
         otherCustomer.setRole(User.Role.CUSTOMER);
+        otherCustomer.setBusiness(business);
         otherCustomer = userRepository.save(otherCustomer);
 
         // Create admin user
@@ -125,6 +134,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
         testAdmin.setPhone("1111111111");
         testAdmin.setPasswordHash("password123");
         testAdmin.setRole(User.Role.ADMIN);
+        testAdmin.setBusiness(business);
         testAdmin = userRepository.save(testAdmin);
 
         // Create barber user
@@ -135,6 +145,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
         barberUser.setPhone("1234567890");
         barberUser.setPasswordHash("password123");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create test barber
@@ -142,12 +153,14 @@ public class BookingControllerUpdateBookingIntegrationTest {
         testBarber.setUser(barberUser);
         testBarber.setBio("Test barber");
         testBarber.setActive(true);
+        testBarber.setBusiness(business);
         testBarber = barberRepository.save(testBarber);
 
         // Create service category
         ServiceCategory category = new ServiceCategory();
         category.setName("Haircuts");
         category.setActive(true);
+        category.setBusiness(business);
         category = serviceCategoryRepository.save(category);
 
         // Create test service (30 minutes)
@@ -159,6 +172,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
         testService.setDepositPercentage(50);
         testService.setActive(true);
         testService.setCategory(category);
+        testService.setBusiness(business);
         testService = serviceRepository.save(testService);
 
         // Create long service (60 minutes)
@@ -170,13 +184,14 @@ public class BookingControllerUpdateBookingIntegrationTest {
         longService.setDepositPercentage(50);
         longService.setActive(true);
         longService.setCategory(category);
+        longService.setBusiness(business);
         longService = serviceRepository.save(longService);
 
         // Generate JWT tokens
-        customerToken = jwtUtil.generateToken(testCustomer.getEmail(), testCustomer.getRole().name(), testCustomer.getId());
-        otherCustomerToken = jwtUtil.generateToken(otherCustomer.getEmail(), otherCustomer.getRole().name(), otherCustomer.getId());
-        adminToken = jwtUtil.generateToken(testAdmin.getEmail(), testAdmin.getRole().name(), testAdmin.getId());
-        barberToken = jwtUtil.generateToken(barberUser.getEmail(), barberUser.getRole().name(), barberUser.getId());
+        customerToken = jwtUtil.generateToken(testCustomer.getEmail(), testCustomer.getRole().name(), testCustomer.getId(), business.getId());
+        otherCustomerToken = jwtUtil.generateToken(otherCustomer.getEmail(), otherCustomer.getRole().name(), otherCustomer.getId(), business.getId());
+        adminToken = jwtUtil.generateToken(testAdmin.getEmail(), testAdmin.getRole().name(), testAdmin.getId(), business.getId());
+        barberToken = jwtUtil.generateToken(barberUser.getEmail(), barberUser.getRole().name(), barberUser.getId(), business.getId());
 
         // Use future Mondays for testing
         futureDate = LocalDate.now().plusWeeks(1);
@@ -197,6 +212,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
         availability.setStartTime(LocalTime.of(9, 0));
         availability.setEndTime(LocalTime.of(17, 0));
         availability.setIsAvailable(true);
+        availability.setBusiness(business);
         barberAvailabilityRepository.save(availability);
     }
 
@@ -213,6 +229,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
         booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
         booking.setDepositAmount(BigDecimal.valueOf(12.50));
         booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
+        booking.setBusiness(business);
         return bookingRepository.save(booking);
     }
 
@@ -229,6 +246,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
         booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
         booking.setDepositAmount(BigDecimal.valueOf(12.50));
         booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
+        booking.setBusiness(business);
         return bookingRepository.save(booking);
     }
 
@@ -247,6 +265,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -262,6 +281,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + otherCustomerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -281,6 +301,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             // Admin trying to update customer's booking - should be forbidden per current implementation
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + adminToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -295,6 +316,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -308,6 +330,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             UpdateBookingRequest request = new UpdateBookingRequest(futureDate, LocalTime.of(14, 0));
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -329,6 +352,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -344,6 +368,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -359,6 +384,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -377,6 +403,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -391,6 +418,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -418,6 +446,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", bookingToUpdate.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isConflict());
@@ -441,6 +470,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", bookingToUpdate.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isConflict());
@@ -460,6 +490,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", bookingToUpdate.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -476,6 +507,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -496,6 +528,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", bookingToUpdate.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -519,6 +552,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -533,6 +567,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -548,6 +583,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestJson))
                     .andExpect(status().isBadRequest());
@@ -562,6 +598,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestJson))
                     .andExpect(status().isBadRequest());
@@ -583,6 +620,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -605,6 +643,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -623,6 +662,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -645,12 +685,14 @@ public class BookingControllerUpdateBookingIntegrationTest {
             booking.setDepositAmount(BigDecimal.valueOf(12.50));
             booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
             booking.setNotes("Special request: short on sides");
+            booking.setBusiness(business);
             booking = bookingRepository.save(booking);
 
             UpdateBookingRequest request = new UpdateBookingRequest(futureDate, LocalTime.of(14, 0));
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk());
@@ -673,6 +715,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -698,6 +741,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
 
             mockMvc.perform(put("/api/bookings/{id}", 99999L)
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isNotFound());
@@ -719,6 +763,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             UpdateBookingRequest request1 = new UpdateBookingRequest(futureDate, LocalTime.of(11, 0));
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request1)))
                     .andExpect(status().isOk())
@@ -728,6 +773,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             UpdateBookingRequest request2 = new UpdateBookingRequest(futureDate, LocalTime.of(15, 0));
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request2)))
                     .andExpect(status().isOk())
@@ -737,6 +783,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             UpdateBookingRequest request3 = new UpdateBookingRequest(futureDate2, LocalTime.of(9, 0));
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request3)))
                     .andExpect(status().isOk())
@@ -753,6 +800,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             UpdateBookingRequest request1 = new UpdateBookingRequest(futureDate, LocalTime.of(9, 0));
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request1)))
                     .andExpect(status().isOk())
@@ -762,6 +810,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             UpdateBookingRequest request2 = new UpdateBookingRequest(futureDate, LocalTime.of(16, 30));
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request2)))
                     .andExpect(status().isOk())
@@ -779,6 +828,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             UpdateBookingRequest request = new UpdateBookingRequest(futureDate, LocalTime.of(14, 0));
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk());
@@ -805,6 +855,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             booking.setDepositAmount(BigDecimal.ZERO);
             booking.setOutstandingBalance(testService.getPrice());
             booking.setExpiresAt(LocalDateTime.now().plusMinutes(5)); // 5 minutes from now
+            booking.setBusiness(business);
             booking = bookingRepository.save(booking);
 
             LocalDateTime originalExpiry = booking.getExpiresAt();
@@ -816,6 +867,7 @@ public class BookingControllerUpdateBookingIntegrationTest {
             UpdateBookingRequest request = new UpdateBookingRequest(futureDate, LocalTime.of(14, 0));
             mockMvc.perform(put("/api/bookings/{id}", booking.getId())
                             .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk());
@@ -827,4 +879,3 @@ public class BookingControllerUpdateBookingIntegrationTest {
         }
     }
 }
-

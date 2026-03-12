@@ -3,16 +3,12 @@ package com.trim.booking.controller;
 import com.trim.booking.config.JwtUtil;
 import com.trim.booking.entity.*;
 import com.trim.booking.repository.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -38,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BookingControllerCompleteBookingIntegrationTest {
 
     @Autowired
@@ -62,6 +58,10 @@ public class BookingControllerCompleteBookingIntegrationTest {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private BusinessRepository businessRepository;
+
+    private Business business;
     private User testCustomer;
     private User testAdmin;
     private User barberUser;
@@ -71,6 +71,13 @@ public class BookingControllerCompleteBookingIntegrationTest {
     private String adminToken;
     private String barberToken;
     private LocalDate futureDate;
+
+    @BeforeAll
+    void setupOnce() {
+        business = new Business();
+        business.setName("Test Barbershop Complete");
+        business = businessRepository.save(business);
+    }
 
     @BeforeEach
     void setUp() {
@@ -89,6 +96,7 @@ public class BookingControllerCompleteBookingIntegrationTest {
         testCustomer.setPhone("9876543210");
         testCustomer.setPasswordHash("password123");
         testCustomer.setRole(User.Role.CUSTOMER);
+        testCustomer.setBusiness(business);
         testCustomer = userRepository.save(testCustomer);
 
         // Create admin user
@@ -99,6 +107,7 @@ public class BookingControllerCompleteBookingIntegrationTest {
         testAdmin.setPhone("1111111111");
         testAdmin.setPasswordHash("password123");
         testAdmin.setRole(User.Role.ADMIN);
+        testAdmin.setBusiness(business);
         testAdmin = userRepository.save(testAdmin);
 
         // Create barber user
@@ -109,6 +118,7 @@ public class BookingControllerCompleteBookingIntegrationTest {
         barberUser.setPhone("1234567890");
         barberUser.setPasswordHash("password123");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create test barber
@@ -116,12 +126,14 @@ public class BookingControllerCompleteBookingIntegrationTest {
         testBarber.setUser(barberUser);
         testBarber.setBio("Test barber");
         testBarber.setActive(true);
+        testBarber.setBusiness(business);
         testBarber = barberRepository.save(testBarber);
 
         // Create service category
         ServiceCategory category = new ServiceCategory();
         category.setName("Haircuts");
         category.setActive(true);
+        category.setBusiness(business);
         category = serviceCategoryRepository.save(category);
 
         // Create test service
@@ -133,12 +145,13 @@ public class BookingControllerCompleteBookingIntegrationTest {
         testService.setDepositPercentage(50);
         testService.setActive(true);
         testService.setCategory(category);
+        testService.setBusiness(business);
         testService = serviceRepository.save(testService);
 
         // Generate JWT tokens
-        customerToken = jwtUtil.generateToken(testCustomer.getEmail(), testCustomer.getRole().name(), testCustomer.getId());
-        adminToken = jwtUtil.generateToken(testAdmin.getEmail(), testAdmin.getRole().name(), testAdmin.getId());
-        barberToken = jwtUtil.generateToken(barberUser.getEmail(), barberUser.getRole().name(), barberUser.getId());
+        customerToken = jwtUtil.generateToken(testCustomer.getEmail(), testCustomer.getRole().name(), testCustomer.getId(), business.getId());
+        adminToken = jwtUtil.generateToken(testAdmin.getEmail(), testAdmin.getRole().name(), testAdmin.getId(), business.getId());
+        barberToken = jwtUtil.generateToken(barberUser.getEmail(), barberUser.getRole().name(), barberUser.getId(), business.getId());
 
         // Use a future Monday for testing
         futureDate = LocalDate.now().plusWeeks(1);
@@ -160,6 +173,7 @@ public class BookingControllerCompleteBookingIntegrationTest {
         booking.setPaymentStatus(paymentStatus);
         booking.setDepositAmount(BigDecimal.valueOf(12.50));
         booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
+        booking.setBusiness(business);
         return bookingRepository.save(booking);
     }
 
@@ -175,7 +189,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(booking.getId().intValue())))
                     .andExpect(jsonPath("$.status", is("COMPLETED")));
@@ -187,7 +202,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + adminToken))
+                            .header("Authorization", "Bearer " + adminToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(booking.getId().intValue())))
                     .andExpect(jsonPath("$.status", is("COMPLETED")));
@@ -199,7 +215,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + customerToken))
+                            .header("Authorization", "Bearer " + customerToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isForbidden());
 
             // Verify booking status unchanged
@@ -212,7 +229,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
         void testCompleteBooking_Unauthenticated() throws Exception {
             Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
 
-            mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId()))
+            mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isForbidden());
 
             // Verify booking status unchanged
@@ -233,7 +251,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.PENDING, Booking.PaymentStatus.PENDING);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status", is("COMPLETED")));
 
@@ -248,7 +267,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status", is("COMPLETED")));
 
@@ -263,7 +283,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.NO_SHOW, Booking.PaymentStatus.DEPOSIT_PAID);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status", is("COMPLETED")));
         }
@@ -274,7 +295,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.CANCELLED, Booking.PaymentStatus.CANCELLED);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isBadRequest());
 
             // Verify status unchanged
@@ -288,7 +310,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.COMPLETED, Booking.PaymentStatus.FULLY_PAID);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isBadRequest());
         }
     }
@@ -305,7 +328,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.paymentStatus", is("FULLY_PAID")));
 
@@ -322,7 +346,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             assertEquals(BigDecimal.valueOf(12.50).setScale(2), booking.getOutstandingBalance().setScale(2));
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.outstandingBalance", is(0)));
 
@@ -337,7 +362,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.depositAmount", is(25.0)));
 
@@ -352,7 +378,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.PENDING, Booking.PaymentStatus.PENDING);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status", is("COMPLETED")))
                     .andExpect(jsonPath("$.paymentStatus", is("FULLY_PAID")));
@@ -369,7 +396,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
         @DisplayName("Should return 404 when booking not found")
         void testCompleteBooking_NotFound() throws Exception {
             mockMvc.perform(put("/api/bookings/{id}/complete", 99999L)
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isNotFound());
         }
 
@@ -377,7 +405,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
         @DisplayName("Should return 404 when booking ID is 0")
         void testCompleteBooking_ZeroId() throws Exception {
             mockMvc.perform(put("/api/bookings/{id}/complete", 0L)
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isNotFound());
         }
     }
@@ -395,7 +424,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             // Booking is assigned to testBarber, and barberToken is for barberUser who owns testBarber
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status", is("COMPLETED")));
         }
@@ -411,12 +441,14 @@ public class BookingControllerCompleteBookingIntegrationTest {
             secondBarberUser.setPhone("2222222222");
             secondBarberUser.setPasswordHash("password123");
             secondBarberUser.setRole(User.Role.BARBER);
+            secondBarberUser.setBusiness(business);
             secondBarberUser = userRepository.save(secondBarberUser);
 
             Barber secondBarber = new Barber();
             secondBarber.setUser(secondBarberUser);
             secondBarber.setBio("Second barber");
             secondBarber.setActive(true);
+            secondBarber.setBusiness(business);
             secondBarber = barberRepository.save(secondBarber);
 
             // Create booking assigned to second barber
@@ -431,11 +463,13 @@ public class BookingControllerCompleteBookingIntegrationTest {
             booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
             booking.setDepositAmount(BigDecimal.valueOf(12.50));
             booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
+            booking.setBusiness(business);
             booking = bookingRepository.save(booking);
 
             // Admin should be able to complete booking assigned to any barber
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + adminToken))
+                            .header("Authorization", "Bearer " + adminToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status", is("COMPLETED")));
         }
@@ -446,7 +480,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Booking booking = createBooking(Booking.BookingStatus.CONFIRMED, Booking.PaymentStatus.DEPOSIT_PAID);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(booking.getId().intValue())))
                     .andExpect(jsonPath("$.status", is("COMPLETED")))
@@ -466,7 +501,8 @@ public class BookingControllerCompleteBookingIntegrationTest {
             Long bookingId = booking.getId();
 
             mockMvc.perform(put("/api/bookings/{id}/complete", bookingId)
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk());
 
             // Fetch from database and verify all fields
@@ -496,6 +532,7 @@ public class BookingControllerCompleteBookingIntegrationTest {
             expensiveService.setDepositPercentage(50);
             expensiveService.setActive(true);
             expensiveService.setCategory(testService.getCategory());
+            expensiveService.setBusiness(business);
             expensiveService = serviceRepository.save(expensiveService);
 
             // Create booking with expensive service
@@ -510,10 +547,12 @@ public class BookingControllerCompleteBookingIntegrationTest {
             booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
             booking.setDepositAmount(BigDecimal.valueOf(37.50));
             booking.setOutstandingBalance(BigDecimal.valueOf(37.50));
+            booking.setBusiness(business);
             booking = bookingRepository.save(booking);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.depositAmount", is(75.0)))
                     .andExpect(jsonPath("$.outstandingBalance", is(0)));
@@ -535,17 +574,20 @@ public class BookingControllerCompleteBookingIntegrationTest {
             booking2.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
             booking2.setDepositAmount(BigDecimal.valueOf(12.50));
             booking2.setOutstandingBalance(BigDecimal.valueOf(12.50));
+            booking2.setBusiness(business);
             booking2 = bookingRepository.save(booking2);
 
             // Complete first booking
             mockMvc.perform(put("/api/bookings/{id}/complete", booking1.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status", is("COMPLETED")));
 
             // Complete second booking
             mockMvc.perform(put("/api/bookings/{id}/complete", booking2.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status", is("COMPLETED")));
 
@@ -570,10 +612,12 @@ public class BookingControllerCompleteBookingIntegrationTest {
             booking.setPaymentStatus(Booking.PaymentStatus.PENDING);
             booking.setDepositAmount(BigDecimal.ZERO);
             booking.setOutstandingBalance(testService.getPrice());
+            booking.setBusiness(business);
             booking = bookingRepository.save(booking);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status", is("COMPLETED")))
                     .andExpect(jsonPath("$.paymentStatus", is("FULLY_PAID")))
@@ -596,10 +640,12 @@ public class BookingControllerCompleteBookingIntegrationTest {
             booking.setDepositAmount(BigDecimal.valueOf(12.50));
             booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
             booking.setNotes("Special request: extra styling");
+            booking.setBusiness(business);
             booking = bookingRepository.save(booking);
 
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
                     .andExpect(status().isOk());
 
             // Verify other fields are preserved
@@ -620,7 +666,7 @@ public class BookingControllerCompleteBookingIntegrationTest {
     class BarberSpecificTests {
 
         @Test
-        @DisplayName("Barber can complete booking assigned to another barber")
+        @DisplayName("Barber cannot complete booking assigned to another barber")
         void testCompleteBooking_BarberCompletesOtherBarbersBooking() throws Exception {
             // Create a second barber
             User secondBarberUser = new User();
@@ -630,12 +676,14 @@ public class BookingControllerCompleteBookingIntegrationTest {
             secondBarberUser.setPhone("3333333333");
             secondBarberUser.setPasswordHash("password123");
             secondBarberUser.setRole(User.Role.BARBER);
+            secondBarberUser.setBusiness(business);
             secondBarberUser = userRepository.save(secondBarberUser);
 
             Barber secondBarber = new Barber();
             secondBarber.setUser(secondBarberUser);
             secondBarber.setBio("Second barber");
             secondBarber.setActive(true);
+            secondBarber.setBusiness(business);
             secondBarber = barberRepository.save(secondBarber);
 
             // Create booking assigned to second barber
@@ -650,15 +698,14 @@ public class BookingControllerCompleteBookingIntegrationTest {
             booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
             booking.setDepositAmount(BigDecimal.valueOf(12.50));
             booking.setOutstandingBalance(BigDecimal.valueOf(12.50));
+            booking.setBusiness(business);
             booking = bookingRepository.save(booking);
 
-            // First barber tries to complete second barber's booking
-            // Based on current implementation, any barber can complete any booking
+            // First barber tries to complete second barber's booking — should be forbidden
             mockMvc.perform(put("/api/bookings/{id}/complete", booking.getId())
-                            .header("Authorization", "Bearer " + barberToken))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.status", is("COMPLETED")));
+                            .header("Authorization", "Bearer " + barberToken)
+                            .header("X-Business-Slug", business.getSlug()))
+                    .andExpect(status().isForbidden());
         }
     }
 }
-

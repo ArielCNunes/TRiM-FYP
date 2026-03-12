@@ -9,6 +9,7 @@ import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
 import com.trim.booking.repository.BarberAvailabilityRepository;
 import com.trim.booking.repository.BarberRepository;
+import com.trim.booking.repository.BookingRepository;
 import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -61,6 +62,9 @@ class BarberAvailabilityControllerIntegrationTest {
     private BusinessRepository businessRepository;
 
     @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     private ObjectMapper objectMapper;
@@ -88,7 +92,8 @@ class BarberAvailabilityControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test (business persists from @BeforeAll)
+        // Comprehensive cleanup before each test (business persists from @BeforeAll)
+        bookingRepository.deleteAll();
         availabilityRepository.deleteAll();
         barberRepository.deleteAll();
         userRepository.deleteAll();

@@ -19,25 +19,26 @@ class PhoneNumberUtilTest {
 
     @Test
     void testNormalizePhoneNumber_WithSingleLeadingZero() {
-        // Only first zero removed: 00871234567 becomes +3500871234567
+        // Only first zero removed: 00871234567 -> 0871234567 -> +3530871234567
         String result = PhoneNumberUtil.normalizePhoneNumber("00871234567", "353");
-        assertEquals("+3500871234567", result);
+        assertEquals("+3530871234567", result);
     }
 
     @Test
     void testNormalizePhoneNumber_TooShort() {
         // Phone too short (less than 7 digits after removing leading zero)
+        // "012345" -> removes leading zero -> "12345" (5 digits, less than 7)
         InvalidPhoneNumberException exception = assertThrows(InvalidPhoneNumberException.class, () -> {
-            PhoneNumberUtil.normalizePhoneNumber("087123456", "353");
+            PhoneNumberUtil.normalizePhoneNumber("012345", "353");
         });
         assertTrue(exception.getMessage().contains("Phone number too short - minimum 7 digits required"));
     }
 
     @Test
     void testNormalizePhoneNumber_OnlyZeros() {
-        // Only zeros should give specific error message
+        // Single zero: "0" -> removes leading zero -> empty -> "contains only zeros"
         InvalidPhoneNumberException exception = assertThrows(InvalidPhoneNumberException.class, () -> {
-            PhoneNumberUtil.normalizePhoneNumber("000", "353");
+            PhoneNumberUtil.normalizePhoneNumber("0", "353");
         });
         assertTrue(exception.getMessage().contains("Phone number contains only zeros"));
     }
@@ -135,18 +136,19 @@ class PhoneNumberUtilTest {
 
     @Test
     void testNormalizePhoneNumber_MinimumLength() {
-        // Exactly 7 digits should work
-        String result = PhoneNumberUtil.normalizePhoneNumber("0871234", "353");
-        assertEquals("+353871234", result);
+        // Exactly 7 digits after removing leading zero should work
+        // "01234567" -> removes leading zero -> "1234567" (7 digits)
+        String result = PhoneNumberUtil.normalizePhoneNumber("01234567", "353");
+        assertEquals("+3531234567", result);
     }
 
     @Test
     void testNormalizePhoneNumber_JustUnderMinimum() {
-        // 6 digits should fail
+        // 6 digits after removing leading zero should fail
+        // "0123456" -> removes leading zero -> "123456" (6 digits)
         InvalidPhoneNumberException exception = assertThrows(InvalidPhoneNumberException.class, () -> {
-            PhoneNumberUtil.normalizePhoneNumber("087123", "353");
+            PhoneNumberUtil.normalizePhoneNumber("0123456", "353");
         });
         assertTrue(exception.getMessage().contains("Phone number too short"));
     }
 }
-

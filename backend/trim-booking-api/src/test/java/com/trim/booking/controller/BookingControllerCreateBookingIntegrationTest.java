@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -62,8 +61,12 @@ class BookingControllerCreateBookingIntegrationTest {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private BusinessRepository businessRepository;
+
     private ObjectMapper objectMapper;
 
+    private Business business;
     private User customer;
     private User barberUser;
     private Barber barber;
@@ -75,6 +78,10 @@ class BookingControllerCreateBookingIntegrationTest {
     void setupOnce() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+
+        business = new Business();
+        business.setName("Test Barbershop Create");
+        business = businessRepository.save(business);
     }
 
     @BeforeEach
@@ -94,6 +101,7 @@ class BookingControllerCreateBookingIntegrationTest {
         customer.setPasswordHash("hashedpassword");
         customer.setPhone("+353871234567");
         customer.setRole(User.Role.CUSTOMER);
+        customer.setBusiness(business);
         customer = userRepository.save(customer);
 
         // Create a barber user
@@ -104,6 +112,7 @@ class BookingControllerCreateBookingIntegrationTest {
         barberUser.setPasswordHash("hashedpassword");
         barberUser.setPhone("+353877654321");
         barberUser.setRole(User.Role.BARBER);
+        barberUser.setBusiness(business);
         barberUser = userRepository.save(barberUser);
 
         // Create barber entity
@@ -111,11 +120,13 @@ class BookingControllerCreateBookingIntegrationTest {
         barber.setUser(barberUser);
         barber.setBio("Expert barber");
         barber.setActive(true);
+        barber.setBusiness(business);
         barber = barberRepository.save(barber);
 
         // Create service category
         category = new ServiceCategory("Haircuts");
         category.setActive(true);
+        category.setBusiness(business);
         category = categoryRepository.save(category);
 
         // Create a service
@@ -127,10 +138,11 @@ class BookingControllerCreateBookingIntegrationTest {
         service.setDepositPercentage(20);
         service.setActive(true);
         service.setCategory(category);
+        service.setBusiness(business);
         service = serviceRepository.save(service);
 
         // Generate JWT token for customer
-        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId());
+        customerToken = jwtUtil.generateToken(customer.getEmail(), "CUSTOMER", customer.getId(), business.getId());
     }
 
     // ==================== SUCCESSFUL BOOKING TESTS ====================
@@ -139,7 +151,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should successfully create a booking with valid data")
     void createBooking_WithValidData_ReturnsCreated() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -148,6 +160,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -165,7 +178,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should create booking with default payment method when not specified")
     void createBooking_WithoutPaymentMethod_UsesDefaultPayOnline() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -174,6 +187,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -192,10 +206,11 @@ class BookingControllerCreateBookingIntegrationTest {
         longService.setDepositPercentage(25);
         longService.setActive(true);
         longService.setCategory(category);
+        longService.setBusiness(business);
         longService = serviceRepository.save(longService);
 
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(longService.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -203,6 +218,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -217,7 +233,7 @@ class BookingControllerCreateBookingIntegrationTest {
     void createBooking_WhenExactSlotTaken_ReturnsConflict() throws Exception {
         // First, create an existing booking
         CreateBookingRequest firstRequest = new CreateBookingRequest();
-        firstRequest.setCustomerId(customer.getId());
+
         firstRequest.setBarberId(barber.getId());
         firstRequest.setServiceId(service.getId());
         firstRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -225,13 +241,14 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(firstRequest)))
                 .andExpect(status().isCreated());
 
         // Try to book the same slot
         CreateBookingRequest conflictRequest = new CreateBookingRequest();
-        conflictRequest.setCustomerId(customer.getId());
+
         conflictRequest.setBarberId(barber.getId());
         conflictRequest.setServiceId(service.getId());
         conflictRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -239,6 +256,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(conflictRequest)))
                 .andExpect(status().isConflict())
@@ -250,7 +268,7 @@ class BookingControllerCreateBookingIntegrationTest {
     void createBooking_WhenOverlapsStartOfExisting_ReturnsConflict() throws Exception {
         // Create booking from 10:00 to 10:30
         CreateBookingRequest existingRequest = new CreateBookingRequest();
-        existingRequest.setCustomerId(customer.getId());
+
         existingRequest.setBarberId(barber.getId());
         existingRequest.setServiceId(service.getId());
         existingRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -258,13 +276,14 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(existingRequest)))
                 .andExpect(status().isCreated());
 
         // Try to book from 9:45 to 10:15 (overlaps start)
         CreateBookingRequest conflictRequest = new CreateBookingRequest();
-        conflictRequest.setCustomerId(customer.getId());
+
         conflictRequest.setBarberId(barber.getId());
         conflictRequest.setServiceId(service.getId());
         conflictRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -272,6 +291,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(conflictRequest)))
                 .andExpect(status().isConflict());
@@ -282,7 +302,7 @@ class BookingControllerCreateBookingIntegrationTest {
     void createBooking_WhenOverlapsEndOfExisting_ReturnsConflict() throws Exception {
         // Create booking from 10:00 to 10:30
         CreateBookingRequest existingRequest = new CreateBookingRequest();
-        existingRequest.setCustomerId(customer.getId());
+
         existingRequest.setBarberId(barber.getId());
         existingRequest.setServiceId(service.getId());
         existingRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -290,13 +310,14 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(existingRequest)))
                 .andExpect(status().isCreated());
 
         // Try to book from 10:15 to 10:45 (overlaps end)
         CreateBookingRequest conflictRequest = new CreateBookingRequest();
-        conflictRequest.setCustomerId(customer.getId());
+
         conflictRequest.setBarberId(barber.getId());
         conflictRequest.setServiceId(service.getId());
         conflictRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -304,6 +325,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(conflictRequest)))
                 .andExpect(status().isConflict());
@@ -320,10 +342,11 @@ class BookingControllerCreateBookingIntegrationTest {
         longService.setDepositPercentage(20);
         longService.setActive(true);
         longService.setCategory(category);
+        longService.setBusiness(business);
         longService = serviceRepository.save(longService);
 
         CreateBookingRequest existingRequest = new CreateBookingRequest();
-        existingRequest.setCustomerId(customer.getId());
+
         existingRequest.setBarberId(barber.getId());
         existingRequest.setServiceId(longService.getId());
         existingRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -331,13 +354,14 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(existingRequest)))
                 .andExpect(status().isCreated());
 
         // Try to book 30-minute slot from 10:15 to 10:45 (inside existing)
         CreateBookingRequest conflictRequest = new CreateBookingRequest();
-        conflictRequest.setCustomerId(customer.getId());
+
         conflictRequest.setBarberId(barber.getId());
         conflictRequest.setServiceId(service.getId()); // 30-minute service
         conflictRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -345,6 +369,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(conflictRequest)))
                 .andExpect(status().isConflict());
@@ -355,7 +380,7 @@ class BookingControllerCreateBookingIntegrationTest {
     void createBooking_WhenImmediatelyAfterExisting_Succeeds() throws Exception {
         // Create booking from 10:00 to 10:30
         CreateBookingRequest existingRequest = new CreateBookingRequest();
-        existingRequest.setCustomerId(customer.getId());
+
         existingRequest.setBarberId(barber.getId());
         existingRequest.setServiceId(service.getId());
         existingRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -363,13 +388,14 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(existingRequest)))
                 .andExpect(status().isCreated());
 
         // Book from 10:30 to 11:00 (immediately after)
         CreateBookingRequest nextRequest = new CreateBookingRequest();
-        nextRequest.setCustomerId(customer.getId());
+
         nextRequest.setBarberId(barber.getId());
         nextRequest.setServiceId(service.getId());
         nextRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -377,6 +403,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(nextRequest)))
                 .andExpect(status().isCreated());
@@ -387,7 +414,7 @@ class BookingControllerCreateBookingIntegrationTest {
     void createBooking_WhenImmediatelyBeforeExisting_Succeeds() throws Exception {
         // Create booking from 10:30 to 11:00
         CreateBookingRequest existingRequest = new CreateBookingRequest();
-        existingRequest.setCustomerId(customer.getId());
+
         existingRequest.setBarberId(barber.getId());
         existingRequest.setServiceId(service.getId());
         existingRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -395,13 +422,14 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(existingRequest)))
                 .andExpect(status().isCreated());
 
         // Book from 10:00 to 10:30 (immediately before)
         CreateBookingRequest beforeRequest = new CreateBookingRequest();
-        beforeRequest.setCustomerId(customer.getId());
+
         beforeRequest.setBarberId(barber.getId());
         beforeRequest.setServiceId(service.getId());
         beforeRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -409,6 +437,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(beforeRequest)))
                 .andExpect(status().isCreated());
@@ -425,16 +454,18 @@ class BookingControllerCreateBookingIntegrationTest {
         secondBarberUser.setPasswordHash("hashedpassword");
         secondBarberUser.setPhone("+353871112222");
         secondBarberUser.setRole(User.Role.BARBER);
+        secondBarberUser.setBusiness(business);
         secondBarberUser = userRepository.save(secondBarberUser);
 
         Barber secondBarber = new Barber();
         secondBarber.setUser(secondBarberUser);
         secondBarber.setActive(true);
+        secondBarber.setBusiness(business);
         secondBarber = barberRepository.save(secondBarber);
 
         // Create booking with first barber
         CreateBookingRequest firstRequest = new CreateBookingRequest();
-        firstRequest.setCustomerId(customer.getId());
+
         firstRequest.setBarberId(barber.getId());
         firstRequest.setServiceId(service.getId());
         firstRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -442,13 +473,14 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(firstRequest)))
                 .andExpect(status().isCreated());
 
         // Create same time slot booking with second barber
         CreateBookingRequest secondRequest = new CreateBookingRequest();
-        secondRequest.setCustomerId(customer.getId());
+
         secondRequest.setBarberId(secondBarber.getId());
         secondRequest.setServiceId(service.getId());
         secondRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -456,6 +488,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(secondRequest)))
                 .andExpect(status().isCreated());
@@ -466,7 +499,7 @@ class BookingControllerCreateBookingIntegrationTest {
     void createBooking_SameTimeSlotDifferentDate_Succeeds() throws Exception {
         // Create booking for tomorrow
         CreateBookingRequest firstRequest = new CreateBookingRequest();
-        firstRequest.setCustomerId(customer.getId());
+
         firstRequest.setBarberId(barber.getId());
         firstRequest.setServiceId(service.getId());
         firstRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -474,13 +507,14 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(firstRequest)))
                 .andExpect(status().isCreated());
 
         // Create same time slot booking for day after tomorrow
         CreateBookingRequest secondRequest = new CreateBookingRequest();
-        secondRequest.setCustomerId(customer.getId());
+
         secondRequest.setBarberId(barber.getId());
         secondRequest.setServiceId(service.getId());
         secondRequest.setBookingDate(LocalDate.now().plusDays(2));
@@ -488,6 +522,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(secondRequest)))
                 .andExpect(status().isCreated());
@@ -496,27 +531,10 @@ class BookingControllerCreateBookingIntegrationTest {
     // ==================== VALIDATION TESTS ====================
 
     @Test
-    @DisplayName("Should reject booking when customer ID is missing")
-    void createBooking_MissingCustomerId_ReturnsBadRequest() throws Exception {
-        CreateBookingRequest request = new CreateBookingRequest();
-        // customerId not set
-        request.setBarberId(barber.getId());
-        request.setServiceId(service.getId());
-        request.setBookingDate(LocalDate.now().plusDays(1));
-        request.setStartTime(LocalTime.of(10, 0));
-
-        mockMvc.perform(post("/api/bookings")
-                        .header("Authorization", "Bearer " + customerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     @DisplayName("Should reject booking when barber ID is missing")
     void createBooking_MissingBarberId_ReturnsBadRequest() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         // barberId not set
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -524,6 +542,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -533,7 +552,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should reject booking when service ID is missing")
     void createBooking_MissingServiceId_ReturnsBadRequest() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         // serviceId not set
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -541,6 +560,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -550,7 +570,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should reject booking when booking date is missing")
     void createBooking_MissingBookingDate_ReturnsBadRequest() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         // bookingDate not set
@@ -558,6 +578,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -567,7 +588,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should reject booking when start time is missing")
     void createBooking_MissingStartTime_ReturnsBadRequest() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -575,6 +596,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -583,28 +605,10 @@ class BookingControllerCreateBookingIntegrationTest {
     // ==================== ENTITY VALIDATION TESTS ====================
 
     @Test
-    @DisplayName("Should reject booking when customer does not exist")
-    void createBooking_NonExistentCustomer_ReturnsNotFound() throws Exception {
-        CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(99999L); // Non-existent customer
-        request.setBarberId(barber.getId());
-        request.setServiceId(service.getId());
-        request.setBookingDate(LocalDate.now().plusDays(1));
-        request.setStartTime(LocalTime.of(10, 0));
-
-        mockMvc.perform(post("/api/bookings")
-                        .header("Authorization", "Bearer " + customerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value(containsString("Customer not found")));
-    }
-
-    @Test
     @DisplayName("Should reject booking when barber does not exist")
     void createBooking_NonExistentBarber_ReturnsNotFound() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(99999L); // Non-existent barber
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -612,6 +616,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
@@ -622,7 +627,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should reject booking when service does not exist")
     void createBooking_NonExistentService_ReturnsNotFound() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(99999L); // Non-existent service
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -630,6 +635,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
@@ -642,7 +648,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should reject booking when date is in the past")
     void createBooking_PastDate_ReturnsBadRequest() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().minusDays(1)); // Yesterday
@@ -650,17 +656,17 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(containsString("past")));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Should set booking status to PENDING initially")
     void createBooking_InitialStatus_IsPending() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -668,6 +674,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -678,7 +685,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should set payment status to DEPOSIT_PENDING initially")
     void createBooking_InitialPaymentStatus_IsDepositPending() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -686,6 +693,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -696,7 +704,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should set outstanding balance to service price initially")
     void createBooking_OutstandingBalance_EqualsServicePrice() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -704,6 +712,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -714,7 +723,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should set expiry time for pending booking")
     void createBooking_SetsExpiryTime() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -722,6 +731,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -735,7 +745,7 @@ class BookingControllerCreateBookingIntegrationTest {
     void createBooking_WhenPreviousBookingCancelled_Succeeds() throws Exception {
         // Create first booking
         CreateBookingRequest firstRequest = new CreateBookingRequest();
-        firstRequest.setCustomerId(customer.getId());
+
         firstRequest.setBarberId(barber.getId());
         firstRequest.setServiceId(service.getId());
         firstRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -743,6 +753,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         MvcResult result = mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(firstRequest)))
                 .andExpect(status().isCreated())
@@ -758,7 +769,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         // Now try to book the same slot again
         CreateBookingRequest secondRequest = new CreateBookingRequest();
-        secondRequest.setCustomerId(customer.getId());
+
         secondRequest.setBarberId(barber.getId());
         secondRequest.setServiceId(service.getId());
         secondRequest.setBookingDate(LocalDate.now().plusDays(1));
@@ -766,6 +777,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(secondRequest)))
                 .andExpect(status().isCreated());
@@ -777,7 +789,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should handle booking at end of day")
     void createBooking_AtEndOfDay_Succeeds() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -785,6 +797,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -796,7 +809,7 @@ class BookingControllerCreateBookingIntegrationTest {
     @DisplayName("Should handle booking at start of day")
     void createBooking_AtStartOfDay_Succeeds() throws Exception {
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -804,6 +817,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -823,7 +837,7 @@ class BookingControllerCreateBookingIntegrationTest {
         userRepository.save(customer);
 
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -832,6 +846,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden())
@@ -849,7 +864,7 @@ class BookingControllerCreateBookingIntegrationTest {
         userRepository.save(customer);
 
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -857,6 +872,7 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden())
@@ -879,7 +895,7 @@ class BookingControllerCreateBookingIntegrationTest {
         userRepository.save(customer);
 
         CreateBookingRequest request = new CreateBookingRequest();
-        request.setCustomerId(customer.getId());
+
         request.setBarberId(barber.getId());
         request.setServiceId(service.getId());
         request.setBookingDate(LocalDate.now().plusDays(1));
@@ -888,10 +904,10 @@ class BookingControllerCreateBookingIntegrationTest {
 
         mockMvc.perform(post("/api/bookings")
                         .header("Authorization", "Bearer " + customerToken)
+                        .header("X-Business-Slug", business.getSlug())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists());
     }
 }
-

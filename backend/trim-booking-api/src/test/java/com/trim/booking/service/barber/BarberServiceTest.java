@@ -1,11 +1,15 @@
 package com.trim.booking.service.barber;
 
 import com.trim.booking.entity.Barber;
+import com.trim.booking.entity.Business;
 import com.trim.booking.entity.User;
 import com.trim.booking.exception.BadRequestException;
 import com.trim.booking.exception.ResourceNotFoundException;
 import com.trim.booking.repository.BarberRepository;
+import com.trim.booking.repository.BusinessRepository;
 import com.trim.booking.repository.UserRepository;
+import com.trim.booking.tenant.TenantContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +39,9 @@ class BarberServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private BusinessRepository businessRepository;
+
     @Captor
     private ArgumentCaptor<User> userCaptor;
 
@@ -43,9 +50,17 @@ class BarberServiceTest {
 
     private BarberService barberService;
 
+    private static final Long BUSINESS_ID = 1L;
+
     @BeforeEach
     void setUp() {
-        barberService = new BarberService(barberRepository, userRepository);
+        TenantContext.setCurrentBusiness(BUSINESS_ID, "test-business");
+        barberService = new BarberService(barberRepository, userRepository, businessRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
     }
 
     @Nested
@@ -56,7 +71,10 @@ class BarberServiceTest {
         @DisplayName("Should create barber with valid data")
         void shouldCreateBarberWithValidData() {
             // Given
-            when(userRepository.existsByEmail("barber@test.com")).thenReturn(false);
+            Business business = new Business();
+            business.setId(BUSINESS_ID);
+            when(businessRepository.findById(BUSINESS_ID)).thenReturn(Optional.of(business));
+            when(userRepository.existsByBusinessIdAndEmail(BUSINESS_ID, "barber@test.com")).thenReturn(false);
             when(userRepository.save(any(User.class))).thenAnswer(i -> {
                 User u = i.getArgument(0);
                 u.setId(1L);
@@ -89,7 +107,7 @@ class BarberServiceTest {
         @DisplayName("Should throw when email already exists")
         void shouldThrowWhenEmailAlreadyExists() {
             // Given
-            when(userRepository.existsByEmail("existing@test.com")).thenReturn(true);
+            when(userRepository.existsByBusinessIdAndEmail(BUSINESS_ID, "existing@test.com")).thenReturn(true);
 
             // When/Then
             assertThatThrownBy(() -> barberService.createBarber(
@@ -104,7 +122,10 @@ class BarberServiceTest {
         @DisplayName("Should throw when phone number is invalid")
         void shouldThrowWhenPhoneNumberIsInvalid() {
             // Given
-            when(userRepository.existsByEmail("barber@test.com")).thenReturn(false);
+            Business business = new Business();
+            business.setId(BUSINESS_ID);
+            when(businessRepository.findById(BUSINESS_ID)).thenReturn(Optional.of(business));
+            when(userRepository.existsByBusinessIdAndEmail(BUSINESS_ID, "barber@test.com")).thenReturn(false);
 
             // When/Then
             assertThatThrownBy(() -> barberService.createBarber(
@@ -126,7 +147,7 @@ class BarberServiceTest {
             // Given
             Barber barber1 = createBarber(1L, true);
             Barber barber2 = createBarber(2L, false);
-            when(barberRepository.findAll()).thenReturn(List.of(barber1, barber2));
+            when(barberRepository.findByBusinessId(BUSINESS_ID)).thenReturn(List.of(barber1, barber2));
 
             // When
             List<Barber> result = barberService.getAllBarbers();
@@ -139,7 +160,7 @@ class BarberServiceTest {
         @DisplayName("Should return empty list when no barbers")
         void shouldReturnEmptyListWhenNoBarbers() {
             // Given
-            when(barberRepository.findAll()).thenReturn(Collections.emptyList());
+            when(barberRepository.findByBusinessId(BUSINESS_ID)).thenReturn(Collections.emptyList());
 
             // When
             List<Barber> result = barberService.getAllBarbers();
@@ -158,7 +179,7 @@ class BarberServiceTest {
         void shouldReturnOnlyActiveBarbers() {
             // Given
             Barber activeBarber = createBarber(1L, true);
-            when(barberRepository.findByActiveTrue()).thenReturn(List.of(activeBarber));
+            when(barberRepository.findByBusinessIdAndActiveTrue(BUSINESS_ID)).thenReturn(List.of(activeBarber));
 
             // When
             List<Barber> result = barberService.getActiveBarbers();
@@ -179,7 +200,7 @@ class BarberServiceTest {
             // Given
             Long barberId = 1L;
             Barber barber = createBarber(barberId, true);
-            when(barberRepository.findById(barberId)).thenReturn(Optional.of(barber));
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.of(barber));
 
             // When
             Optional<Barber> result = barberService.getBarberById(barberId);
@@ -194,7 +215,7 @@ class BarberServiceTest {
         void shouldReturnEmptyWhenBarberNotFound() {
             // Given
             Long barberId = 999L;
-            when(barberRepository.findById(barberId)).thenReturn(Optional.empty());
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When
             Optional<Barber> result = barberService.getBarberById(barberId);
@@ -214,7 +235,7 @@ class BarberServiceTest {
             // Given
             Long barberId = 1L;
             Barber existingBarber = createBarberWithUser(barberId);
-            when(barberRepository.findById(barberId)).thenReturn(Optional.of(existingBarber));
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.of(existingBarber));
             when(barberRepository.save(any(Barber.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
@@ -234,7 +255,7 @@ class BarberServiceTest {
         void shouldThrowWhenBarberNotFound() {
             // Given
             Long barberId = 999L;
-            when(barberRepository.findById(barberId)).thenReturn(Optional.empty());
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> barberService.updateBarber(
@@ -253,7 +274,7 @@ class BarberServiceTest {
             Barber existingBarber = createBarberWithUser(barberId);
             existingBarber.getUser().setFirstName("OriginalFirst");
             existingBarber.setBio("Original bio");
-            when(barberRepository.findById(barberId)).thenReturn(Optional.of(existingBarber));
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.of(existingBarber));
             when(barberRepository.save(any(Barber.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
@@ -277,7 +298,7 @@ class BarberServiceTest {
             // Given
             Long barberId = 1L;
             Barber barber = createBarber(barberId, true);
-            when(barberRepository.findById(barberId)).thenReturn(Optional.of(barber));
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.of(barber));
             when(barberRepository.save(any(Barber.class))).thenAnswer(i -> i.getArgument(0));
 
             // When
@@ -293,7 +314,7 @@ class BarberServiceTest {
         void shouldThrowWhenBarberNotFound() {
             // Given
             Long barberId = 999L;
-            when(barberRepository.findById(barberId)).thenReturn(Optional.empty());
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.empty());
 
             // When/Then
             assertThatThrownBy(() -> barberService.deactivateBarber(barberId))
@@ -311,12 +332,14 @@ class BarberServiceTest {
         void shouldDeleteBarber() {
             // Given
             Long barberId = 1L;
+            Barber barber = createBarber(barberId, true);
+            when(barberRepository.findByIdAndBusinessId(barberId, BUSINESS_ID)).thenReturn(Optional.of(barber));
 
             // When
             barberService.deleteBarber(barberId);
 
             // Then
-            verify(barberRepository).deleteById(barberId);
+            verify(barberRepository).delete(barber);
         }
     }
 
@@ -343,4 +366,3 @@ class BarberServiceTest {
         return barber;
     }
 }
-

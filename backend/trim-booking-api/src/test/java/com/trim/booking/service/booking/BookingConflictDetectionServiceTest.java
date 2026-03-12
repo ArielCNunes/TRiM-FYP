@@ -3,6 +3,8 @@ package com.trim.booking.service.booking;
 import com.trim.booking.entity.Booking;
 import com.trim.booking.exception.ConflictException;
 import com.trim.booking.repository.BookingRepository;
+import com.trim.booking.tenant.TenantContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,12 +31,19 @@ class BookingConflictDetectionServiceTest {
 
     private BookingConflictDetectionService conflictDetectionService;
 
+    private static final Long BUSINESS_ID = 1L;
     private static final Long BARBER_ID = 1L;
     private static final LocalDate BOOKING_DATE = LocalDate.now().plusDays(1);
 
     @BeforeEach
     void setUp() {
+        TenantContext.setCurrentBusiness(BUSINESS_ID, "test-business");
         conflictDetectionService = new BookingConflictDetectionService(bookingRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
     }
 
     @Nested
@@ -47,7 +56,7 @@ class BookingConflictDetectionServiceTest {
             // Given
             LocalTime startTime = LocalTime.of(10, 0);
             LocalTime endTime = LocalTime.of(10, 30);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(Collections.emptyList());
 
             // When/Then - should not throw
@@ -63,7 +72,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking existingBooking = createBooking(1L, LocalTime.of(11, 0), LocalTime.of(11, 30),
                     Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(existingBooking));
 
             // When/Then - should not throw
@@ -79,7 +88,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking cancelledBooking = createBooking(1L, LocalTime.of(10, 0), LocalTime.of(10, 30),
                     Booking.BookingStatus.CANCELLED);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(cancelledBooking));
 
             // When/Then - should not throw
@@ -95,7 +104,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking existingBooking = createBooking(1L, LocalTime.of(10, 15), LocalTime.of(10, 45),
                     Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(existingBooking));
 
             // When/Then
@@ -114,7 +123,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking existingBooking = createBooking(1L, LocalTime.of(10, 0), LocalTime.of(10, 30),
                     Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(existingBooking));
 
             // When/Then
@@ -132,7 +141,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking existingBooking = createBooking(1L, LocalTime.of(10, 0), LocalTime.of(11, 0),
                     Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(existingBooking));
 
             // When/Then
@@ -150,7 +159,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking existingBooking = createBooking(1L, LocalTime.of(10, 0), LocalTime.of(10, 30),
                     Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(existingBooking));
 
             // When/Then - should not throw (adjacent slots don't overlap)
@@ -172,7 +181,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking existingBooking = createBooking(bookingIdToExclude, startTime, endTime,
                     Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(existingBooking));
 
             // When/Then - should not throw (excluding self)
@@ -190,7 +199,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking otherBooking = createBooking(2L, LocalTime.of(10, 15), LocalTime.of(10, 45),
                     Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(otherBooking));
 
             // When/Then
@@ -211,7 +220,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking cancelledBooking = createBooking(2L, LocalTime.of(10, 0), LocalTime.of(10, 30),
                     Booking.BookingStatus.CANCELLED);
-            when(bookingRepository.findByBarberIdAndBookingDateWithLock(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDateWithLock(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(cancelledBooking));
 
             // When/Then - should not throw
@@ -230,7 +239,7 @@ class BookingConflictDetectionServiceTest {
             // Given
             LocalTime startTime = LocalTime.of(10, 0);
             LocalTime endTime = LocalTime.of(10, 30);
-            when(bookingRepository.findByBarberIdAndBookingDate(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDate(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(Collections.emptyList());
 
             // When
@@ -252,7 +261,7 @@ class BookingConflictDetectionServiceTest {
                     Booking.BookingStatus.CONFIRMED);
             Booking nonConflicting = createBooking(2L, LocalTime.of(12, 0), LocalTime.of(12, 30),
                     Booking.BookingStatus.CONFIRMED);
-            when(bookingRepository.findByBarberIdAndBookingDate(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDate(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(conflicting, nonConflicting));
 
             // When
@@ -273,7 +282,7 @@ class BookingConflictDetectionServiceTest {
 
             Booking cancelledBooking = createBooking(1L, LocalTime.of(10, 0), LocalTime.of(10, 30),
                     Booking.BookingStatus.CANCELLED);
-            when(bookingRepository.findByBarberIdAndBookingDate(BARBER_ID, BOOKING_DATE))
+            when(bookingRepository.findByBusinessIdAndBarberIdAndBookingDate(BUSINESS_ID, BARBER_ID, BOOKING_DATE))
                     .thenReturn(List.of(cancelledBooking));
 
             // When
@@ -297,4 +306,3 @@ class BookingConflictDetectionServiceTest {
         return booking;
     }
 }
-
