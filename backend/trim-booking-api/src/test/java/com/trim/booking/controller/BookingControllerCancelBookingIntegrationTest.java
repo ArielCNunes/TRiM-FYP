@@ -440,9 +440,9 @@ public class BookingControllerCancelBookingIntegrationTest {
     @Test
     @DisplayName("Should verify booking count decreases after cancellation when counting active bookings")
     void testCancelBooking_AffectsActiveBookingCount() throws Exception {
-        Booking booking1 = createBookingAtTime(LocalTime.of(9, 0), LocalTime.of(9, 30));
+        // Booking booking1 = createBookingAtTime(LocalTime.of(9, 0), LocalTime.of(9, 30));
         Booking booking2 = createBookingAtTime(LocalTime.of(10, 0), LocalTime.of(10, 30));
-        Booking booking3 = createBookingAtTime(LocalTime.of(11, 0), LocalTime.of(11, 30));
+        // Booking booking3 = createBookingAtTime(LocalTime.of(11, 0), LocalTime.of(11, 30));
 
         long activeCountBefore = bookingRepository.findAll().stream()
                 .filter(b -> b.getStatus() != Booking.BookingStatus.CANCELLED)
