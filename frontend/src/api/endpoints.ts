@@ -228,9 +228,9 @@ export const bookingsApi = {
     data: { bookingDate: string; startTime: string },
   ) => api.put<BookingResponse>(`/bookings/${bookingId}`, data),
 
-  /** Fetch bookings for a specific barber. */
-  getBarberBookings: (barberId: number) =>
-    api.get(`/bookings/barber/${barberId}`),
+  /** Fetch bookings for a specific barber, optionally filtered by date range. */
+  getBarberBookings: (barberId: number, params?: { startDate?: string; endDate?: string }) =>
+    api.get(`/bookings/barber/${barberId}`, { params }),
 
   /** Mark a booking as complete. */
   markComplete: (bookingId: number) =>

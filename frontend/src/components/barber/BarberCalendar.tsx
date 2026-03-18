@@ -89,19 +89,13 @@ export default function BarberCalendar() {
         if (!barberId) return;
         setLoading(true);
         try {
-            // Fetch all bookings for this barber
-            const response = await bookingsApi.getBarberBookings(barberId);
-            const allBookings = response.data as BookingResponse[];
+            const startDate = formatDate(currentWeekStart);
+            const endDate = formatDate(addDays(currentWeekStart, 6));
 
-            // Filter to only bookings within the current week
-            const weekStart = formatDate(currentWeekStart);
-            const weekEnd = formatDate(addDays(currentWeekStart, 6));
-
-            const weekBookings = allBookings.filter((booking) => {
-                return booking.bookingDate >= weekStart &&
-                    booking.bookingDate <= weekEnd &&
-                    booking.status !== "CANCELLED";
-            });
+            const response = await bookingsApi.getBarberBookings(barberId, { startDate, endDate });
+            const weekBookings = (response.data as BookingResponse[]).filter(
+                (booking) => booking.status !== "CANCELLED"
+            );
 
             setBookings(weekBookings);
         } catch {

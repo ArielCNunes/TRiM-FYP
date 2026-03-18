@@ -60,6 +60,10 @@ public class BookingQueryService {
         return bookingRepository.findByBusinessIdAndBarberId(getBusinessId(), barberId);
     }
 
+    public List<Booking> getBarberBookings(Long barberId, LocalDate startDate, LocalDate endDate) {
+        return bookingRepository.findByBusinessIdAndBarberIdAndBookingDateBetween(getBusinessId(), barberId, startDate, endDate);
+    }
+
     /**
      * Get barber's schedule for a specific date.
      *

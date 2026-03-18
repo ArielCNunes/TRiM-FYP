@@ -61,6 +61,10 @@ public class BookingService {
         return queryService.getBarberBookings(barberId);
     }
 
+    public List<Booking> getBarberBookings(Long barberId, LocalDate startDate, LocalDate endDate) {
+        return queryService.getBarberBookings(barberId, startDate, endDate);
+    }
+
     /**
      * Get a specific booking by ID.
      */

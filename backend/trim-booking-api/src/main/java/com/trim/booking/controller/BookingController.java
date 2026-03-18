@@ -93,7 +93,10 @@ public class BookingController {
      */
     @GetMapping("/barber/{barberId}")
     @PreAuthorize("hasAnyRole('BARBER', 'ADMIN')")
-    public ResponseEntity<?> getBarberBookings(@PathVariable Long barberId) {
+    public ResponseEntity<?> getBarberBookings(
+            @PathVariable Long barberId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long authenticatedUserId = (Long) auth.getDetails();
 
@@ -112,6 +115,9 @@ public class BookingController {
             }
         }
 
+        if (startDate != null && endDate != null) {
+            return ResponseEntity.ok(bookingService.getBarberBookings(barberId, startDate, endDate));
+        }
         return ResponseEntity.ok(bookingService.getBarberBookings(barberId));
     }
 
