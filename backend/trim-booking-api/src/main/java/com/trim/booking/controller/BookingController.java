@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
@@ -25,6 +26,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bookings")
+@Transactional
 public class BookingController {
     private final BookingService bookingService;
     private final BookingRepository bookingRepository;
