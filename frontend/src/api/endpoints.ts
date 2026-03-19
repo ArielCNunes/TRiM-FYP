@@ -183,12 +183,13 @@ export const barberBreaksApi = {
     startTime: string;
     endTime: string;
     label?: string;
+    dayOfWeek?: string;
   }) => api.post<BarberBreak>("/barber-breaks", data),
 
   /** Update an existing break. */
   update: (
     id: number,
-    data: { startTime: string; endTime: string; label?: string },
+    data: { startTime: string; endTime: string; label?: string; dayOfWeek?: string | null },
   ) => api.put<BarberBreak>(`/barber-breaks/${id}`, data),
 
   /** Delete a break. */

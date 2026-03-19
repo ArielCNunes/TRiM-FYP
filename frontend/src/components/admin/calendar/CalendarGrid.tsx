@@ -56,6 +56,9 @@ const getDayName = (date: Date): string => {
     return date.toLocaleDateString("en-US", { weekday: "short" });
 };
 
+// Map JS Date.getDay() (0=Sun) to backend DayOfWeek enum
+const JS_DAY_TO_ENUM = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+
 export default function CalendarGrid({
     weekDates,
     bookings,
@@ -194,7 +197,11 @@ export default function CalendarGrid({
 
                                 {/* Break blocks for each barber */}
                                 {barbers.map((barber) => {
-                                    const breaks = barberBreaks.get(barber.id) || [];
+                                    const allBreaks = barberBreaks.get(barber.id) || [];
+                                    const dayEnum = JS_DAY_TO_ENUM[date.getDay()];
+                                    const breaks = allBreaks.filter(
+                                        (b) => !b.dayOfWeek || b.dayOfWeek === dayEnum
+                                    );
 
                                     return breaks.map((breakItem, breakIndex) => {
                                         // Normalize time format

@@ -102,16 +102,16 @@ export default function AdminCalendar() {
     };
 
     const loadAllBarberBreaks = async () => {
-        try {
-            const breaksMap = new Map<number, BarberBreak[]>();
-            for (const barber of barbers) {
+        const breaksMap = new Map<number, BarberBreak[]>();
+        for (const barber of barbers) {
+            try {
                 const response = await barberBreaksApi.getByBarberId(barber.id);
                 breaksMap.set(barber.id, response.data);
+            } catch {
+                // Skip this barber's breaks on error
             }
-            setBarberBreaks(breaksMap);
-        } catch {
-            // Error handled silently - breaks will remain empty
         }
+        setBarberBreaks(breaksMap);
     };
 
     // Navigation handlers

@@ -114,6 +114,7 @@ export interface BarberBreak {
   startTime: string;
   endTime: string;
   label?: string;
+  dayOfWeek?: string | null;
 }
 
 // Booking Types

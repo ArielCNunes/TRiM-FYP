@@ -10,9 +10,29 @@ interface BarberBreaksManagerProps {
     workEndTime?: string;
 }
 
+const DAYS = [
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+    "SUNDAY",
+] as const;
+
+const DAY_LABELS: Record<string, string> = {
+    MONDAY: "Mon",
+    TUESDAY: "Tue",
+    WEDNESDAY: "Wed",
+    THURSDAY: "Thu",
+    FRIDAY: "Fri",
+    SATURDAY: "Sat",
+    SUNDAY: "Sun",
+};
+
 /**
  * Breaks Manager - Allows barbers to manage their breaks (e.g., lunch)
- * Breaks apply to all working days
+ * Breaks can apply to all working days or specific days
  */
 export default function BarberBreaksManager({
     barberId,
@@ -31,6 +51,7 @@ export default function BarberBreaksManager({
         startTime: "12:00",
         endTime: "13:00",
         label: "",
+        dayOfWeek: null as string | null,
     });
 
     // Generate time options from 6:00 AM to 10:00 PM in 15-minute intervals
@@ -111,9 +132,10 @@ export default function BarberBreaksManager({
                 startTime: formData.startTime,
                 endTime: formData.endTime,
                 label: formData.label || undefined,
+                dayOfWeek: formData.dayOfWeek || undefined,
             });
             setShowAddForm(false);
-            setFormData({ startTime: "12:00", endTime: "13:00", label: "" });
+            setFormData({ startTime: "12:00", endTime: "13:00", label: "", dayOfWeek: null });
             loadBreaks();
         } catch (err: any) {
             const message = err.response?.data?.message || "Failed to add break";
@@ -139,9 +161,10 @@ export default function BarberBreaksManager({
                 startTime: formData.startTime,
                 endTime: formData.endTime,
                 label: formData.label || undefined,
+                dayOfWeek: formData.dayOfWeek,
             });
             setEditingBreak(null);
-            setFormData({ startTime: "12:00", endTime: "13:00", label: "" });
+            setFormData({ startTime: "12:00", endTime: "13:00", label: "", dayOfWeek: null });
             loadBreaks();
         } catch (err: any) {
             const message = err.response?.data?.message || "Failed to update break";
@@ -171,6 +194,7 @@ export default function BarberBreaksManager({
             startTime: breakItem.startTime,
             endTime: breakItem.endTime,
             label: breakItem.label || "",
+            dayOfWeek: breakItem.dayOfWeek || null,
         });
         setShowAddForm(false);
     };
@@ -178,7 +202,7 @@ export default function BarberBreaksManager({
     const cancelForm = () => {
         setShowAddForm(false);
         setEditingBreak(null);
-        setFormData({ startTime: "12:00", endTime: "13:00", label: "" });
+        setFormData({ startTime: "12:00", endTime: "13:00", label: "", dayOfWeek: null });
         setError(null);
     };
 
@@ -196,7 +220,7 @@ export default function BarberBreaksManager({
                 <div>
                     <h3 className="text-lg font-semibold text-[var(--text-primary)]">Breaks</h3>
                     <p className="text-xs text-[var(--text-subtle)]">
-                        Breaks apply to all working days
+                        Breaks can apply to all days or specific days
                     </p>
                 </div>
                 {!showAddForm && !editingBreak && (
@@ -236,6 +260,40 @@ export default function BarberBreaksManager({
                                 placeholder="e.g., Lunch, Coffee break"
                                 className="w-full px-3 py-2 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
                             />
+                        </div>
+
+                        {/* Day selector */}
+                        <div>
+                            <label className="block text-xs font-medium text-[var(--text-muted)] mb-2">
+                                Applies to
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, dayOfWeek: null })}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+                                        formData.dayOfWeek === null
+                                            ? "bg-[var(--success)] text-white"
+                                            : "bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                                    }`}
+                                >
+                                    All days
+                                </button>
+                                {DAYS.map((day) => (
+                                    <button
+                                        key={day}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, dayOfWeek: day })}
+                                        className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+                                            formData.dayOfWeek === day
+                                                ? "bg-[var(--success)] text-white"
+                                                : "bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                                        }`}
+                                    >
+                                        {DAY_LABELS[day]}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-3">
@@ -337,9 +395,19 @@ export default function BarberBreaksManager({
                                         {formatTimeForDisplay(breakItem.startTime)} -{" "}
                                         {formatTimeForDisplay(breakItem.endTime)}
                                     </p>
-                                    {breakItem.label && (
-                                        <p className="text-xs text-[var(--text-muted)]">{breakItem.label}</p>
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                        {breakItem.label && (
+                                            <span className="text-xs text-[var(--text-muted)]">{breakItem.label}</span>
+                                        )}
+                                        {breakItem.label && breakItem.dayOfWeek && (
+                                            <span className="text-xs text-[var(--text-subtle)]">&middot;</span>
+                                        )}
+                                        <span className="text-xs text-[var(--text-subtle)]">
+                                            {breakItem.dayOfWeek
+                                                ? DAY_LABELS[breakItem.dayOfWeek] || breakItem.dayOfWeek
+                                                : "Every day"}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
