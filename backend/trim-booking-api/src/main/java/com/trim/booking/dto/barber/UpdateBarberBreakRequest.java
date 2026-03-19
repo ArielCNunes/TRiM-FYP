@@ -11,14 +11,17 @@ public class UpdateBarberBreakRequest {
 
     private String label;
 
+    private String dayOfWeek;
+
     // Constructors
     public UpdateBarberBreakRequest() {
     }
 
-    public UpdateBarberBreakRequest(String startTime, String endTime, String label) {
+    public UpdateBarberBreakRequest(String startTime, String endTime, String label, String dayOfWeek) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.label = label;
+        this.dayOfWeek = dayOfWeek;
     }
 
     // Getters and Setters
@@ -44,6 +47,14 @@ public class UpdateBarberBreakRequest {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 }
 

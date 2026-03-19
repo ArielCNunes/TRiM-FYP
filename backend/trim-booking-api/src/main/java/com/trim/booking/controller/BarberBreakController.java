@@ -11,6 +11,7 @@ import com.trim.booking.service.barber.BarberBreakService;
 import com.trim.booking.tenant.TenantContext;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import java.time.DayOfWeek;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -104,11 +105,13 @@ public class BarberBreakController {
             }
         }
 
+        DayOfWeek dayOfWeek = request.getDayOfWeek() != null ? DayOfWeek.valueOf(request.getDayOfWeek()) : null;
         BarberBreak barberBreak = barberBreakService.createBreak(
                 request.getBarberId(),
                 request.getStartTime(),
                 request.getEndTime(),
-                request.getLabel()
+                request.getLabel(),
+                dayOfWeek
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(barberBreak);
     }
@@ -151,11 +154,13 @@ public class BarberBreakController {
             }
         }
 
+        DayOfWeek dayOfWeek = request.getDayOfWeek() != null ? DayOfWeek.valueOf(request.getDayOfWeek()) : null;
         BarberBreak barberBreak = barberBreakService.updateBreak(
                 id,
                 request.getStartTime(),
                 request.getEndTime(),
-                request.getLabel()
+                request.getLabel(),
+                dayOfWeek
         );
         return ResponseEntity.ok(barberBreak);
     }

@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.time.LocalTime;
 
 import static org.hamcrest.Matchers.*;
@@ -248,6 +247,45 @@ class BarberBreakControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("Should successfully create a day-specific break")
+    void createBreak_WithDayOfWeek_ReturnsCreated() throws Exception {
+        CreateBarberBreakRequest request = new CreateBarberBreakRequest();
+        request.setBarberId(barber.getId());
+        request.setStartTime("14:00");
+        request.setEndTime("14:30");
+        request.setLabel("Friday Break");
+        request.setDayOfWeek("FRIDAY");
+
+        mockMvc.perform(post("/api/barber-breaks")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.dayOfWeek").value("FRIDAY"))
+                .andExpect(jsonPath("$.label").value("Friday Break"));
+    }
+
+    @Test
+    @DisplayName("Should create break with null dayOfWeek for all days")
+    void createBreak_WithoutDayOfWeek_ReturnsCreatedWithNullDay() throws Exception {
+        CreateBarberBreakRequest request = new CreateBarberBreakRequest();
+        request.setBarberId(barber.getId());
+        request.setStartTime("16:00");
+        request.setEndTime("16:15");
+        request.setLabel("Daily Break");
+
+        mockMvc.perform(post("/api/barber-breaks")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.dayOfWeek").doesNotExist())
+                .andExpect(jsonPath("$.label").value("Daily Break"));
+    }
+
+    @Test
     @DisplayName("Should return not found when creating break for non-existent barber")
     void createBreak_NonExistentBarber_ReturnsNotFound() throws Exception {
         CreateBarberBreakRequest request = new CreateBarberBreakRequest();
@@ -314,6 +352,25 @@ class BarberBreakControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Should successfully update break with day of week")
+    void updateBreak_WithDayOfWeek_ReturnsOk() throws Exception {
+        UpdateBarberBreakRequest request = new UpdateBarberBreakRequest();
+        request.setStartTime("12:00");
+        request.setEndTime("13:00");
+        request.setLabel("Monday Lunch");
+        request.setDayOfWeek("MONDAY");
+
+        mockMvc.perform(put("/api/barber-breaks/" + barberBreak.getId())
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Business-Slug", business.getSlug())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dayOfWeek").value("MONDAY"))
+                .andExpect(jsonPath("$.label").value("Monday Lunch"));
     }
 
     @Test

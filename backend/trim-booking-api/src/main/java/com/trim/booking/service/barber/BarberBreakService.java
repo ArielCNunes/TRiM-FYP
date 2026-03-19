@@ -12,6 +12,7 @@ import com.trim.booking.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -51,12 +52,13 @@ public class BarberBreakService {
      * @param startTime The start time as a string in "HH:mm" format
      * @param endTime The end time as a string in "HH:mm" format
      * @param label Optional label for the break (e.g., "Lunch", "Coffee")
+     * @param dayOfWeek Optional day of week (null means all days)
      * @return The created BarberBreak entity
      * @throws ResourceNotFoundException If barber is not found
      * @throws BadRequestException If startTime is not before endTime
      */
     @Transactional
-    public BarberBreak createBreak(Long barberId, String startTime, String endTime, String label) {
+    public BarberBreak createBreak(Long barberId, String startTime, String endTime, String label, DayOfWeek dayOfWeek) {
         Long businessId = getBusinessId();
 
         // Find barber with tenant isolation
@@ -76,7 +78,7 @@ public class BarberBreakService {
         }
 
         // Create and save break
-        BarberBreak barberBreak = new BarberBreak(barber, start, end, label);
+        BarberBreak barberBreak = new BarberBreak(barber, start, end, label, dayOfWeek);
         barberBreak.setBusiness(business);
         return barberBreakRepository.save(barberBreak);
     }
@@ -88,12 +90,13 @@ public class BarberBreakService {
      * @param startTime The new start time as a string in "HH:mm" format
      * @param endTime The new end time as a string in "HH:mm" format
      * @param label The new label for the break
+     * @param dayOfWeek Optional day of week (null means all days)
      * @return The updated BarberBreak entity
      * @throws ResourceNotFoundException If break is not found
      * @throws BadRequestException If startTime is not before endTime
      */
     @Transactional
-    public BarberBreak updateBreak(Long breakId, String startTime, String endTime, String label) {
+    public BarberBreak updateBreak(Long breakId, String startTime, String endTime, String label, DayOfWeek dayOfWeek) {
         // Find break with tenant isolation
         BarberBreak barberBreak = barberBreakRepository.findByIdAndBusinessId(breakId, getBusinessId())
                 .orElseThrow(() -> new ResourceNotFoundException("Break not found with id: " + breakId));
@@ -111,6 +114,7 @@ public class BarberBreakService {
         barberBreak.setStartTime(start);
         barberBreak.setEndTime(end);
         barberBreak.setLabel(label);
+        barberBreak.setDayOfWeek(dayOfWeek);
 
         return barberBreakRepository.save(barberBreak);
     }

@@ -2,6 +2,7 @@ package com.trim.booking.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 @Entity
@@ -25,6 +26,10 @@ public class BarberBreak {
     @Column
     private String label;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "day_of_week")
+    private DayOfWeek dayOfWeek;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id", nullable = false)
     @JsonIgnore
@@ -34,11 +39,12 @@ public class BarberBreak {
     public BarberBreak() {
     }
 
-    public BarberBreak(Barber barber, LocalTime startTime, LocalTime endTime, String label) {
+    public BarberBreak(Barber barber, LocalTime startTime, LocalTime endTime, String label, DayOfWeek dayOfWeek) {
         this.barber = barber;
         this.startTime = startTime;
         this.endTime = endTime;
         this.label = label;
+        this.dayOfWeek = dayOfWeek;
     }
 
     // Getters and Setters
@@ -80,6 +86,14 @@ public class BarberBreak {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public DayOfWeek getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(DayOfWeek dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 
     public Business getBusiness() {

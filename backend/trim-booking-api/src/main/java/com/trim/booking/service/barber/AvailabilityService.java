@@ -87,8 +87,8 @@ public class AvailabilityService {
         // Step 3: Get all existing bookings for this barber on this date
         List<Booking> existingBookings = bookingRepository.findByBusinessIdAndBarberIdAndBookingDate(businessId, barberId, date);
 
-        // Get all breaks for the barber
-        List<BarberBreak> barberBreaks = barberBreakRepository.findByBusinessIdAndBarberId(businessId, barberId);
+        // Get breaks that apply to this day (day-specific + all-days breaks)
+        List<BarberBreak> barberBreaks = barberBreakRepository.findByBusinessIdAndBarberIdForDay(businessId, barberId, dayOfWeek);
 
         // Step 4: Generate all possible time slots
         List<LocalTime> availableSlots = new ArrayList<>();

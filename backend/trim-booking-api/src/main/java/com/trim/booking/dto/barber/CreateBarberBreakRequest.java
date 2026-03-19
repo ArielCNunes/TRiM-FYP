@@ -15,15 +15,18 @@ public class CreateBarberBreakRequest {
 
     private String label;
 
+    private String dayOfWeek;
+
     // Constructors
     public CreateBarberBreakRequest() {
     }
 
-    public CreateBarberBreakRequest(Long barberId, String startTime, String endTime, String label) {
+    public CreateBarberBreakRequest(Long barberId, String startTime, String endTime, String label, String dayOfWeek) {
         this.barberId = barberId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.label = label;
+        this.dayOfWeek = dayOfWeek;
     }
 
     // Getters and Setters
@@ -57,6 +60,14 @@ public class CreateBarberBreakRequest {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 }
 
