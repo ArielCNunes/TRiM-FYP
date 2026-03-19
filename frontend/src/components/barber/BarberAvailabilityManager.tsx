@@ -22,6 +22,7 @@ export default function BarberAvailabilityManager({
     sunday: { start: "09:00", end: "17:00", enabled: false, id: null },
   });
   const [loading, setLoading] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const [activeTab, setActiveTab] = useState<"hours" | "breaks">("hours");
 
   const days = [
@@ -122,6 +123,7 @@ export default function BarberAvailabilityManager({
   const handleSave = async () => {
     if (!barberId) return;
     setLoading(true);
+    setSaveStatus("idle");
     try {
       for (const day of days) {
         const slot = availability[day];
@@ -146,8 +148,11 @@ export default function BarberAvailabilityManager({
           });
         }
       }
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 3000);
     } catch {
-      // Error handled silently - save operation failed
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus("idle"), 3000);
     } finally {
       setLoading(false);
     }
@@ -200,47 +205,40 @@ export default function BarberAvailabilityManager({
 
       {/* Working Hours Tab */}
       {activeTab === "hours" && (
-        <div className="space-y-3">
-          {days.map((day) => (
-            <div
-              key={day}
-              className={`border rounded-lg transition-all ${availability[day].enabled
-                ? "border-[var(--border-strong)] bg-[var(--bg-elevated)]/50"
-                : "border-[var(--border-default)] bg-[var(--bg-elevated)]"
-                }`}
-            >
-              {/* Day header with toggle */}
-              <div className="flex items-center justify-between p-3 border-b border-[var(--border-default)]">
-                <label className="flex items-center gap-3 cursor-pointer flex-1">
-                  <input
-                    type="checkbox"
-                    checked={availability[day].enabled}
-                    onChange={() => handleToggle(day)}
-                    className="w-5 h-5 rounded border-[var(--border-strong)] text-indigo-600 focus:ring-[var(--focus-ring)] bg-[var(--bg-surface)]"
-                  />
-                  <span className="font-semibold text-[var(--text-primary)] capitalize text-lg">
-                    {day}
-                  </span>
-                </label>
-                {!availability[day].enabled && (
-                  <span className="text-sm text-[var(--text-subtle)] italic">Day off</span>
-                )}
-              </div>
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold text-[var(--text-primary)]">Working Hours</h3>
+            <p className="text-xs text-[var(--text-subtle)]">
+              Toggle days on or off and set hours
+            </p>
+          </div>
 
-              {/* Time selection - only shown when enabled */}
-              {availability[day].enabled && (
-                <div className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">
-                        Start Time
-                      </label>
+          <div className="space-y-2">
+            {days.map((day) => (
+              <div
+                key={day}
+                className="flex items-center justify-between p-3 bg-[var(--bg-elevated)]/50 rounded-lg border border-[var(--border-default)]"
+              >
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleToggle(day)}
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition min-w-[52px] text-center ${
+                      availability[day].enabled
+                        ? "bg-[var(--accent)] text-white"
+                        : "bg-[var(--bg-muted)] text-[var(--text-subtle)] hover:bg-[var(--bg-subtle)]"
+                    }`}
+                  >
+                    {day.charAt(0).toUpperCase() + day.slice(1, 3)}
+                  </button>
+                  {availability[day].enabled ? (
+                    <div className="flex items-center gap-2">
                       <select
                         value={availability[day].start}
                         onChange={(e) =>
                           handleTimeChange(day, "start", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
+                        className="px-2 py-1.5 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] text-sm focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
                       >
                         {timeOptions.map((time) => (
                           <option key={time.value} value={time.value}>
@@ -248,20 +246,13 @@ export default function BarberAvailabilityManager({
                           </option>
                         ))}
                       </select>
-                    </div>
-
-                    <div className="text-[var(--text-subtle)] pt-6">→</div>
-
-                    <div className="flex-1">
-                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">
-                        End Time
-                      </label>
+                      <span className="text-[var(--text-subtle)] text-sm">-</span>
                       <select
                         value={availability[day].end}
                         onChange={(e) =>
                           handleTimeChange(day, "end", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
+                        className="px-2 py-1.5 border border-[var(--border-strong)] rounded-md bg-[var(--bg-surface)] text-[var(--text-primary)] text-sm focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
                       >
                         {timeOptions.map((time) => (
                           <option key={time.value} value={time.value}>
@@ -270,11 +261,24 @@ export default function BarberAvailabilityManager({
                         ))}
                       </select>
                     </div>
-                  </div>
+                  ) : (
+                    <span className="text-sm text-[var(--text-subtle)] italic">Day off</span>
+                  )}
                 </div>
-              )}
+              </div>
+            ))}
+          </div>
+
+          {saveStatus === "success" && (
+            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded text-emerald-400 text-sm text-center">
+              Availability saved successfully
             </div>
-          ))}
+          )}
+          {saveStatus === "error" && (
+            <div className="p-3 bg-[var(--danger-muted)] border border-[var(--danger-border)] rounded text-[var(--danger-text-light)] text-sm text-center">
+              Failed to save availability
+            </div>
+          )}
 
           <button
             onClick={handleSave}
