@@ -1,5 +1,14 @@
 \chapter{Introduction}
 
+\section{Project Repository}
+The source code for this project is available at \url{https://github.com/ArielCNunes/TRiM-FYP}. The repository is organised into three top-level directories:
+
+\begin{itemize}                                                                                                              
+    \item \textbf{\texttt{backend/}}: Contains the Spring Boot REST API, structured as a standard Maven project. Key packages include \texttt{controller}, \texttt{service}, \texttt{repository}, \texttt{entity}, and \texttt{tenant}, reflecting the layered architecture and multi-tenant logic at the core of the system. Supporting packages handle payment processing, email notifications, booking reminders, and test data seeding.                                                                                            
+    \item \textbf{\texttt{frontend/}}: A React application built with TypeScript and Vite, styled with Tailwind CSS. The source is organised into \texttt{pages}, \texttt{components}, \texttt{features}, \texttt{hooks}, and \texttt{store} directories, separating UI concerns from state management and API integration.
+    \item \textbf{\texttt{docs/}}: Contains this dissertation in \LaTeX{} format, along with records of client and supervisor meetings maintained throughout the project.
+\end{itemize}  
+
 \section{Context}
 Small businesses such as barber shops that rely solely on walk-in customers face several operational challenges: limited business insights, customer friction when services are unavailable at their preferred time, and the burden of manual bookkeeping. Digitalising these operations bridges the gap between the business and its customers, leading to a more established market presence and streamlined day-to-day management.
 
