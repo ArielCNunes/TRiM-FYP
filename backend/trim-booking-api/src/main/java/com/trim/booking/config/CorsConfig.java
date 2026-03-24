@@ -26,7 +26,9 @@ public class CorsConfig {
         // Allow configured local origins and explicit production origins
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://" + baseDomain + ":" + frontendPort,
-                "http://*." + baseDomain + ":" + frontendPort
+                "http://*." + baseDomain + ":" + frontendPort,
+                "http://" + baseDomain,
+                "http://*." + baseDomain
         ));
 
         configuration.setAllowedMethods(Arrays.asList(
