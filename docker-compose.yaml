@@ -7,8 +7,6 @@ services:
       POSTGRES_USER: ${DB_USERNAME:-root}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
       POSTGRES_DB: barbershop_db
-    ports:
-      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/trim-booking-api/scripts/docker-init.sql:/docker-entrypoint-initdb.d/01-init.sql
@@ -17,8 +15,6 @@ services:
     build: ./backend/trim-booking-api
     container_name: trim_booking_api
     restart: always
-    ports:
-      - "8080:8080"
     env_file:
       - ./backend/trim-booking-api/.env
     environment:
