@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAppSelector } from "../store/hooks";
 import AdminTabNavigation, {
   type AdminTab,
 } from "../components/admin/AdminTabNavigation";
@@ -19,8 +18,6 @@ import PaymentsSettings from "../components/admin/payments/PaymentsSettings";
  * 3. View all services and barbers in the system
  */
 export default function Admin() {
-  const user = useAppSelector((state) => state.auth.user)!;
-
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
 

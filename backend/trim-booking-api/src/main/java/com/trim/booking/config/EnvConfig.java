@@ -14,6 +14,7 @@ public class EnvConfig {
         Dotenv dotenv = Dotenv.configure()
                 .directory(".")
                 .filename(".env")
+                .ignoreIfMissing()
                 .load();
 
         // Set environment variables that Spring can read
