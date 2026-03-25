@@ -35,7 +35,7 @@ public class BookingApiSimulation extends Simulation {
     // CONFIGURATION
     // ============================================
 
-    private static final String BASE_URL = "http://localhost:8080";
+    private static final String BASE_URL = System.getProperty("gatling.baseUrl", "http://localhost:8080");
     private static final String BUSINESS_SLUG = "business-1";
 
     // Seeded credentials (DataSeeder uses password123 for all)
