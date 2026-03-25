@@ -27,7 +27,7 @@ import static io.gatling.javaapi.http.HttpDsl.*;
  * Scenario 5: Barber Operations (r+w)         - login, view schedule, complete/no-show bookings
  * Scenario 6: Availability Stress Test (read) - rapid-fire availability checks
  *
- * Total: 5000 concurrent users
+ * Total: 100 concurrent users (configurable via -Dgatling.users=N)
  */
 public class BookingApiSimulation extends Simulation {
 
@@ -36,6 +36,7 @@ public class BookingApiSimulation extends Simulation {
     // ============================================
 
     private static final String BASE_URL = System.getProperty("gatling.baseUrl", "http://localhost:8080");
+    private static final int TOTAL_USERS = Integer.getInteger("gatling.users", 100);
     private static final String BUSINESS_SLUG = "business-1";
 
     // Seeded credentials (DataSeeder uses password123 for all)
@@ -442,40 +443,40 @@ public class BookingApiSimulation extends Simulation {
 
     {
         setUp(
-            // Scenario 1: Public browsing - highest load (35% = 1750 users)
+            // Scenario 1: Public browsing - highest load (35%)
             publicBrowsingScenario.injectClosed(
-                rampConcurrentUsers(0).to(1750).during(60),
-                constantConcurrentUsers(1750).during(90)
+                rampConcurrentUsers(0).to((int)(TOTAL_USERS * 0.35)).during(60),
+                constantConcurrentUsers((int)(TOTAL_USERS * 0.35)).during(90)
             ),
 
-            // Scenario 2: Customer registration (10% = 500 users) - WRITE heavy
+            // Scenario 2: Customer registration (10%) - WRITE heavy
             registrationScenario.injectClosed(
-                rampConcurrentUsers(0).to(500).during(60),
-                constantConcurrentUsers(500).during(90)
+                rampConcurrentUsers(0).to((int)(TOTAL_USERS * 0.10)).during(60),
+                constantConcurrentUsers((int)(TOTAL_USERS * 0.10)).during(90)
             ),
 
-            // Scenario 3: Customer booking flow (25% = 1250 users) - READ + WRITE
+            // Scenario 3: Customer booking flow (25%) - READ + WRITE
             customerBookingScenario.injectClosed(
-                rampConcurrentUsers(0).to(1250).during(60),
-                constantConcurrentUsers(1250).during(90)
+                rampConcurrentUsers(0).to((int)(TOTAL_USERS * 0.25)).during(60),
+                constantConcurrentUsers((int)(TOTAL_USERS * 0.25)).during(90)
             ),
 
-            // Scenario 4: Admin management (10% = 500 users) - READ + WRITE
+            // Scenario 4: Admin management (10%) - READ + WRITE
             adminManagementScenario.injectClosed(
-                rampConcurrentUsers(0).to(500).during(60),
-                constantConcurrentUsers(500).during(90)
+                rampConcurrentUsers(0).to((int)(TOTAL_USERS * 0.10)).during(60),
+                constantConcurrentUsers((int)(TOTAL_USERS * 0.10)).during(90)
             ),
 
-            // Scenario 5: Barber operations (10% = 500 users) - READ + WRITE
+            // Scenario 5: Barber operations (10%) - READ + WRITE
             barberOperationsScenario.injectClosed(
-                rampConcurrentUsers(0).to(500).during(60),
-                constantConcurrentUsers(500).during(90)
+                rampConcurrentUsers(0).to((int)(TOTAL_USERS * 0.10)).during(60),
+                constantConcurrentUsers((int)(TOTAL_USERS * 0.10)).during(90)
             ),
 
-            // Scenario 6: Availability stress test (10% = 500 users) - READ
+            // Scenario 6: Availability stress test (10%) - READ
             availabilityStressScenario.injectClosed(
-                rampConcurrentUsers(0).to(500).during(60),
-                constantConcurrentUsers(500).during(90)
+                rampConcurrentUsers(0).to((int)(TOTAL_USERS * 0.10)).during(60),
+                constantConcurrentUsers((int)(TOTAL_USERS * 0.10)).during(90)
             )
         )
         .protocols(httpProtocol)
