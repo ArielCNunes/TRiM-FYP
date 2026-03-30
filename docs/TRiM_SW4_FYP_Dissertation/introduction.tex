@@ -46,17 +46,17 @@ Finally, usability remains a key consideration. The primary objective of \textit
 
 \section{Chapters Overview}
 
-\subsection*{Chapter 2 -- Methodology}
-Outlines the development approach adopted for this project, including the agile techniques and project management tools used throughout the development lifecycle.
+\subsection*{Chapter 2: Methodology}
+Outlines the development approach used in the project. It describes the agile workflow with a Kanban board in GitHub Projects, the user stories used to gather requirements, and the feedback loop with weekly supervisor meetings and regular client demonstrations with V7 Barbers. The chapter also covers the tools used for development, the role of generative AI, testing, and the evaluation strategy built around Gatling load testing and seeded test data.
 
-\subsection*{Chapter 3 -- Technology Review}
-Reviews multi-tenant database architectures and the key technologies underpinning the platform, providing the theoretical foundation for the design decisions made.
+\subsection*{Chapter 3: Technology Review}
+Looks at the three primary multi-tenant database architectures: separate databases, separate schemas, and shared schemas. Analyses their trade-offs in terms of isolation, cost, and scalability. The chapter surveys data isolation techniques including filter-based and permission-based approaches such as PostgreSQL Row-Level Security, and reviews related work on adaptive schema design, and recent benchmarking frameworks. It identifies the gap that motivates this project: a lack of empirical evidence on combining shared-schema designs with database-level security enforcement.
 
-\subsection*{Chapter 4 -- System Design}
-Presents the overall system architecture, REST API design, database schema, and the multi-tenant data isolation strategy.
+\subsection*{Chapter 4: System Design}
+Presents the architecture of \textit{TRiM}, from the RESTful API and entity-relationship model to the multi-tenant implementation built on subdomain-based routing, tenant-aware schema design, and Row-Level Security. It details core operational flows including booking and payment processing with Stripe, race condition prevention, JWT-based authentication with role-based access control, and cross-subdomain token exchange. The chapter also covers the React frontend architecture and the Docker-based deployment strategy.
 
-\subsection*{Chapter 5 -- System Evaluation}
-Evaluates the system through performance benchmarking, load testing, and security analysis to assess how the platform behaves under realistic conditions.
+\subsection*{Chapter 5: System Evaluation}
+Evaluates the system against the success metrics defined in this chapter. Performance is assessed through Gatling load tests that measure API response times and database behaviour as tenant and booking volumes increase. Security is verified through tenant isolation testing to confirm that no cross-tenant data leakage occurs. The chapter concludes with a critical analysis of the system's strengths and the limitations of the current design.
 
-\subsection*{Chapter 6 -- Conclusion}
-Summarises the key findings, reflects on the project objectives, and discusses potential future work and improvements.
+\subsection*{Chapter 6: Conclusion}
+Reflects on the extent to which the project objectives were met, sums up the key findings from the system evaluation, and discusses the broader implications of the architectural choices made. It concludes with directions for future work, including potential improvements to the platform and areas where the multi-tenant design could be extended.
