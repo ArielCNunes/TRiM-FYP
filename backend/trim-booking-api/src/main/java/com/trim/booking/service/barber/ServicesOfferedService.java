@@ -52,16 +52,32 @@ public class ServicesOfferedService {
         return serviceRepository.save(service);
     }
 
+    @Transactional(readOnly = true)
     public List<ServiceOffered> getAllServices() {
-        return serviceRepository.findByBusinessId(getBusinessId());
+        List<ServiceOffered> services = serviceRepository.findByBusinessId(getBusinessId());
+        services.forEach(s -> {
+            if (s.getCategory() != null) s.getCategory().getName();
+        });
+        return services;
     }
 
+    @Transactional(readOnly = true)
     public List<ServiceOffered> getActiveServices() {
-        return serviceRepository.findByBusinessIdAndActiveTrue(getBusinessId());
+        List<ServiceOffered> services = serviceRepository.findByBusinessIdAndActiveTrue(getBusinessId());
+        // Force lazy load within transaction for RLS compatibility
+        services.forEach(s -> {
+            if (s.getCategory() != null) s.getCategory().getName();
+        });
+        return services;
     }
 
+    @Transactional(readOnly = true)
     public Optional<ServiceOffered> getServiceById(Long id) {
-        return serviceRepository.findByIdAndBusinessId(id, getBusinessId());
+        Optional<ServiceOffered> service = serviceRepository.findByIdAndBusinessId(id, getBusinessId());
+        service.ifPresent(s -> {
+            if (s.getCategory() != null) s.getCategory().getName();
+        });
+        return service;
     }
 
     public ServiceOffered updateService(Long id, ServiceRequest request) {
