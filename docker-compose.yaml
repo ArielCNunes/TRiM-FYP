@@ -19,6 +19,7 @@ services:
       - ./backend/trim-booking-api/.env
     environment:
       DB_URL: jdbc:postgresql://postgres:5432/barbershop_db
+      SPRING_PROFILES_ACTIVE: rls
     depends_on:
       - postgres
 
