@@ -50,19 +50,42 @@ Claude Code was also used to review existing code for security vulnerabilities a
 
 \section{Research Approach}
 \subsection*{Literature Search}
-- Search strings and databases used
-- Inclusion and exclusion criteria
+The literature review was done across IEEE Xplore, ACM Digital Library, and ATU's library database, covering research published between 2008 and 2025. A combination of broad and refined Boolean search queries was used, such as \texttt{multitenant database architecture}, \texttt{multi-tenant SaaS database design}, and \texttt{multi-tenan* AND (architecture OR design OR patterns)}.
+
+Broad queries returned between 1,100 and 2,500 results, while more refined queries narrowed this to approximately 900. Duplicates across databases were removed, and the remaining papers were screened by reviewing the title, abstract, introduction, and conclusion. Papers that did not directly address database design patterns were discarded at this stage. This process resulted in a selection of 13 peer-reviewed papers.
+
+Papers were included if they discussed database design patterns within multi-tenant architecture and addressed areas such as security, scalability, performance, or cost. Papers that were not peer-reviewed, not available in English, or that tackled multi-tenancy without focusing on database design were excluded.
 
 \subsection*{Choosing the Technology Stack}
-- Reasons for selecting Java, Spring Boot, React, PostgreSQL, etc.
+The backend was built with Java and Spring Boot, chosen for its wide adoption in SaaS development and its robust security, data access, and REST APIs. Spring Security and JWT handled authentication, Spring Data JPA managed database interaction, and Spring Validation was used for input handling. PostgreSQL was selected as the database due to its support for Row-Level Security, which was central to the multi-tenant data isolation strategy explored in the literature review and applied in this project.
+
+The frontend was built with React, TypeScript, and Vite. React was chosen for its component-based architecture, which suited the application's multiple user-facing views across customer, barber, and admin roles. TypeScript was used to catch type errors early and maintain consistency with the backend's strongly typed DTOs. Supporting libraries such as Redux Toolkit, React Router, Axios, and Tailwind CSS were selected based on compatibility with the React ecosystem. Stripe's React SDK was used for the payment integration.
+
+Docker Compose was used to manage three containers: a PostgreSQL 16 database, the Spring Boot API, and the React frontend. This setup ensured a consistent environment between local development and the production VPS, and simplified deployment by defining the entire stack in a single configuration file.
 
 \section{Evaluation Methodology}
-\subsection*{Benchmarking With Gaitling Load Testing}
+\subsection*{Benchmarking With Gatling Load Testing}
+Gatling was used to load test the API under simulated real-world conditions. The simulation defines six scenarios that mirror the application's core user flows: public browsing, customer registration, the full booking lifecycle, admin management, barber operations, and an availability stress test. Each scenario combines read and write operations to reflect realistic usage rather than testing endpoints in isolation.
+
+The load is distributed across the scenarios to approximate expected traffic patterns, with public browsing and the booking flow receiving the largest share. Users are ramped up over 60 seconds and then held at a constant level for 90 seconds. The total number of concurrent users is configurable, defaulting to 100. Assertions are set on the 95th and 99th percentile response times and the overall success rate. The simulation was run twice under the same conditions: once with Row-Level Security enabled and once without, in order to measure the performance overhead introduced by RLS. The simulation relies on a pre-seeded database, described in the following subsection. Figure~\ref{image:apiBenchmarking} shows the simulation being executed from IntelliJ.
+
 \begin{figure}[H]
     \includegraphics[width=0.9\textwidth]{images/api-benchmarking.png}
     \caption{Benchmarking API in IntelliJ IDE.}
     \label{image:apiBenchmarking}
 \end{figure}
 
-\subsection*{Test Data Generation With java-seeder}
+\subsection*{Test Data Generation With DataSeeder}
+To run the Gatling simulation against a realistic dataset, a custom \texttt{DataSeeder} component was built using Spring Boot and the DataFaker library. The seeder is activated via a Spring profile and populates the database with configurable volumes of businesses, customers, barbers, services, and bookings using JDBC batch inserts for performance. Default values generate 5 businesses, 50,000 customers and 100,000 bookings per business, along with barbers, service categories, and realistic scheduling data such as availability windows, breaks, and booking time slots.
+
+This seeded data served two purposes: it provided the volume needed for meaningful load testing with Gatling, and it ensured that the simulation's feeders could reference valid entities such as barber IDs, service IDs, and customer credentials.
+
 \subsection*{Performance Metrics}
+The following metrics were used to evaluate API performance across both test runs (with and without RLS): response time at the 95th and 99th percentiles, overall success rate (percentage of requests returning expected status codes), and throughput measured in requests per second. These metrics are reported automatically by Gatling at the end of each simulation run, broken down per request, as shown in Figure~\ref{fig:gatling-report}. The results are explored in detail in a later chapter and were compared between the two configurations to quantify the overhead introduced by Row-Level Security.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/gaitling-example.png}
+    \caption{Example Gatling report showing per-request execution counts and response time percentiles.}
+    \label{fig:gatling-report}
+\end{figure}
