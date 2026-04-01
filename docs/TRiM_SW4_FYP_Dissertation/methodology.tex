@@ -6,22 +6,22 @@ The development of \textit{TRiM} followed an agile methodology, incorporating se
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{images/kanbanboard.png}
+    \includegraphics[width=0.4\textwidth]{images/kanbanboard.png}
     \caption{GitHub Projects Kanban board used to track development progress.}
     \label{fig:kanban-board}
 \end{figure}
 
-Weekly meetings were held with the project supervisor to review progress, discuss technical decisions, and receive guidance. In parallel, regular meetings were conducted with the client, Jean, the owner of V7 Barbers. All meetings were documented for reference.
+Weekly meetings were held with the project supervisor to review progress, discuss technical decisions, and receive guidance. In parallel, regular meetings were carried out with the client, Jean, the owner of V7 Barbers. All meetings were documented for reference.
 
 \subsection*{Version Control and Development Tools}
 All source code was managed using Git and hosted on GitHub. Commits were made frequently to maintain a clear history of changes throughout the project. Development was carried out primarily using IntelliJ IDEA for the Spring Boot backend and Visual Studio Code for the React frontend. GitHub Codespaces was also used on occasion for remote development when working from a different machine. Docker Compose was used locally to run the PostgreSQL database alongside the application during development.
 
 \subsection*{Requirements Gathering}
-Working with a real client was central to this project. Jean, the owner of V7 Barbers, participated in regular meetings that served as the primary mechanism for gathering and validating requirements. Early sessions focused on understanding the day-to-day challenges of running a walk-in-only barber shop: limited visibility into peak times, no way to manage no-show customers, and the burden of manual bookkeeping. These conversations shaped the initial user stories and ensured the system addressed genuine business problems.
+Working with a real client was key to this project. Jean, the owner of V7 Barbers, participated in regular meetings that served as the primary mechanism for gathering and validating requirements. The first few sessions focused on understanding the day-to-day challenges of running a walk-in-only barber shop: limited visibility into peak times, no way to manage no-show customers, and the burden of manual bookkeeping. These conversations shaped the initial user stories and ensured the system addressed genuine business problems.
 
 As development progressed, client meetings shifted more towardrs demonstration. Live walkthroughs of the system prompted feedback that hadn't been thought of before like deposit-based payments, where customers pay a percentage upfront and settle the balance in-shop, and customer blacklisting to protect the business from repeated no-shows.
 
-Requirements were captured as user stories, each documented as a GitHub Issue following a consistent structure. Every user story included four sections: a \textbf{User Story} statement written in the standard ``As a [role], I want [feature], so that [benefit]'' format; a set of \textbf{Acceptance Criteria} expressed using Given/When/Then conditions; a \textbf{Priority} classification using the MoSCoW method (Must Have, Should Have, Could Have); and \textbf{Technical Notes} outlining relevant implementation details such as API endpoints and UI behaviour. Figure~\ref{fig:user-story-example} illustrates a user story from the project.
+Requirements were captured as user stories, each documented as a GitHub Issue following the same structure. Every user story included four sections: a \textbf{User Story} statement written in the standard ``As a [role], I want [feature], so that [benefit]'' format; a set of \textbf{Acceptance Criteria} expressed using Given/When/Then conditions; a \textbf{Priority} classification using the MoSCoW method (Must Have, Should Have, Could Have); and \textbf{Technical Notes} outlining relevant implementation details such as API endpoints and UI behaviour. Figure~\ref{fig:user-story-example} illustrates a user story from the project.
 
 \begin{figure}[H]
     \centering
@@ -30,12 +30,23 @@ Requirements were captured as user stories, each documented as a GitHub Issue fo
     \label{fig:user-story-example}
 \end{figure}
 
-Priorities were assigned based on a combination of client input, technical dependencies, and time constraints. Must Have items represented core functionality without which the system would not work, while Should Have and Could Have items were developed after the essential features were in place. Each user story mapped directly to a card on the Kanban board, providing traceability from requirement through to implementation and acceptance.
+Priorities were assigned based on a combination of client input, technical dependencies, and time constraints. Must Have items represented core functionality without which the system would not work, while Should Have and Could Have items were developed after the essential features were in place. Each user story mapped directly to a card on the Kanban board, providing traceability for each requirement.
 
 \section{Generative AI Usage}
-\subsection*{Code Generation with GitHub Copilot}
+\subsection*{Code Generation in VSCode}
+GitHub Copilot was used as an inline code auto-complete in Visual Studio Code. Its primary value was in speeding up the production of boilerplate code that makes up a significant portion of any full-stack Spring Boot and React application.
+
+On the backend, Copilot was effective at suggesting Java entity classes with JPA annotations, DTOs with getter and setter methods, repository interfaces, and repetitive controller patterns such as dependency injection, service delegation, and \texttt{ResponseEntity} wrapping. On the frontend, it assisted with TypeScript interfaces that mirrored backend DTOs, Axios-based API service methods, and form validation logic.
+
+This was most useful during the early stages of development when the foundational structure of entities, repositories, controllers, and base components was being established. Copilot's suggestions helped speed up this process, allowing more focus to shift toward the business logic that differentiated the system, such as the availability algorithm, deposit payment flow, and customer blacklisting. All suggestions were reviewed and adjusted before being accepted.
+
 \subsection*{Testing Automation with Claude Code}
+Claude Code CLI was used to generate the integration test suite for the backend API. The test files were generated one at a time, with each file targeting a specific controller or operation. This allowed each test class to be reviewed individually to ensure it covered the correct functionality and edge cases.
+
+The resulting suite consists of 15 integration test classes covering areas such as authentication, booking creation and cancellation, barber availability, payment webhooks, and dashboard endpoints. Each test class runs against an in-memory H2 database, sets up its own test data, and makes real HTTP requests through Spring's \texttt{MockMvc}. Claude Code's ability to generate the tests quickly allowed for both a much broader test suite and also quick iterations to either refine the tests or fix bugs that were found during testing.
+
 \subsection*{Code Review}
+Claude Code was also used to review existing code for security vulnerabilities and performance issues. This involved pointing the tool at specific files or modules and having it analyse the implementation for common weaknesses such as unvalidated input, improper access control, inefficient database queries, unnecessary object creation, or even typos. Findings were not applied automatically; instead, each suggestion was worked through iteratively, discussing the reasoning behind the change before deciding whether to apply it. This back-and-forth process helped ensure the final code was both clean and well-understood.
 
 \section{Research Approach}
 \subsection*{Literature Search}
