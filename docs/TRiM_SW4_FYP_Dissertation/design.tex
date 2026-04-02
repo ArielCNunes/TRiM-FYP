@@ -1,44 +1,213 @@
 \chapter{System Design}
 
+This chapter describes the architecture and design decisions behind \textit{TRiM}. It covers the overall system structure, multi-tenant data isolation strategy, core business logic, frontend design, and deployment set up.
+
 \section{System Overview}
-\subsection{Architecture Diagram}
-\subsection{RESTful API Design}
-\subsection{Technology Stack}
+\textit{TRiM} is built as a multi-tenant Software-as-a-Service (SaaS) platform following a three-tier architecture: a React single-page application on the frontend, a Spring Boot REST API on the backend, and a PostgreSQL database for persistence. Each tenant (i.e. each business using the platform) is identified by a unique subdomain such as \texttt{v7.trimbooking.ie}, and all three tiers are tenant-aware, which means every request is scoped to a single business from the moment it enters the system.
+
+The frontend is a TypeScript React app bundled with Vite and served by Nginx. It communicates with the backend through a RESTful JSON API. The backend is a stateless Spring Boot application that handles authentication, business logic, and data access. Authentication is token-based using JSON Web Tokens (JWT), with no server-side session state. As discussed earlier, PostgreSQL was selected specifically for its native support for RLS, which enforces tenant isolation at the database level and ensures that even a bug in application code cannot expose businesses' data.
+
+Integrations include Stripe Connect for payment processing, where each business connects their own Stripe account to receive deposits directly, and Twilio and SMTP for sending booking confirmation notifications via SMS and email.
+
+The system is containerised using Docker Compose, with three services: the PostgreSQL database, the Spring Boot API, and the Nginx-served frontend. In production, all three containers run on a Virtual Private Server (VPS), an Infrastructure-as-a-Service (IaaS) deployment, with Nginx acting as a reverse proxy.
+
+\subsection*{Architecture Diagram}
+Figure~\ref{fig:architecture} illustrates the high-level architecture of the system, showing the request flow from the browser through Nginx and the Spring Boot filter chain to PostgreSQL, along with the external service integrations.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/architecture.png}
+    \caption{High-level system architecture diagram.}
+    \label{fig:architecture}
+\end{figure}
+
+\subsection*{RESTful API Design}
+The backend exposes a RESTful JSON API under the \texttt{/api} prefix. All endpoints follow standard REST conventions: resources are identified by URL paths, operations map to HTTP methods (GET, POST, DELETE, etc.), and all request and response bodies use JSON. The API is entirely stateless and there are no server-side sessions. Every authenticated request requires a JWT passed in the \texttt{Authorization} header.
+
+Endpoints are split into two categories. Public endpoints, such as login, registration, active service listings, availability lookups, and the Stripe webhook, can be accessed without authentication. All remaining endpoints require a valid JWT, and Spring Security rejects any request that does not carry one. Because the system is multi-tenant, every request also carries the business context implicitly through the subdomain or \texttt{X-Business-Slug} header. No endpoint requires a \texttt{businessId} parameter. The \texttt{TenantFilter} resolves it automatically before the request reaches any controller.
+
+Listing~\ref{lst:axios-interceptor} shows the Axios request interceptor on the frontend, which attaches both the JWT and the business slug header to every outgoing API call.
+
+\begin{lstlisting}[caption={Axios request interceptor attaching JWT and tenant context to every API call.}, label={lst:axios-interceptor}, basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+// Request interceptor - Add JWT token and business slug to every request
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Send business slug header only when present
+    const businessSlug = getBusinessSlug();
+    if (businessSlug) {
+      config.headers["X-Business-Slug"] = businessSlug;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+\end{lstlisting}
+
+Table~\ref{tab:api-endpoints} summarises the main API endpoint groups exposed by the Java backend.
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Resource} & \textbf{Prefix} & \textbf{Description} \\
+    \hline
+    Authentication & \texttt{/api/auth} & Login, register, password reset, cross-subdomain token exchange \\
+    \hline
+    Bookings & \texttt{/api/bookings} & Create, reschedule, cancel, mark complete or no-show \\
+    \hline
+    Barbers & \texttt{/api/barbers} & Create, update, activate and deactivate barber profiles \\
+    \hline
+    Barber Breaks & \texttt{/api/barber-breaks} & Manage scheduled break times per barber \\
+    \hline
+    Availability & \texttt{/api/availability} & Query available time slots for a given barber, date, and service \\
+    \hline
+    Barber Availability & \texttt{/api/barber-availability} & Set and update weekly working hours per barber \\
+    \hline
+    Services & \texttt{/api/services} & Create, update, and deactivate services offered \\
+    \hline
+    Categories & \texttt{/api/categories} & Manage service categories with nested service listings \\
+    \hline
+    Payments & \texttt{/api/payments} & Create Stripe payment intents and handle webhooks \\
+    \hline
+    Stripe Connect & \texttt{/api/stripe-connect} & Business onboarding, account status, dashboard access \\
+    \hline
+    Customers & \texttt{/api/admin/customers} & List customers, blacklist and unblacklist \\
+    \hline
+    Dashboard & \texttt{/api/dashboard} & Admin statistics and revenue metrics \\
+    \hline
+    \end{tabularx}
+    \caption{Summary of API endpoint groups.}
+    \label{tab:api-endpoints}
+\end{table}
 
 \section{Multi-Tenant Database Design}
-\subsection{Entity-Relationship Model}
-\subsection{Migrating From Single to Multi-Tenant}
-\subsection{Tenant-Aware Schema}
-\subsection{Row Level Security vs Application-Level Isolation}
+This section describes the multi-tenant data isolation strategy used in \textit{TRiM}, which is a critical aspect of the system's design. The main goal is to ensure that each tenant's data is completely isolated and secure, while still allowing for efficient querying and scalability.
+
+\subsection*{Entity-Relationship Model}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/db.png}
+    \caption{Entity-Relationship diagram of the PostgreSQL database schema.}
+    \label{fig:er-diagram}
+\end{figure}
+
+Figure~\ref{fig:er-diagram} shows the full database schema. The central entity is \texttt{businesses}, which represents a tenant. Nearly every other table carries a \texttt{business\_id} foreign key that ties its rows to a specific business, forming the foundation of the multi-tenant isolation model.
+
+The core domain relationships are as follows. A \texttt{booking} links a customer (\texttt{users}), a \texttt{barber}, and a \texttt{service\_offered}, along with the date, time slot, and status. Each booking may have an associated \texttt{payment} record that tracks the Stripe payment intent and deposit amount. Barbers have two supporting tables: \texttt{barber\_availability} defines their weekly working hours, and \texttt{barber\_breaks} defines scheduled breaks within those hours. Services are grouped into \texttt{service\_\allowbreak categories}, with each service belonging to one category.
+
+The \texttt{users} table stores all user types (customers, barbers, and admins) distinguished by a \texttt{role} column. Barbers are linked to their user account via a \texttt{user\_id} foreign key, while the business's admin is referenced by \texttt{admin\_user\_id} on the \texttt{businesses} table.
+
+The only table without a \texttt{business\_id} is \texttt{auth\_token\_exchanges}, which stores short-lived tokens used for cross-subdomain authentication. These tokens operate across tenants by design, as they facilitate the redirect from the main registration page to a tenant-specific subdomain.
+
+\subsection*{Migrating From Single to Multi-Tenant}
+The system was initially developed as a single-tenant application, with all entities (users, barbers, bookings, services) existing in a single flat schema with no concept of business ownership. Once the core functionality was done, the codebase was refactored to support multiple tenants. This involved some key changes:
+
+\begin{itemize}
+    \item A new \texttt{businesses} table was introduced to represent each tenant, with a unique \texttt{slug} used for subdomain-based identification.
+    \item A \texttt{business\_id} foreign key column was added to every tenant-scoped table, linking each row to its owning business.
+    \item JPA entity classes were updated to include a \texttt{@ManyToOne} relationship to \texttt{Business}, and repository queries were updated to filter by \texttt{business\_id}.
+    \item The JWT token payload was extended to include a \texttt{businessId} claim, so that each token is bound to a specific tenant.
+    \item A request filter chain was introduced (\texttt{TenantFilter} and \texttt{JwtAuthenticationFilter}) to resolve and validate the tenant context on every request, as described later in this chapter.
+    \item PostgreSQL Row-Level Security policies were applied to enforce isolation at the database level, independent of application code.
+\end{itemize}
+
+This incremental approach meant that the single-tenant version served as a working prototype, and the multi-tenant refactor could be layered on top without redesigning the core logic.
 
 \section{Multi-Tenant Implementation}
-\subsection{TenantFilter \& TenantContext}
-\subsection{Subdomain-based Routing}
-\subsection{Cross-Subdomain Token Exchange}
+A common approach to multi-tenant isolation is to filter data purely in application code, for example by appending \texttt{WHERE business\_id = ?} to every query. While straightforward, this approach is fragile: a single forgotten filter or a new repository method without a tenant check is enough to leak data across businesses.
+
+As identified in the literature review (Chapter~3), PostgreSQL Row-Level Security (RLS) offers a stronger alternative. RLS policies are defined at the database level and automatically filter every \texttt{SELECT}, \texttt{INSERT}, \texttt{UPDATE}, and \texttt{DELETE} operation based on a session variable. The application cannot bypass these policies, regardless of how the query is constructed.
+
+\textit{TRiM} uses both approaches together as a defence-in-depth strategy, summarised in Table~\ref{tab:isolation-layers}. Any single layer is sufficient to prevent cross-tenant data access; together they ensure that even if one layer fails, the others still enforce isolation. The remainder of this section describes how each layer is implemented.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{0.20\textwidth}|p{0.35\textwidth}|p{0.4\textwidth}|}
+    \hline
+    \textbf{Layer} & \textbf{Mechanism} & \textbf{What it prevents} \\
+    \hline
+    Application & Repository methods filter by \texttt{business\_id} & Queries are scoped to the current tenant by design \\
+    \hline
+    Authentication & JWT \texttt{businessId} must match \texttt{TenantContext} & Tokens issued for one business cannot be used on another \\
+    \hline
+    Database & PostgreSQL RLS policies & Even if both application layers fail, the database will not return rows outside the current tenant \\
+    \hline
+    \end{tabular}
+    \caption{Three independent layers of tenant data isolation.}
+    \label{tab:isolation-layers}
+\end{table}
+
+\subsection*{How Is a Request Scoped to a Tenant?}
+Every incoming request must be associated with a specific business before any controller logic runs. This is handled by two components working together: \texttt{TenantContext}, a thread-local store, and \texttt{TenantFilter}, a request filter.
+
+\texttt{TenantContext} is a utility class that uses Java's \texttt{ThreadLocal} to hold the current business ID and slug for the duration of a single HTTP request. It is written to by the \texttt{TenantFilter} at the start of the request, read by the \texttt{RlsDataSource} when a database connection is checked out, and cleared in a \texttt{finally} block to prevent memory leaks.
+
+\texttt{TenantFilter} is a request filter that runs before the JWT authentication filter in the security filter chain. It resolves which business the request is for using three strategies, in this order:
+
+\begin{enumerate}
+    \item \textbf{Subdomain} -- the first part of the hostname is extracted (e.g. \texttt{v7.trimbooking.ie} yields \texttt{v7}). Common subdomains such as \texttt{www}, \texttt{api}, and \texttt{localhost} are ignored.
+    \item \textbf{Header} -- the \texttt{X-Business-Slug} header, sent by the frontend's Axios interceptor on every request.
+    \item \textbf{Query parameter} -- a \texttt{?business=slug} fallback for development and testing.
+\end{enumerate}
+
+Once a slug is resolved, the filter looks up the \texttt{Business} entity by slug. If found, it calls \texttt{TenantContext.setCurrentBusiness()} and the request proceeds. If no slug is provided or the business does not exist, the request is rejected with a 400 or 404 response before it reaches any controller.
+
+Certain endpoints are exempted from tenant resolution because they operate outside the scope of a single business such as admin registration (which creates a new business), the cross-subdomain token exchange endpoint, and the Stripe payment webhook.
+
+Listing~\ref{lst:tenant-filter} shows the core of the filter's resolution logic.
+
+\begin{lstlisting}[caption={TenantFilter extracting business slug from multiple sources.}, label={lst:tenant-filter}, basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+private String extractBusinessSlug(HttpServletRequest request) {
+    // Strategy 1: Extract from subdomain
+    String slug = extractFromSubdomain(request);
+    if (slug != null && !slug.isEmpty()) return slug;
+
+    // Strategy 2: X-Business-Slug header
+    slug = request.getHeader("X-Business-Slug");
+    if (slug != null && !slug.isEmpty()) return slug;
+
+    // Strategy 3: Query parameter
+    slug = request.getParameter("business");
+    if (slug != null && !slug.isEmpty()) return slug;
+
+    return null;
+}
+\end{lstlisting}
+
+\subsection*{Cross-Subdomain Token Exchange}
+When a new admin registers on the main site, the system creates their business and issues a JWT token. The user then needs to be redirected to their tenant-specific subdomain (e.g. \texttt{v7.trimbooking.ie}). However, the JWT cannot simply be passed along: cookies do not transfer across subdomains, and placing a long-lived token in a URL query parameter would be insecure as it could be leaked through browser history or server logs.
+
+To solve this, \textit{TRiM} uses a short-lived, single-use exchange token. The flow works as follows:
+
+\begin{enumerate}
+    \item After registration, the backend generates a cryptographically secure random token (32 bytes, Base64 URL-encoded) and stores it in the \texttt{auth\_token\_\allowbreak exchanges} table alongside the actual JWT, the user data, and the target business slug. The exchange token expires after 60 seconds.
+    \item The user is redirected to the target subdomain with the exchange token in the URL (e.g. \texttt{v7.trimbooking.ie/auth?token=abc123}).
+    \item The frontend on the target subdomain sends the exchange token to the \texttt{/api/auth/exchange-token} endpoint, which looks up the token, validates that it has not expired or been used, marks it as used, and returns the actual JWT and user data.
+    \item The frontend stores the JWT in \texttt{localStorage} and the user is authenticated on the new subdomain.
+\end{enumerate}
+
+This approach ensures that the actual JWT is never exposed in a URL. The exchange token is single-use, short-lived, and cryptographically random, making it safe to pass as a query parameter. A scheduled task cleans up expired and used tokens every five minutes.
 
 \section{Business Operations}
-\subsection{Booking \& Payment Flow}
-\subsection{Race Condition Prevention When Booking}
-\subsection{Authentication \& Security}
-\subsection{JWT \& Role-Based Access Control}
+\subsection*{Booking \& Payment Flow}
+\subsection*{Race Condition Prevention When Booking}
+\subsection*{Authentication \& Security}
+\subsection*{JWT \& Role-Based Access Control}
 
 \section{Frontend Architecture}
-\subsection{Component Structure}
-\subsection{State Management}
-\subsection{Responsive Design}
-\subsection{Integration with Backend API}
+\subsection*{Component Structure}
+\subsection*{State Management}
+\subsection*{Responsive Design}
+\subsection*{Integration with Backend API}
 
 \section{Deployment Architecture}
-\subsection{Docker}
-\subsection{Deploying Application to a VPS}
-
-Provide a detailed explanation of the overall system architecture \cite{lin1991divergence}, i.e. the HOW of the project.
-Use UML, system architecture diagrams, screenshots, code snippets and algorithms to illustrate your design.
-
-% \begin{figure}[h!]
-%     \includegraphics[width=0.9\textwidth]{images/architecture.png}
-%     \caption{System Architecture.}
-%     \label{image:sysArchitecture}
-% \end{figure}
-
-% Image \ref{image:sysArchitecture} can be referenced with the label given to the image, \\ i.e. \textbf{\textbackslash{}ref\{image:sysArchitecture\}}. Note that \LaTeX will place the image wherever it deems fit. Don't bother trying to change where a table or figure is placed until your document is ready for final layout.
+\subsection*{Docker}
+\subsection*{Deploying Application to a VPS}
