@@ -33,19 +33,11 @@ export const getBusinessSlug = (): string => {
 
 /**
  * Build API base URL preserving the current subdomain for multi-tenancy
- * Examples:
- *   "http://v1.localhost:3000" → "http://v1.localhost:8080/api"
  */
 const getApiBaseUrl = (): string => {
-  const { protocol, hostname } = window.location;
-
-  // In production, API might be on same domain via proxy
-  // In development, use port 8080
-  const appDomain = import.meta.env.VITE_APP_DOMAIN || "localhost";
-  const isDevelopment = hostname.includes(appDomain);
-  const apiHost = isDevelopment ? `${hostname}:8080` : hostname;
-
-  return `${protocol}//${apiHost}/api`;
+  // In Docker, nginx proxies /api to the backend.
+  // In dev (vite), the proxy in vite.config.ts handles it
+  return "/api";
 };
 
 const api = axios.create({
