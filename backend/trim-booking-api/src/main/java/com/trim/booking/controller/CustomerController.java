@@ -40,7 +40,9 @@ public class CustomerController {
     public ResponseEntity<CustomerListResponse> getCustomers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sort) {
+            @RequestParam(defaultValue = "createdAt,desc") String sort,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean blacklisted) {
 
         String[] sortParams = sort.split(",");
         String sortField = sortParams[0];
@@ -49,7 +51,7 @@ public class CustomerController {
                 : Sort.Direction.DESC;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
-        CustomerListResponse response = customerService.getCustomers(pageable);
+        CustomerListResponse response = customerService.getCustomers(pageable, search, blacklisted);
         return ResponseEntity.ok(response);
     }
 

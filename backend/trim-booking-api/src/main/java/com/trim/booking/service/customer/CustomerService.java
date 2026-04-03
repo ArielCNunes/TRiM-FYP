@@ -41,8 +41,19 @@ public class CustomerService {
      * @param pageable Pagination information
      * @return CustomerListResponse with paginated customers
      */
-    public CustomerListResponse getCustomers(Pageable pageable) {
-        Page<User> customerPage = userRepository.findByBusinessIdAndRole(getBusinessId(), User.Role.CUSTOMER, pageable);
+    public CustomerListResponse getCustomers(Pageable pageable, String search, Boolean blacklisted) {
+        Page<User> customerPage;
+        boolean hasSearch = search != null && !search.isBlank();
+
+        if (hasSearch && blacklisted != null) {
+            customerPage = userRepository.searchByBusinessIdAndRoleAndBlacklisted(getBusinessId(), User.Role.CUSTOMER, blacklisted, search.trim(), pageable);
+        } else if (hasSearch) {
+            customerPage = userRepository.searchByBusinessIdAndRole(getBusinessId(), User.Role.CUSTOMER, search.trim(), pageable);
+        } else if (blacklisted != null) {
+            customerPage = userRepository.findByBusinessIdAndRoleAndBlacklisted(getBusinessId(), User.Role.CUSTOMER, blacklisted, pageable);
+        } else {
+            customerPage = userRepository.findByBusinessIdAndRole(getBusinessId(), User.Role.CUSTOMER, pageable);
+        }
 
         List<CustomerResponse> customers = customerPage.getContent().stream()
                 .map(this::mapToCustomerResponse)

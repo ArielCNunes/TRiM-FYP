@@ -19,6 +19,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findByBusinessIdAndRole(Long businessId, User.Role role, Pageable pageable);
 
+    @Query("SELECT u FROM User u WHERE u.business.id = :businessId AND u.role = :role " +
+           "AND (LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR u.phone LIKE CONCAT('%', :search, '%'))")
+    Page<User> searchByBusinessIdAndRole(@Param("businessId") Long businessId, @Param("role") User.Role role, @Param("search") String search, Pageable pageable);
+
+    Page<User> findByBusinessIdAndRoleAndBlacklisted(Long businessId, User.Role role, Boolean blacklisted, Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.business.id = :businessId AND u.role = :role AND u.blacklisted = :blacklisted " +
+           "AND (LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR u.phone LIKE CONCAT('%', :search, '%'))")
+    Page<User> searchByBusinessIdAndRoleAndBlacklisted(@Param("businessId") Long businessId, @Param("role") User.Role role, @Param("blacklisted") Boolean blacklisted, @Param("search") String search, Pageable pageable);
+
     @Query("SELECT COUNT(u) FROM User u WHERE u.business.id = :businessId AND u.role = 'CUSTOMER'")
     Long countByBusinessIdAndRole(@Param("businessId") Long businessId);
 

@@ -88,7 +88,7 @@ class CustomerServiceTest {
             when(bookingRepository.countByBusinessIdAndCustomerIdAndStatus(eq(BUSINESS_ID), eq(2L), eq(Booking.BookingStatus.NO_SHOW))).thenReturn(0L);
 
             // When
-            CustomerListResponse response = customerService.getCustomers(pageable);
+            CustomerListResponse response = customerService.getCustomers(pageable, null, null);
 
             // Then
             assertThat(response.getCustomers()).hasSize(2);
@@ -112,7 +112,7 @@ class CustomerServiceTest {
             when(userRepository.findByBusinessIdAndRole(BUSINESS_ID, User.Role.CUSTOMER, pageable)).thenReturn(emptyPage);
 
             // When
-            CustomerListResponse response = customerService.getCustomers(pageable);
+            CustomerListResponse response = customerService.getCustomers(pageable, null, null);
 
             // Then
             assertThat(response.getCustomers()).isEmpty();

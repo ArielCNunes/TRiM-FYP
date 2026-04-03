@@ -287,9 +287,13 @@ export const dashboardApi = {
 
 /** Customer management endpoints (admin only). */
 export const customersApi = {
-  /** Get all customers with pagination. */
-  getAll: (page = 0, size = 20) =>
-    api.get<CustomerListResponse>(`/admin/customers?page=${page}&size=${size}`),
+  /** Get all customers with pagination, search, and filter. */
+  getAll: (page = 0, size = 20, search?: string, blacklisted?: boolean | null) => {
+    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    if (search) params.set("search", search);
+    if (blacklisted !== undefined && blacklisted !== null) params.set("blacklisted", String(blacklisted));
+    return api.get<CustomerListResponse>(`/admin/customers?${params.toString()}`);
+  },
 
   /** Get a single customer by ID. */
   getById: (id: number) => api.get<Customer>(`/admin/customers/${id}`),

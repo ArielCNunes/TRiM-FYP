@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { customersApi } from "../../../api/endpoints";
 import type { Customer } from "../../../types";
 import StatusMessage from "../../shared/StatusMessage";
@@ -18,23 +18,39 @@ export default function CustomersManager() {
         "all" | "active" | "blacklisted"
     >("all");
     const [searchTerm, setSearchTerm] = useState("");
+    const [activeSearch, setActiveSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const pageSize = 20;
 
-    useEffect(() => {
-        fetchCustomers();
-    }, [currentPage]);
+    // Reset page on filter/search change, then fetch
+    const prevSearch = useRef(activeSearch);
+    const prevFilter = useRef(filterBlacklisted);
 
     useEffect(() => {
-        setCurrentPage(0);
-    }, [searchTerm, filterBlacklisted]);
+        const filtersChanged = activeSearch !== prevSearch.current || filterBlacklisted !== prevFilter.current;
+        if (filtersChanged) {
+            prevSearch.current = activeSearch;
+            prevFilter.current = filterBlacklisted;
+            if (currentPage !== 0) {
+                setCurrentPage(0);
+                return;
+            }
+        }
+        fetchCustomers();
+    }, [currentPage, activeSearch, filterBlacklisted]);
+
+    const submitSearch = () => {
+        setActiveSearch(searchTerm);
+    };
 
     const fetchCustomers = async () => {
         try {
-            setLoading(true);
-            const response = await customersApi.getAll(currentPage, pageSize);
+            if (customers.length === 0) setLoading(true);
+            const blacklistedParam = filterBlacklisted === "active" ? false
+                : filterBlacklisted === "blacklisted" ? true : null;
+            const response = await customersApi.getAll(currentPage, pageSize, activeSearch || undefined, blacklistedParam);
             setCustomers(response.data.customers);
             setTotalPages(response.data.totalPages);
             setTotalElements(response.data.totalElements);
@@ -78,27 +94,6 @@ export default function CustomersManager() {
         }
     };
 
-    // Filter and search customers
-    const filteredCustomers = customers.filter((customer) => {
-        // Filter by blacklist status
-        if (filterBlacklisted === "active" && customer.blacklisted) return false;
-        if (filterBlacklisted === "blacklisted" && !customer.blacklisted)
-            return false;
-
-        // Search filter
-        if (searchTerm) {
-            const search = searchTerm.toLowerCase();
-            return (
-                customer.firstName.toLowerCase().includes(search) ||
-                customer.lastName.toLowerCase().includes(search) ||
-                customer.email.toLowerCase().includes(search) ||
-                customer.phone.includes(search)
-            );
-        }
-
-        return true;
-    });
-
     if (loading) {
         return (
             <div className="flex justify-center items-center py-12">
@@ -116,9 +111,10 @@ export default function CustomersManager() {
                 <div className="flex flex-col sm:flex-row gap-4">
                     <input
                         type="text"
-                        placeholder="Search by name, email, or phone..."
+                        placeholder="Search by name, email, or phone... (press Enter)"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") submitSearch(); }}
                         className="flex-1 px-4 py-2 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                     />
                     <select
@@ -139,7 +135,7 @@ export default function CustomersManager() {
 
             {status && <StatusMessage type={status.type} message={status.message} />}
 
-            {filteredCustomers.length === 0 ? (
+            {customers.length === 0 ? (
                 <EmptyState
                     message={
                         searchTerm || filterBlacklisted !== "all"
@@ -169,7 +165,7 @@ export default function CustomersManager() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-[var(--border-subtle)]">
-                                    {filteredCustomers.map((customer) => (
+                                    {customers.map((customer) => (
                                         <CustomerRow
                                             key={customer.id}
                                             customer={customer}
