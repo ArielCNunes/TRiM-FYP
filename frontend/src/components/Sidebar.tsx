@@ -23,6 +23,13 @@ export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
 
+  // Detect if we're on a business subdomain
+  const hostname = window.location.hostname;
+  const parts = hostname.split(".");
+  const isSubdomain =
+    (hostname.endsWith(".localhost") && parts.length >= 2 && parts[0].toLowerCase() !== "localhost") ||
+    (!hostname.includes("localhost") && parts.length > 2 && !["www", "api", "app"].includes(parts[0].toLowerCase()));
+
   // Format business slug to readable name (e.g., "my-barbershop" -> "My Barbershop")
   const businessName = businessSlug
     ? businessSlug
@@ -228,7 +235,7 @@ export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
                 Logout
               </button>
             </div>
-          ) : (
+          ) : isSubdomain ? (
             <Link
               to="/auth"
               className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-xl text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-lg shadow-[var(--accent-shadow)] transition-all"
@@ -237,6 +244,13 @@ export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
               </svg>
               Sign in / Sign up
+            </Link>
+          ) : (
+            <Link
+              to="/register-business"
+              className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-xl text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-lg shadow-[var(--accent-shadow)] transition-all"
+            >
+              Register Your Business
             </Link>
           )}
         </div>

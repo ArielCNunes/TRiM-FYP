@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import BookingFlow from "@/pages/BookingFlow";
 import Home from "@/pages/Home";
 import Admin from "@/pages/Admin";
@@ -9,6 +9,7 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import RegisterBusiness from "@/pages/RegisterBusiness";
 import ProtectedRoute from "./ProtectedRoute";
+import { getBusinessSlug } from "@/api/axios";
 
 /**
  * AppRoutes Component
@@ -40,8 +41,8 @@ export default function AppRoutes() {
         </ProtectedRoute>
       } />
 
-      {/* Auth page route */}
-      <Route path="/auth" element={<Auth />} />
+      {/* Auth page route: only accessible on business subdomains */}
+      <Route path="/auth" element={getBusinessSlug() ? <Auth /> : <Navigate to="/register-business" replace />} />
 
       {/* Barber Dashboard route */}
       <Route path="/barber" element={
