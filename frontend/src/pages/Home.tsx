@@ -3,6 +3,7 @@ import { useAppSelector } from "../store/hooks";
 import { Settings, Calendar, Scissors, Star } from "lucide-react";
 import AdminCalendar from "../components/admin/calendar/AdminCalendar";
 import BarberCalendar from "../components/barber/BarberCalendar";
+import { getBusinessSlug } from "../api/axios";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -15,6 +16,11 @@ export default function Home() {
   const isSubdomain =
     (hostname.endsWith(".localhost") && parts.length >= 2) ||
     (!hostname.includes("localhost") && parts.length > 2);
+
+  const slug = getBusinessSlug();
+  const businessName = slug
+    ? slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+    : null;
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
@@ -74,9 +80,11 @@ export default function Home() {
                 {isSubdomain ? (
                   // Subdomain landing for customers
                   <>
-                    <p className="text-2xl text-[var(--text-secondary)] mb-4">
-                      Professional Barbershop Services
-                    </p>
+                    {businessName && (
+                      <p className="text-3xl font-semibold text-[var(--text-secondary)] mb-2">
+                        {businessName}
+                      </p>
+                    )}
                     <p className="text-lg text-[var(--text-subtle)] mb-12 max-w-2xl mx-auto">
                       Sign in to book appointments and manage your bookings.
                     </p>
