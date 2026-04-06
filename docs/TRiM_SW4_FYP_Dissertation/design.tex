@@ -28,7 +28,7 @@ Endpoints are split into two categories. Public endpoints, such as login, regist
 
 Listing~\ref{lst:axios-interceptor} shows the Axios request interceptor on the frontend, which attaches both the JWT and the business slug header to every outgoing API call.
 
-\begin{lstlisting}[caption={Axios request interceptor attaching JWT and tenant context to every API call.}, label={lst:axios-interceptor}, basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+\begin{lstlisting}[caption={Axios request interceptor attaching JWT and tenant context to every API call.}, label={lst:axios-interceptor}]
 // Request interceptor - Add JWT token and business slug to every request
 api.interceptors.request.use(
   (config) => {
@@ -164,7 +164,7 @@ Certain endpoints are exempted from tenant resolution because they operate outsi
 
 Listing~\ref{lst:tenant-filter} shows the core of the filter's resolution logic.
 
-\begin{lstlisting}[caption={TenantFilter extracting business slug from multiple sources.}, label={lst:tenant-filter}, basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+\begin{lstlisting}[caption={TenantFilter extracting business slug from multiple sources.}, label={lst:tenant-filter}]
 private String extractBusinessSlug(HttpServletRequest request) {
     // Strategy 1: Extract from subdomain
     String slug = extractFromSubdomain(request);
@@ -197,10 +197,204 @@ To solve this, \textit{TRiM} uses a short-lived, single-use exchange token. The 
 This approach ensures that the actual JWT is never exposed in a URL. The exchange token is single-use, short-lived, and cryptographically random, making it safe to pass as a query parameter. A scheduled task cleans up expired and used tokens every five minutes.
 
 \section{Business Operations}
+This section describes the core business logic of the platform: how a customer books an appointment, how deposits are collected through Stripe, and how the system prevents two customers from booking the same time slot simultaneously.
+
 \subsection*{Booking \& Payment Flow}
+The booking and payment process in \textit{TRiM} follows a three-phase flow: the customer creates a booking, pays a deposit through Stripe, and the system confirms the booking once payment succeeds. Each phase is described below.
+
+\subsubsection*{Phase 1: Booking Creation}
+When a customer submits a booking request, the backend runs through a series of validation and conflict-detection steps inside the database transaction:
+
+\begin{enumerate}
+    \item \textbf{Entity validation}: the customer, barber, and service are loaded from the database and verified to exist and belong to the same business.
+    \item \textbf{Blacklist check}: if the customer has been blacklisted by the business, the request is rejected.
+    \item \textbf{Time validation}: the requested date and time must be in the future.
+    \item \textbf{Conflict detection}: the system acquires a pessimistic lock on all existing bookings for that barber and date, then checks for time overlaps. This step is described in the next subsection.
+    \item \textbf{Booking saved}: if no conflicts are found, the booking is persisted with a status of \texttt{PENDING} and an expiry time set to ten minutes from now.
+\end{enumerate}
+
+The ten-minute expiry is intentional. A pending booking holds a time slot, preventing other customers from booking it. If, for some reason, the payment is not completed within ten minutes, the booking expires and the slot is released. Expired bookings are excluded from conflict detection and are periodically cleaned up by a scheduled task that marks them as \texttt{CANCELLED}.
+
+\subsubsection*{Phase 2: Deposit Payment via Stripe}
+After the booking is created, the frontend calls \texttt{/api/payments/create-intent} to initiate the deposit payment. The backend calculates the deposit as a percentage of the service price (configured per service and set by the ADMIN user), verifies that the business has completed Stripe Connect onboarding, and creates a Stripe \texttt{PaymentIntent} on the business's connected account. The key point is that \textit{TRiM} uses Stripe Connect in its Standard model: each business connects their own Stripe account during onboarding, and deposits are paid directly into that account. The platform does not hold customer funds.
+
+The \texttt{PaymentIntent} includes the \texttt{booking\_id} and \texttt{business\_id} in its metadata, which are used later for webhook verification. The backend returns the Stripe \texttt{clientSecret} to the frontend, which renders the Stripe payment form using Stripe Elements. The customer completes the payment (card, Apple Pay, or Google Pay) entirely on the client side.
+
+\subsubsection*{Phase 3: Webhook Confirmation}
+Once Stripe processes the payment, it sends a \texttt{payment\_intent.succeeded} event to the \texttt{/api/payments/webhook} endpoint. The webhook handler performs several verification steps before confirming the booking:
+
+\begin{enumerate}
+    \item \textbf{Signature verification}: the \texttt{Stripe-Signature} header is validated against the webhook secret to ensure the request genuinely came from Stripe.
+    \item \textbf{Cross-tenant verification}: the \texttt{business\_id} from the payment metadata is compared against the booking's actual business, and the Stripe connected account ID on the event is compared against the business's stored account ID. A mismatch in either check rejects the webhook.
+    \item \textbf{Booking confirmation}: the payment record is marked as \texttt{SUCCEEDED}, the booking status transitions from \texttt{PENDING} to \texttt{CONFIRMED}, the deposit amount is recorded, and the ten-minute expiry is cleared.
+    \item \textbf{Notifications}: a confirmation email and SMS are sent to the customer with the booking details.
+\end{enumerate}
+
+Listing~\ref{lst:webhook-handler} shows the \texttt{handlePaymentSuccess} method that executes steps 2--4. Because the webhook originates from Stripe rather than from a tenant-scoped browser request, the method manually sets the RLS context using the business ID from the payment metadata before performing any database queries.
+
+\begin{lstlisting}[caption={Webhook handler confirming a booking after successful deposit payment.}, label={lst:webhook-handler}]
+@Transactional
+public void handlePaymentSuccess(String paymentIntentId,
+                                  Long businessIdFromMetadata) {
+    // Set RLS context manually (webhook has no tenant filter)
+    entityManager.createNativeQuery(
+        "SELECT set_config('app.current_business_id', ?1, true)")
+        .setParameter(1, String.valueOf(businessIdFromMetadata))
+        .getSingleResult();
+
+    Payment payment = paymentRepository
+        .findByStripePaymentIntentId(paymentIntentId)
+        .orElseThrow(() -> new RuntimeException("Payment not found"));
+
+    Booking booking = payment.getBooking();
+
+    // Verify business_id from metadata matches booking's business
+    if (!businessIdFromMetadata.equals(booking.getBusiness().getId())) {
+        throw new RuntimeException(
+            "Payment business verification failed");
+    }
+
+    // Update payment and booking status
+    payment.setStatus(Payment.PaymentStatus.SUCCEEDED);
+    payment.setPaymentDate(LocalDateTime.now());
+    paymentRepository.save(payment);
+
+    booking.setPaymentStatus(Booking.PaymentStatus.DEPOSIT_PAID);
+    booking.setStatus(Booking.BookingStatus.CONFIRMED);
+    booking.setExpiresAt(null);
+    bookingRepository.save(booking);
+
+    // Send confirmation notifications
+    emailService.sendBookingConfirmation(booking);
+    smsService.sendBookingConfirmation(booking);
+}
+\end{lstlisting}
+
 \subsection*{Race Condition Prevention When Booking}
-\subsection*{Authentication \& Security}
-\subsection*{JWT \& Role-Based Access Control}
+A race condition occurs when two or more concurrent requests read the same state and both act on it before either write is committed. In a booking system, this means two customers could simultaneously check availability for the same barber at the same time slot, both see it as free, and both successfully create a booking, resulting in a double-booking. This is known as a time-of-check-to-time-of-use (TOCTOU) problem.
+
+\textit{TRiM} prevents this using pessimistic locking at the database level. When a booking is being created, the conflict detection query acquires an exclusive write lock on all existing booking rows for that barber and date. This is done using JPA's \texttt{@Lock} annotation, which translates to a PostgreSQL \texttt{SELECT ... FOR UPDATE} statement. While one transaction holds this lock, any other transaction attempting to book the same barber on the same date will block until the first transaction either commits or rolls back. This serialises concurrent booking attempts and eliminates the race condition entirely.
+
+Listing~\ref{lst:pessimistic-lock} shows the repository method that acquires the lock.
+
+\begin{lstlisting}[caption={Pessimistic write lock on booking rows for conflict detection.}, label={lst:pessimistic-lock}]
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+@Query("SELECT b FROM Booking b " +
+       "WHERE b.business.id = :businessId " +
+       "AND b.barber.id = :barberId " +
+       "AND b.bookingDate = :bookingDate")
+List<Booking> findByBusinessIdAndBarberIdAndBookingDateWithLock(
+    @Param("businessId") Long businessId,
+    @Param("barberId") Long barberId,
+    @Param("bookingDate") LocalDate bookingDate);
+\end{lstlisting}
+
+Once the rows are locked and returned, the \texttt{BookingConflictDetectionService} iterates over them and checks for time overlaps. Cancelled bookings and expired pending bookings are skipped, since those slots are available for reuse. The overlap check uses a standard interval comparison: two time slots overlap if and only if the first starts before the second ends and the first ends after the second starts.
+
+Listing~\ref{lst:conflict-detection} shows the conflict detection logic.
+
+\begin{lstlisting}[caption={Time slot conflict detection with pessimistic locking.}, label={lst:conflict-detection}]
+public void validateTimeSlotAvailable(Long barberId,
+        LocalDate bookingDate, LocalTime startTime, LocalTime endTime) {
+    List<Booking> existingBookings = bookingRepository
+        .findByBusinessIdAndBarberIdAndBookingDateWithLock(
+            getBusinessId(), barberId, bookingDate);
+
+    for (Booking existing : existingBookings) {
+        if (existing.getStatus() == BookingStatus.CANCELLED) continue;
+        if (existing.isExpired()) continue;
+
+        // Overlap: start1 < end2 AND end1 > start2
+        if (startTime.isBefore(existing.getEndTime())
+                && endTime.isAfter(existing.getStartTime())) {
+            throw new ConflictException(
+                "This time slot is no longer available");
+        }
+    }
+}
+\end{lstlisting}
+
+It is worth noting that the availability endpoint used by the frontend to display open slots does \textit{not} acquire a lock, it performs a regular read query. This is intentional: locking during availability checks would degrade performance for a read-heavy operation that does not modify data. The lock is only acquired at the point of booking creation, where correctness is critical. If a slot becomes unavailable between the time the customer views it and the time they submit, the conflict detection will reject the request and the frontend displays an error prompting them to choose another time.
+
+\section{Authentication \& Access Control}
+This section describes how \textit{TRiM} authenticates users and controls what each user is allowed to do and see. Authentication is handled entirely through JSON Web Tokens with no server-side sessions, and access is restricted based on three user roles: customer, barber, and admin.
+
+\subsection*{JWT Structure \& Validation}
+Every authenticated request in \textit{TRiM} carries a JSON Web Token in the HTTP \mbox{\texttt{Authorization}} header as a Bearer token. The token is generated at login by the \texttt{JwtUtil} component and contains four claims: the user's email (as the JWT subject), their role, their user ID, and their business ID. Tokens are signed using HMAC-SHA256 with a secret key provided through an environment variable. At startup, the application validates that the secret is configured and is at least 256 bits long, rejecting deployment if either check fails. Tokens expire after 24 hours.
+
+The \texttt{JwtAuthenticationFilter} runs on every incoming request, after the \texttt{TenantFilter} has already established the tenant context. It extracts the token from the header, verifies the signature and expiry, and then performs a cross-tenant check: the \texttt{businessId} claim in the token must match the business ID resolved by the \texttt{TenantFilter}. If they do not match, the request is rejected with a 403 response. This prevents a token issued for one business from being used on another business's subdomain, forming the authentication layer of the three-layer tenant isolation strategy described in Table~\ref{tab:isolation-layers}.
+
+If the token is valid, the filter creates a Spring Security \texttt{Authentication} object containing the user's email as the principal, a granted authority of \texttt{ROLE\_CUSTOMER}, \texttt{ROLE\_BARBER}, or \texttt{ROLE\_ADMIN} derived from the token's role claim, and the user ID stored in the authentication details. This object is placed into the \texttt{SecurityContext}, making the user's identity and role available to all downstream controllers and security checks for the duration of the request.
+
+Listing~\ref{lst:jwt-validation} shows the core of the JWT validation and tenant cross-check in the authentication filter.
+
+\begin{lstlisting}[caption={JWT authentication filter with multi-tenant validation.}, label={lst:jwt-validation}]
+if (jwtUtil.isTokenValid(token)) {
+    String email = jwtUtil.extractEmail(token);
+    String role = jwtUtil.extractRole(token);
+    Long userId = jwtUtil.extractUserId(token);
+    Long tokenBusinessId = jwtUtil.extractBusinessId(token);
+
+    // Reject if token's business doesn't match tenant context
+    Long contextBusinessId = TenantContext.getCurrentBusinessId();
+    if (tokenBusinessId == null || contextBusinessId == null
+            || !tokenBusinessId.equals(contextBusinessId)) {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.getWriter().write(
+            "{\"error\": \"Token not valid for this business\"}");
+        return;
+    }
+
+    // Set authentication in Spring SecurityContext
+    SimpleGrantedAuthority authority =
+        new SimpleGrantedAuthority("ROLE_" + role);
+    UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken(
+            email, null, Collections.singletonList(authority));
+    authentication.setDetails(userId);
+    SecurityContextHolder.getContext()
+        .setAuthentication(authentication);
+}
+\end{lstlisting}
+
+\subsection*{Role-Based Access Control}
+\textit{TRiM} defines three user roles: \texttt{CUSTOMER}, \texttt{BARBER}, and \texttt{ADMIN}. A customer is any user who registers through a business's subdomain to make bookings. A barber is created by an admin and represents a service provider within the business. An admin is the business owner who registered the business on the platform. Access control is enforced at three levels.
+
+\subsubsection*{URL-Level Security}
+The \texttt{SecurityConfig} class defines which endpoints are publicly accessible and which require authentication. Public endpoints include login, registration, active service and barber listings, availability lookups, and the Stripe webhook. All other endpoints require a valid JWT. This is configured through Spring Security's \texttt{authorizeHttpRequests} builder, with \texttt{anyRequest().authenticated()} as the default rule.
+
+\subsubsection*{Method-Level Security}
+Individual controller methods use Spring's \texttt{@PreAuthorize} annotation to restrict access by role. For example, the endpoint to view all bookings is annotated with \texttt{@PreAuthorize("hasRole('ADMIN')")}, limiting it to business administrators. Endpoints for managing a barber's schedule, marking bookings as completed, or recording no-shows require \texttt{hasAnyRole('BARBER',\allowbreak{} 'ADMIN')}, allowing both the barber and the admin to perform these operations. Table~\ref{tab:rbac} summarises the role requirements for the main endpoint groups.
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Endpoint Group} & \textbf{Required Role} & \textbf{Description} \\
+    \hline
+    All bookings & ADMIN & View and filter all bookings for the business \\
+    \hline
+    Barber schedule & BARBER, ADMIN & View bookings, mark complete, no-show, paid \\
+    \hline
+    Customer management & ADMIN & List customers, blacklist and unblacklist \\
+    \hline
+    Service management & ADMIN & Create, update, and deactivate services \\
+    \hline
+    Barber management & ADMIN & Create, update, and deactivate barbers \\
+    \hline
+    Dashboard & ADMIN & View statistics and revenue metrics \\
+    \hline
+    Barber availability & BARBER, ADMIN & Set and update weekly working hours \\
+    \hline
+    Create booking & Any authenticated & Customers book appointments \\
+    \hline
+    \end{tabularx}
+    \caption{Role requirements for protected API endpoint groups.}
+    \label{tab:rbac}
+\end{table}
+
+\subsubsection*{Resource-Level Ownership}
+Role checks alone are not sufficient for all cases. A customer with a valid token should not be able to view another customer's bookings, and a barber should not be able to modify another barber's schedule. To handle this, controllers perform programmatic ownership checks after authentication. The authenticated user's ID is extracted from the \texttt{SecurityContext} and compared against the resource being accessed. For example, when a customer requests their bookings, the controller verifies that the \texttt{customerId} in the URL matches the authenticated user's ID. If it does not, the request is rejected with a 403 response. Admins are exempt from these checks and can access any resource within their business.
 
 \section{Frontend Architecture}
 \subsection*{Component Structure}

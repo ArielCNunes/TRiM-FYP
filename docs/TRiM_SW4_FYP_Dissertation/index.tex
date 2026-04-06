@@ -31,10 +31,36 @@
 \usepackage{float}
 \usetikzlibrary{positioning}
 \usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codebg}{RGB}{248, 248, 248}
+\definecolor{codegreen}{RGB}{0, 128, 0}
+\definecolor{codepurple}{RGB}{128, 0, 128}
+\definecolor{codeblue}{RGB}{0, 0, 180}
+\definecolor{codegray}{RGB}{100, 100, 100}
+\definecolor{codestring}{RGB}{163, 21, 21}
+
+\lstset{
+    language=Java,
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen}\itshape,
+    stringstyle=\color{codestring},
+    numberstyle=\tiny\color{codegray},
+    numbers=left,
+    numbersep=8pt,
+    frame=single,
+    rulecolor=\color{black!30},
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    morekeywords={var, String, Long, LocalDateTime},
+}
 
 %------------------------------------------------------------------------------------------------------
 %	The following are the RGB values for the official ATU colours.
-%------------------------------------------------------------------------------------------------------	
+%------------------------------------------------------------------------------------------------------
 \definecolor{ATUGreen}{RGB}{0, 91, 94}
 \definecolor{ATULightGreen}{RGB}{172, 245, 189}
 \definecolor{ATUNavy}{RGB}{0, 26, 121}
