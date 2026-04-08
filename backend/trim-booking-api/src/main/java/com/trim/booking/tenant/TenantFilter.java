@@ -32,6 +32,7 @@ public class TenantFilter extends OncePerRequestFilter {
             "/api/auth/register-admin",
             "/api/auth/exchange-token",
             "/api/payments/webhook",
+            "/api/business/check",
             "/swagger-ui",
             "/v3/api-docs"
     );

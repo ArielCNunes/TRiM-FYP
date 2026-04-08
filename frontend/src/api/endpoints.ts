@@ -279,6 +279,13 @@ export const stripeConnectApi = {
     api.get<{ url: string }>("/stripe-connect/dashboard-link"),
 };
 
+/** Business lookup endpoints. */
+export const businessApi = {
+  /** Check if a business exists by slug (public, no auth required). */
+  check: (slug: string) =>
+    api.get<{ exists: boolean; name?: string }>(`/business/check?slug=${encodeURIComponent(slug)}`),
+};
+
 /** Dashboard endpoints for admin statistics. */
 export const dashboardApi = {
   /** Get admin dashboard statistics. */

@@ -5,7 +5,9 @@ import AppRoutes from "./routes/AppRoutes";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { exchangeTokenFromUrl, logout } from "./features/auth/authSlice";
 import { getBusinessSlug } from "./api/axios";
+import { businessApi } from "./api/endpoints";
 import LoadingSpinner from "./components/shared/LoadingSpinner";
+import BusinessNotFound from "./pages/BusinessNotFound";
 
 /**
  * App Component
@@ -22,6 +24,21 @@ function AppContent() {
   const dispatch = useAppDispatch();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isExchangingToken, setIsExchangingToken] = useState(false);
+  const [businessValid, setBusinessValid] = useState<boolean | null>(null); // null = loading
+
+  // Validate business slug when on a subdomain
+  const slug = getBusinessSlug();
+  useEffect(() => {
+    if (!slug) {
+      // No subdomain: main domain, always valid
+      setBusinessValid(true);
+      return;
+    }
+
+    businessApi.check(slug)
+      .then((res) => setBusinessValid(res.data.exists))
+      .catch(() => setBusinessValid(false));
+  }, [slug]);
 
   // Handle secure token exchange from URL on app load
   useEffect(() => {
@@ -50,13 +67,18 @@ function AppContent() {
     setIsSidebarCollapsed((prev) => !prev);
   };
 
-  // Show loading while exchanging token
-  if (isExchangingToken) {
+  // Show loading while validating business or exchanging token
+  if (businessValid === null || isExchangingToken) {
     return (
       <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
-        <LoadingSpinner message="Setting up your account..." />
+        <LoadingSpinner message={isExchangingToken ? "Setting up your account..." : "Loading..."} />
       </div>
     );
+  }
+
+  // Show 404 if the subdomain doesn't match a real business
+  if (!businessValid) {
+    return <BusinessNotFound />;
   }
 
   return (
