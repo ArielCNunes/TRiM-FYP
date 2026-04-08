@@ -22,7 +22,8 @@ import BusinessNotFound from "./pages/BusinessNotFound";
  */
 function AppContent() {
   const dispatch = useAppDispatch();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  // Start collapsed on mobile
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(window.innerWidth < 768);
   const [isExchangingToken, setIsExchangingToken] = useState(false);
   const [businessValid, setBusinessValid] = useState<boolean | null>(null); // null = loading
 
@@ -86,8 +87,8 @@ function AppContent() {
       {/* Fixed sidebar navigation - displayed on all pages */}
       <Navbar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
 
-      {/* Main application routes - offset by sidebar width with transition */}
-      <main className={`min-h-screen transition-all duration-300 ${isSidebarCollapsed ? "ml-14" : "ml-64"}`}>
+      {/* Main application routes - offset by sidebar width on desktop, full width on mobile */}
+      <main className={`min-h-screen transition-all duration-300 ${isSidebarCollapsed ? "pt-14 md:pt-0 md:ml-14" : "md:ml-64"}`}>
         <AppRoutes />
       </main>
     </div>

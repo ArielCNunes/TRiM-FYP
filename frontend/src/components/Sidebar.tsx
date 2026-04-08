@@ -1,7 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { logout } from "../features/auth/authSlice";
 import { useTheme } from "../context/ThemeContext";
+import { useEffect } from "react";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -21,7 +22,15 @@ export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
   const { isAuthenticated, user, businessSlug } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+
+  // Auto-close sidebar on mobile when navigating
+  useEffect(() => {
+    if (!isCollapsed && window.innerWidth < 768) {
+      onToggle();
+    }
+  }, [location.pathname]);
 
   // Detect if we're on a business subdomain
   const hostname = window.location.hostname;
@@ -56,9 +65,19 @@ export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
           className="fixed top-4 left-4 z-50 p-2 bg-[var(--bg-elevated)] hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg border border-[var(--border-default)] transition-all duration-300"
           aria-label="Show sidebar"
         >
+          {/* Hamburger icon on mobile, chevron on desktop */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
+            className="h-5 w-5 md:hidden"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 hidden md:block"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -71,6 +90,14 @@ export default function Navbar({ isCollapsed, onToggle }: SidebarProps) {
             />
           </svg>
         </button>
+      )}
+
+      {/* Mobile overlay backdrop */}
+      {!isCollapsed && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={onToggle}
+        />
       )}
 
       {/* Fixed Sidebar */}
