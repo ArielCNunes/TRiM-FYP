@@ -55,8 +55,8 @@ export function ServiceSelectionStep({
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">Select a Service</h1>
+    <div className="max-w-6xl mx-auto px-4 py-6 md:p-6">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-[var(--text-primary)]">Select a Service</h1>
       <StatusBanner status={status} />
 
       {categoriesWithServices.length === 0 ? (

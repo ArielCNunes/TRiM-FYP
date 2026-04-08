@@ -28,8 +28,8 @@ export function ConfirmationStep({
   onBack: () => void;
 }) {
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">
+    <div className="max-w-2xl mx-auto px-4 py-6 md:p-6">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-[var(--text-primary)]">
         Confirm Your Booking
       </h1>
       <StatusBanner status={status} />

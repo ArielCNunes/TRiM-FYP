@@ -26,15 +26,15 @@ export default function Home() {
     <div className="min-h-screen bg-[var(--bg-base)]">
       {/* Admin View - Calendar is the main feature */}
       {user?.role === "ADMIN" && (
-        <div className="w-full px-8 py-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="w-full px-4 py-6 md:px-8 md:py-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-[var(--text-primary)]">Shop Calendar</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">Shop Calendar</h1>
               <p className="text-[var(--text-muted)]">View and manage all bookings</p>
             </div>
             <button
               onClick={() => navigate("/admin")}
-              className="bg-[var(--bg-elevated)] text-[var(--text-primary)] px-4 py-2 rounded-lg font-medium hover:bg-[var(--bg-muted)] transition flex items-center gap-2"
+              className="bg-[var(--bg-elevated)] text-[var(--text-primary)] px-4 py-2 rounded-lg font-medium hover:bg-[var(--bg-muted)] transition flex items-center gap-2 self-start"
             >
               <Settings className="w-4 h-4" />
               Admin Settings
@@ -47,15 +47,15 @@ export default function Home() {
 
       {/* Barber View */}
       {user?.role === "BARBER" && (
-        <div className="w-full px-8 py-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="w-full px-4 py-6 md:px-8 md:py-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-[var(--text-primary)]">My Schedule</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">My Schedule</h1>
               <p className="text-[var(--text-muted)]">View and manage your bookings</p>
             </div>
             <button
               onClick={() => navigate("/barber")}
-              className="bg-[var(--bg-elevated)] text-[var(--text-primary)] px-4 py-2 rounded-lg font-medium hover:bg-[var(--bg-muted)] transition flex items-center gap-2"
+              className="bg-[var(--bg-elevated)] text-[var(--text-primary)] px-4 py-2 rounded-lg font-medium hover:bg-[var(--bg-muted)] transition flex items-center gap-2 self-start"
             >
               <Settings className="w-4 h-4" />
               Manage Availability
@@ -70,35 +70,35 @@ export default function Home() {
       {(!user || user.role === "CUSTOMER") && (
         <>
           {/* Hero Section - Landing Page */}
-          <div className="max-w-7xl mx-auto px-6 py-20">
+          <div className="max-w-7xl mx-auto px-4 py-12 md:px-6 md:py-20">
             {!isAuthenticated ? (
               // Public Landing Page
               <div className="text-center">
-                <h1 className="text-7xl font-bold mb-6 text-[var(--text-primary)] tracking-tight">
+                <h1 className="text-5xl md:text-7xl font-bold mb-6 text-[var(--text-primary)] tracking-tight">
                   TRiM
                 </h1>
                 {isSubdomain ? (
                   // Subdomain landing for customers
                   <>
                     {businessName && (
-                      <p className="text-3xl font-semibold text-[var(--text-secondary)] mb-2">
+                      <p className="text-2xl md:text-3xl font-semibold text-[var(--text-secondary)] mb-2">
                         {businessName}
                       </p>
                     )}
-                    <p className="text-lg text-[var(--text-subtle)] mb-12 max-w-2xl mx-auto">
+                    <p className="text-base md:text-lg text-[var(--text-subtle)] mb-8 md:mb-12 max-w-2xl mx-auto">
                       Sign in to book appointments and manage your bookings.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 md:mb-20">
                       <button
                         onClick={() => navigate("/auth")}
-                        className="bg-[var(--accent)] text-white px-12 py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-xl shadow-lg shadow-[var(--accent-shadow)]"
+                        className="bg-[var(--accent)] text-white px-8 py-4 md:px-12 md:py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-lg md:text-xl shadow-lg shadow-[var(--accent-shadow)]"
                       >
                         Sign In
                       </button>
                       <button
                         onClick={() => navigate("/auth?tab=signup")}
-                        className="bg-transparent border-2 border-[var(--focus-ring)] text-[var(--accent-text)] px-12 py-5 rounded-lg font-semibold hover:bg-indigo-950 transition text-xl"
+                        className="bg-transparent border-2 border-[var(--focus-ring)] text-[var(--accent-text)] px-8 py-4 md:px-12 md:py-5 rounded-lg font-semibold hover:bg-indigo-950 transition text-lg md:text-xl"
                       >
                         Create Account
                       </button>
@@ -150,16 +150,16 @@ export default function Home() {
                 ) : (
                   // Main domain landing - for businesses
                   <>
-                    <p className="text-2xl text-[var(--text-secondary)] mb-4">
+                    <p className="text-xl md:text-2xl text-[var(--text-secondary)] mb-4">
                       The Modern Barbershop Booking Platform
                     </p>
-                    <p className="text-lg text-[var(--text-subtle)] mb-12 max-w-2xl mx-auto">
+                    <p className="text-base md:text-lg text-[var(--text-subtle)] mb-8 md:mb-12 max-w-2xl mx-auto">
                       Streamline your barbershop operations with powerful booking, scheduling, and management tools.
                     </p>
 
                     <button
                       onClick={() => navigate("/register-business")}
-                      className="bg-[var(--accent)] text-white px-16 py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-xl shadow-lg shadow-[var(--accent-shadow)] mb-20"
+                      className="bg-[var(--accent)] text-white px-8 py-4 md:px-16 md:py-5 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-lg md:text-xl shadow-lg shadow-[var(--accent-shadow)] mb-12 md:mb-20"
                     >
                       Register Your Business
                     </button>
@@ -212,24 +212,24 @@ export default function Home() {
             ) : (
               // Logged-in Customer View
               <>
-                <div className="text-center mb-16">
-                  <h1 className="text-6xl font-bold mb-6 text-[var(--text-primary)]">
+                <div className="text-center mb-12 md:mb-16">
+                  <h1 className="text-4xl md:text-6xl font-bold mb-6 text-[var(--text-primary)]">
                     Welcome back, {user?.firstName}.
                   </h1>
-                  <p className="text-xl text-[var(--text-muted)] mb-8">
+                  <p className="text-lg md:text-xl text-[var(--text-muted)] mb-8">
                     Ready for your next appointment?
                   </p>
 
-                  <div className="flex gap-4 justify-center">
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <button
                       onClick={() => navigate("/booking")}
-                      className="bg-[var(--accent)] text-white px-12 py-4 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-lg shadow-lg shadow-[var(--accent-shadow)]"
+                      className="bg-[var(--accent)] text-white px-8 py-3 md:px-12 md:py-4 rounded-lg font-semibold hover:bg-[var(--accent-hover)] transition text-base md:text-lg shadow-lg shadow-[var(--accent-shadow)]"
                     >
                       Book New Appointment
                     </button>
                     <button
                       onClick={() => navigate("/my-bookings")}
-                      className="bg-transparent border-2 border-[var(--focus-ring)] text-[var(--accent-text)] px-12 py-4 rounded-lg font-semibold hover:bg-indigo-950 transition text-lg"
+                      className="bg-transparent border-2 border-[var(--focus-ring)] text-[var(--accent-text)] px-8 py-3 md:px-12 md:py-4 rounded-lg font-semibold hover:bg-indigo-950 transition text-base md:text-lg"
                     >
                       View My Bookings
                     </button>

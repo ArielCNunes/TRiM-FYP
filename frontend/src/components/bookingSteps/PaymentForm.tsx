@@ -102,8 +102,8 @@ export function PaymentForm({
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">Payment</h1>
+    <div className="max-w-2xl mx-auto px-4 py-6 md:p-6">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-[var(--text-primary)]">Payment</h1>
 
       <div className="border border-[var(--border-subtle)] rounded-lg p-6 mb-6 bg-[var(--bg-surface)]">
         <form onSubmit={handleSubmit} className="space-y-6">

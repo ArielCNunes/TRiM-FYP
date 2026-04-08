@@ -127,9 +127,9 @@ export default function MyBookings() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto px-4 py-6 md:p-6">
       {/* Page header */}
-      <h1 className="text-4xl font-bold mb-2 text-[var(--text-primary)]">My Bookings</h1>
+      <h1 className="text-3xl md:text-4xl font-bold mb-2 text-[var(--text-primary)]">My Bookings</h1>
       <p className="text-[var(--text-muted)] mb-8">
         Your upcoming appointments, sorted by date
       </p>
@@ -170,13 +170,13 @@ export default function MyBookings() {
               className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg shadow-sm hover:border-[var(--border-default)] transition overflow-hidden"
             >
               {/* Header section with date - most important info */}
-              <div className="bg-gradient-to-r from-[var(--accent)]/20 to-[var(--accent)]/10 px-6 py-4 border-b border-[var(--accent)]/20">
+              <div className="bg-gradient-to-r from-[var(--accent)]/20 to-[var(--accent)]/10 px-4 md:px-6 py-4 border-b border-[var(--accent)]/20">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-[var(--accent-text)] font-medium mb-1">
                       Appointment Date
                     </p>
-                    <p className="text-2xl font-bold text-[var(--text-primary)]">
+                    <p className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">
                       {new Date(booking.bookingDate).toLocaleDateString(
                         "en-US",
                         {
@@ -202,14 +202,14 @@ export default function MyBookings() {
               </div>
 
               {/* Main content with service, barber, and pricing info */}
-              <div className="px-6 py-5">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              <div className="px-4 md:px-6 py-5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
                   {/* Service */}
                   <div>
                     <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">
                       Service
                     </p>
-                    <p className="text-lg font-semibold text-[var(--text-primary)]">
+                    <p className="text-base md:text-lg font-semibold text-[var(--text-primary)]">
                       {booking.service.name}
                     </p>
                     <p className="text-sm text-[var(--text-muted)] mt-1">
@@ -285,7 +285,7 @@ export default function MyBookings() {
               </div>
 
               {/* Action footer */}
-              <div className="px-6 py-4 bg-[var(--bg-surface)]/50 border-t border-[var(--border-subtle)] flex justify-end gap-3">
+              <div className="px-4 md:px-6 py-4 bg-[var(--bg-surface)]/50 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row justify-end gap-3">
                 <button
                   onClick={() => handleReschedule(booking)}
                   disabled={cancelling === booking.id}
@@ -342,7 +342,7 @@ export default function MyBookings() {
                   className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg shadow-sm overflow-hidden opacity-75"
                 >
                   {/* Header section with date */}
-                  <div className="bg-gradient-to-r from-[var(--bg-elevated)] to-[var(--bg-surface)] px-6 py-4 border-b border-[var(--border-subtle)]">
+                  <div className="bg-gradient-to-r from-[var(--bg-elevated)] to-[var(--bg-surface)] px-4 md:px-6 py-4 border-b border-[var(--border-subtle)]">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-[var(--text-muted)] font-medium mb-1">
@@ -374,8 +374,8 @@ export default function MyBookings() {
                   </div>
 
                   {/* Main content with service, barber, and pricing info */}
-                  <div className="px-6 py-5">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                  <div className="px-4 md:px-6 py-5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
                       {/* Service */}
                       <div>
                         <p className="text-xs uppercase text-[var(--text-subtle)] font-semibold mb-2">

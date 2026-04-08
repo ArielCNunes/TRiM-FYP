@@ -31,8 +31,8 @@ export function DateTimeSelectionStep({
   onBack: () => void;
 }) {
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2 text-[var(--text-primary)]">Select Date & Time</h1>
+    <div className="max-w-2xl mx-auto px-4 py-6 md:p-6">
+      <h1 className="text-2xl md:text-3xl font-bold mb-2 text-[var(--text-primary)]">Select Date & Time</h1>
       <p className="text-[var(--text-muted)] mb-8">
         Barber: <strong className="text-[var(--text-primary)]">{selectedBarberName}</strong>
       </p>
@@ -65,7 +65,7 @@ export function DateTimeSelectionStep({
               <p className="text-[var(--text-subtle)]">No available slots for this date</p>
             ) : (
               // Time slot buttons: selectable grid with highlight for selected time
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                 {availableSlots.map((slot) => (
                   <button
                     key={slot}
