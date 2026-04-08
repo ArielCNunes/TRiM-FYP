@@ -11,8 +11,13 @@ export const getBusinessSlug = (): string => {
   const hostname = window.location.hostname;
   const parts = hostname.split(".");
 
-  // If there's a subdomain and it's not a common non-business subdomain
-  if (parts.length >= 2) {
+  // For real domains (e.g., trimbooking.ie), we need 3+ parts to have a subdomain
+  // (b.trimbooking.ie → ["b", "trimbooking", "ie"]).
+  // For localhost (e.g., b.localhost), 2+ parts is enough.
+  const isLocalhost = parts[parts.length - 1] === "localhost";
+  const minParts = isLocalhost ? 2 : 3;
+
+  if (parts.length >= minParts) {
     const subdomain = parts[0].toLowerCase();
     const ignoredSubdomains = ["localhost", "www", "api", "app"];
     if (!ignoredSubdomains.includes(subdomain)) {

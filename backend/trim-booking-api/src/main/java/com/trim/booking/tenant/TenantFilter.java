@@ -154,8 +154,14 @@ public class TenantFilter extends OncePerRequestFilter {
 
         // Get first part before the first dot
         String[] parts = hostname.split("\\.");
-        if (parts.length < 2) {
-            // No subdomain present (e.g., just "localhost")
+
+        // For real domains (e.g., trimbooking.ie), we need 3+ parts to have a subdomain
+        // (b.trimbooking.ie → ["b", "trimbooking", "ie"]).
+        // For localhost (e.g., b.localhost), 2+ parts is enough.
+        boolean isLocalhost = parts[parts.length - 1].equals("localhost");
+        int minParts = isLocalhost ? 2 : 3;
+
+        if (parts.length < minParts) {
             return null;
         }
 
