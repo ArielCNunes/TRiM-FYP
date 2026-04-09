@@ -45,10 +45,8 @@ export default function BookingFlow() {
     return null;
   }
 
-  // Calculate minimum selectable date (tomorrow)
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split('T')[0];
+  // Calculate minimum selectable date (today)
+  const minDate = new Date().toISOString().split('T')[0];
 
   const handleGoBack = () => {
     // Navigate backward through steps

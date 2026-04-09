@@ -114,12 +114,10 @@ export default function RescheduleBookingModal({
   };
 
   /**
-   * Get minimum date for date picker (tomorrow)
+   * Get minimum date for date picker (today)
    */
   const getMinDate = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split("T")[0];
+    return new Date().toISOString().split("T")[0];
   };
 
   /**
