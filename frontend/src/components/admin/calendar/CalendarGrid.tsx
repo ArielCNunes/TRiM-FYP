@@ -131,6 +131,8 @@ export default function CalendarGrid({
 
     return (
         <div className="bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+          <div className="overflow-x-auto">
+            <div className="min-w-[700px]">
             {/* Header row with day names */}
             <div className="flex border-b border-[var(--border-subtle)]">
                 {/* Time column header */}
@@ -302,6 +304,8 @@ export default function CalendarGrid({
                     })}
                 </div>
             </div>
+            </div>
+          </div>
         </div>
     );
 }

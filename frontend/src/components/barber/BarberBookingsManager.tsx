@@ -92,7 +92,7 @@ export default function BarberBookingsManager({
   return (
     <div>
       {/* Filter Dropdown */}
-      <div className="mb-6 flex justify-between items-center">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="flex items-center gap-2">
           <label
             htmlFor="booking-filter"

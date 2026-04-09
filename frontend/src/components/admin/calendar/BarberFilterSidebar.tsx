@@ -28,7 +28,7 @@ export default function BarberFilterSidebar({
     onSelectBarber,
 }: BarberFilterSidebarProps) {
     return (
-        <div className="w-64 flex-shrink-0">
+        <div className="w-full md:w-64 flex-shrink-0">
             <div className="bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] p-4">
                 <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Select Employee</h3>
 

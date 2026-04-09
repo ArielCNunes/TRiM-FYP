@@ -38,9 +38,9 @@ export default function CalendarHeader({
     };
 
     return (
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 md:mb-6">
             <div className="flex items-center gap-4">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">{formatDateRange()}</h2>
+                <h2 className="text-lg md:text-2xl font-bold text-[var(--text-primary)]">{formatDateRange()}</h2>
             </div>
 
             <div className="flex items-center gap-2">

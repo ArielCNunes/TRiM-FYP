@@ -217,9 +217,9 @@ export default function BarberAvailabilityManager({
             {days.map((day) => (
               <div
                 key={day}
-                className="flex items-center justify-between p-3 bg-[var(--bg-elevated)]/50 rounded-lg border border-[var(--border-default)]"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 gap-2 bg-[var(--bg-elevated)]/50 rounded-lg border border-[var(--border-default)]"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <button
                     type="button"
                     onClick={() => handleToggle(day)}

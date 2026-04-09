@@ -17,18 +17,18 @@ export default function BarberDashboard() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto px-4 py-6 md:p-6">
         {/* Page header */}
-        <h1 className="text-4xl font-bold mb-2 text-[var(--text-primary)]">Barber Dashboard</h1>
-        <p className="text-[var(--text-muted)] mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold mb-2 text-[var(--text-primary)]">Barber Dashboard</h1>
+        <p className="text-[var(--text-muted)] mb-6 md:mb-8">
           Welcome, {user.firstName} {user.lastName}
         </p>
 
         {/* Tab Navigation */}
-        <div className="flex gap-4 mb-8 border-b border-[var(--border-subtle)]">
+        <div className="flex gap-2 md:gap-4 mb-6 md:mb-8 border-b border-[var(--border-subtle)]">
           <button
             onClick={() => setActiveTab("bookings")}
-            className={`px-6 py-3 font-semibold transition ${activeTab === "bookings"
+            className={`px-4 md:px-6 py-3 font-semibold transition text-sm md:text-base ${activeTab === "bookings"
               ? "border-b-2 border-[var(--focus-ring)] text-[var(--accent-text)]"
               : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
@@ -37,7 +37,7 @@ export default function BarberDashboard() {
           </button>
           <button
             onClick={() => setActiveTab("availability")}
-            className={`px-6 py-3 font-semibold transition ${activeTab === "availability"
+            className={`px-4 md:px-6 py-3 font-semibold transition text-sm md:text-base ${activeTab === "availability"
               ? "border-b-2 border-[var(--focus-ring)] text-[var(--accent-text)]"
               : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}

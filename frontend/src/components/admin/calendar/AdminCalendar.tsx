@@ -5,6 +5,7 @@ import CalendarHeader from "./CalendarHeader";
 import CalendarGrid from "./CalendarGrid";
 import BarberFilterSidebar from "./BarberFilterSidebar";
 import BookingDetailModal from "./BookingDetailModal";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 // Helper to get the start of the week (Monday)
 const getWeekStart = (date: Date): Date => {
@@ -46,6 +47,7 @@ export default function AdminCalendar() {
     const [loading, setLoading] = useState(true);
     const [selectedBooking, setSelectedBooking] =
         useState<BookingResponse | null>(null);
+    const [showBarberFilter, setShowBarberFilter] = useState(false);
 
     const weekDates = useMemo(
         () => getWeekDates(currentWeekStart),
@@ -145,14 +147,50 @@ export default function AdminCalendar() {
         return barbers.find(b => b.id === selectedBarberId) || null;
     }, [barbers, selectedBarberId]);
 
+    // Get selected barber name for mobile display
+    const selectedBarberName = selectedBarber
+        ? `${selectedBarber.user.firstName} ${selectedBarber.user.lastName}`
+        : "Select Employee";
+
     return (
-        <div className="flex gap-6">
-            {/* Sidebar */}
-            <BarberFilterSidebar
-                barbers={barbers}
-                selectedBarberId={selectedBarberId}
-                onSelectBarber={selectBarber}
-            />
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+            {/* Mobile barber selector toggle */}
+            <div className="md:hidden">
+                <button
+                    onClick={() => setShowBarberFilter(!showBarberFilter)}
+                    className="w-full flex items-center justify-between p-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg"
+                >
+                    <span className="text-sm font-medium text-[var(--text-primary)]">
+                        Employee: {selectedBarberName}
+                    </span>
+                    {showBarberFilter ? (
+                        <ChevronUp className="w-4 h-4 text-[var(--text-muted)]" />
+                    ) : (
+                        <ChevronDown className="w-4 h-4 text-[var(--text-muted)]" />
+                    )}
+                </button>
+                {showBarberFilter && (
+                    <div className="mt-2">
+                        <BarberFilterSidebar
+                            barbers={barbers}
+                            selectedBarberId={selectedBarberId}
+                            onSelectBarber={(id) => {
+                                selectBarber(id);
+                                setShowBarberFilter(false);
+                            }}
+                        />
+                    </div>
+                )}
+            </div>
+
+            {/* Desktop sidebar */}
+            <div className="hidden md:block">
+                <BarberFilterSidebar
+                    barbers={barbers}
+                    selectedBarberId={selectedBarberId}
+                    onSelectBarber={selectBarber}
+                />
+            </div>
 
             {/* Main Calendar Area */}
             <div className="flex-1 min-w-0">

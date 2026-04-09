@@ -87,7 +87,7 @@ function AppContent() {
       {/* Fixed sidebar navigation - displayed on all pages */}
       <Navbar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
 
-      {/* Main application routes - offset by sidebar width on desktop, full width on mobile */}
+      {/* Main application routes: offset by sidebar width on desktop, full width on mobile */}
       <main className={`min-h-screen transition-all duration-300 ${isSidebarCollapsed ? "pt-14 md:pt-0 md:ml-14" : "md:ml-64"}`}>
         <AppRoutes />
       </main>
