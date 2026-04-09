@@ -20,6 +20,8 @@ services:
     environment:
       DB_URL: jdbc:postgresql://postgres:5432/barbershop_db
       SPRING_PROFILES_ACTIVE: rls
+      TZ: Europe/Dublin
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Dublin"
     depends_on:
       - postgres
 
