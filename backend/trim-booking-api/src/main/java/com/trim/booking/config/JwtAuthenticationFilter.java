@@ -57,9 +57,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Step 5b: Validate business ID matches tenant context (multi-tenant isolation)
                 Long contextBusinessId = TenantContext.getCurrentBusinessId();
-                if (tokenBusinessId == null || contextBusinessId == null
-                        || !tokenBusinessId.equals(contextBusinessId)) {
-                    // Token missing business ID, context missing business ID, or mismatch - reject request
+                if (contextBusinessId == null) {
+                    // No tenant context (public endpoint) so we can skip authentication, let permitAll rules handle it
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+                if (tokenBusinessId == null || !tokenBusinessId.equals(contextBusinessId)) {
+                    // Token missing business ID or mismatch so reject request
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     response.setContentType("application/json");
                     response.getWriter().write("{\"error\": \"Token not valid for this business\"}");
