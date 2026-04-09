@@ -13,7 +13,7 @@ export default function RevenueCards({ stats }: RevenueCardsProps) {
           <p className="text-sm text-[var(--text-muted)]">Total Revenue</p>
           <Euro className="w-5 h-5 text-[var(--text-muted)]" />
         </div>
-        <p className="text-3xl font-bold text-[var(--text-primary)]">
+        <p className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
           €{stats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </p>
       </div>
@@ -23,7 +23,7 @@ export default function RevenueCards({ stats }: RevenueCardsProps) {
           <p className="text-sm text-[var(--text-muted)]">This Month Revenue</p>
           <TrendingUp className="w-5 h-5 text-[var(--accent-text)]" />
         </div>
-        <p className="text-3xl font-bold text-[var(--accent-text)]">
+        <p className="text-2xl md:text-3xl font-bold text-[var(--accent-text)]">
           €{stats.thisMonthRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </p>
       </div>

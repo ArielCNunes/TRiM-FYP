@@ -147,7 +147,7 @@ export default function CustomersManager() {
                 <>
                     <div className="bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
                         <div className="overflow-x-auto">
-                            <table className="w-full">
+                            <table className="w-full min-w-[500px]">
                                 <thead>
                                     <tr className="border-b border-[var(--border-subtle)]">
                                         <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--text-muted)]">
@@ -180,11 +180,11 @@ export default function CustomersManager() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="flex items-center justify-between mt-4 px-2">
+                        <div className="flex flex-col sm:flex-row items-center justify-between mt-4 px-2 gap-3">
                             <p className="text-sm text-[var(--text-subtle)]">
                                 Showing {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements} customers
                             </p>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap justify-center">
                                 <button
                                     onClick={() => setCurrentPage(0)}
                                     disabled={currentPage === 0}
