@@ -42,6 +42,12 @@ export default function RescheduleBookingModal({
   // Fetch available slots when date is selected
   useEffect(() => {
     if (selectedDate && booking) {
+      const today = new Date().toISOString().split("T")[0];
+      if (selectedDate < today) {
+        setAvailableSlots([]);
+        setSelectedTime("");
+        return;
+      }
       fetchAvailableSlots(selectedDate);
     } else {
       setAvailableSlots([]);

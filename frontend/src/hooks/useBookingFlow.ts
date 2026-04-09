@@ -30,11 +30,9 @@ export function useBookingFlow() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [loadingBarbers, setLoadingBarbers] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split("T")[0];
-  });
+  const [selectedDate, setSelectedDate] = useState(
+    () => new Date().toISOString().split("T")[0],
+  );
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState("");
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -65,6 +63,12 @@ export function useBookingFlow() {
 
   useEffect(() => {
     if (selectedDate && selectedBarber && selectedService) {
+      const today = new Date().toISOString().split("T")[0];
+      if (selectedDate < today) {
+        setAvailableSlots([]);
+        setSelectedTime("");
+        return;
+      }
       fetchAvailableSlots();
     }
   }, [selectedDate, selectedBarber, selectedService]);
