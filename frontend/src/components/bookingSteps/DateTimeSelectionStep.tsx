@@ -49,7 +49,7 @@ export function DateTimeSelectionStep({
             min={minDate}
             value={selectedDate}
             onChange={(e) => onDateChange(e.target.value)}
-            className="w-full border border-[var(--border-default)] rounded-lg p-3 bg-[var(--bg-surface)] text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none"
+            className="w-full max-w-full appearance-none border border-[var(--border-default)] rounded-lg p-3 bg-[var(--bg-surface)] text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none"
           />
         </div>
 
