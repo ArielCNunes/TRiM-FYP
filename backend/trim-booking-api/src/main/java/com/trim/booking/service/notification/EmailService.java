@@ -403,7 +403,7 @@ public class EmailService {
                                             <!-- Title -->
                                             <tr>
                                                 <td style="padding: 0 0 32px 0; text-align: left; border-bottom: 1px solid #000000;">
-                                                    <h1 style="margin: 0 0 24px 0; color: #000000; font-size: 28px; font-weight: 400; letter-spacing: -0.5px;">Reset your password</h1>
+                                                    <h1 style="margin: 0 0 24px 0; color: #ffffff; font-size: 28px; font-weight: 400; letter-spacing: -0.5px;">Reset your password</h1>
                                                 </td>
                                             </tr>
 
