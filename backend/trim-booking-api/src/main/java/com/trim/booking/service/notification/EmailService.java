@@ -403,7 +403,7 @@ public class EmailService {
                                             <!-- Title -->
                                             <tr>
                                                 <td style="padding: 0 0 32px 0; text-align: left; border-bottom: 1px solid #000000;">
-                                                    <h1 style="margin: 0 0 24px 0; color: #ffffff; font-size: 28px; font-weight: 400; letter-spacing: -0.5px;">Reset your password</h1>
+                                                    <h1 style="margin: 0 0 24px 0; color: #000000; font-size: 28px; font-weight: 400; letter-spacing: -0.5px;">Reset your password</h1>
                                                 </td>
                                             </tr>
 
@@ -419,12 +419,12 @@ public class EmailService {
                                             <!-- Button -->
                                             <tr>
                                                 <td style="padding: 8px 0 32px 0;">
-                                                    <table role="presentation" style="border-collapse: collapse;">
+                                                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
                                                         <tr>
-                                                            <td>
+                                                            <td bgcolor="#000000" style="background-color: #000000; border: 1px solid #000000;">
                                                                 <a href="%s"
-                                                                   style="display: inline-block; padding: 14px 32px; background-color: #000000; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; border: 1px solid #000000;">
-                                                                    Reset password
+                                                                   style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; font-family: Helvetica, Arial, sans-serif;">
+                                                                    <span style="color: #ffffff; text-decoration: none;">Reset password</span>
                                                                 </a>
                                                             </td>
                                                         </tr>
