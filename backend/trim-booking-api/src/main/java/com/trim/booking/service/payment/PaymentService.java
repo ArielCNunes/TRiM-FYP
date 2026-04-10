@@ -196,6 +196,9 @@ public class PaymentService {
         booking.setExpiresAt(null); // Clear expiry if booking is confirmed
         bookingRepository.save(booking);
 
+        // Force-initialize lazy Business proxy so it's accessible on the @Async email thread
+        booking.getBusiness().getName();
+
         // Send confirmation notifications asynchronously
         emailService.sendBookingConfirmation(booking);
         smsService.sendBookingConfirmation(booking);

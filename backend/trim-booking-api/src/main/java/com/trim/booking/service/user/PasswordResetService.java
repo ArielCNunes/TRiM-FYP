@@ -72,6 +72,11 @@ public class PasswordResetService {
             // Save to database
             userRepository.save(user);
 
+            // Force-initialize lazy Business proxy so it's accessible on the @Async email thread
+            if (user.getBusiness() != null) {
+                user.getBusiness().getName();
+            }
+
             // Send email with reset link
             emailService.sendPasswordResetEmail(user, resetToken);
 
