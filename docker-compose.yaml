@@ -22,6 +22,8 @@ services:
       SPRING_PROFILES_ACTIVE: rls
       TZ: Europe/Dublin
       JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Dublin"
+    ports:
+      - "8080:8080"
     depends_on:
       - postgres
 
