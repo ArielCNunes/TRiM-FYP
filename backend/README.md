@@ -41,6 +41,15 @@ The application uses `dotenv-java` to load environment variables from a `.env` f
 Create the file with the following variables:
 
 ```env
+# Database (default profile: schema owner)
+DB_URL=jdbc:postgresql://localhost:5433/barbershop_db
+DB_USERNAME=your_pg_username
+DB_PASSWORD=your_pg_password
+
+# Database (rls profile: restricted role, only needed when running with -Dspring-boot.run.profiles=rls)
+RLS_DB_USERNAME=trim_app_user
+RLS_DB_PASSWORD=trim_app_password
+
 # Email (Gmail SMTP)
 MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-gmail-app-password
@@ -59,25 +68,19 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxx
 JWT_SECRET=your-secret-key-minimum-256-bits
 ```
 
-> All of these are referenced in `application.properties` via `${VAR_NAME}` syntax.
+> All of these are referenced in `application.properties` (and `application-rls.properties`) via `${VAR_NAME}` syntax. `DB_URL` falls back to `jdbc:postgresql://localhost:5433/barbershop_db` if unset.
 
 ---
 
 ## Database Setup
 
-1. **Create the PostgreSQL database:**
+1. **Create the PostgreSQL database** (defaults assume port `5433`, matching the provided Docker setup; adjust `DB_URL` if you run Postgres on `5432` or a different host):
 
 ```bash
-createdb barbershop_db
+createdb -p 5433 barbershop_db
 ```
 
-2. **Configure connection** in `src/main/resources/application.properties`:
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/barbershop_db
-spring.datasource.username=your_pg_username
-spring.datasource.password=your_pg_password
-```
+2. **Set connection credentials** via the `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` environment variables in `.env` (see above). `application.properties` reads these, so there is no need to edit it directly.
 
 3. **Schema creation** is handled automatically by Hibernate (`ddl-auto=update`) in the default profile.
 
@@ -108,7 +111,7 @@ The API starts at **http://localhost:8080**.
 |---------|---------|----------|-------------------|
 | *(default)* | Development | PostgreSQL as schema owner, `ddl-auto=update` | Real credentials from `.env` |
 | `rls` | Row-Level Security | Connects as `trim_app_user` (non-superuser), `ddl-auto=none`, autocommit disabled | Real credentials from `.env` |
-| `seed` | Bulk test data generation | PostgreSQL as schema owner | Dummy/disabled — no emails, SMS, or payments sent |
+| `seed` | Bulk test data generation | PostgreSQL as schema owner | No emails, SMS, or payments sent |
 | `test` | Automated tests | H2 in-memory (`create-drop`), PostgreSQL dialect compatibility mode | Dummy values |
 
 ---
@@ -118,7 +121,7 @@ The API starts at **http://localhost:8080**.
 When the server is running, interactive docs are available at:
 
 - **Swagger UI:** http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON:** http://localhost:8080/api-docs
+- **OpenAPI JSON:** http://localhost:8080/v3/api-docs
 
 ---
 
@@ -135,6 +138,8 @@ When the server is running, interactive docs are available at:
 | **Slots** | `/api/availability` | `GET ?barberId=&date=&serviceId=` |
 | **Bookings** | `/api/bookings` | `POST /`, `GET /all`, `GET /customer/{id}`, `GET /barber/{id}`, `PUT /{id}`, `PATCH /{id}/cancel`, `PUT /{id}/complete`, `PUT /{id}/no-show`, `PUT /{id}/mark-paid` |
 | **Payments** | `/api/payments` | `POST /create-intent`, `POST /webhook` |
+| **Stripe Connect** | `/api/stripe-connect` | `POST /create-account`, `GET /account-link`, `GET /status`, `GET /dashboard-link` |
+| **Business** | `/api/business` | `GET /check` (subdomain availability) |
 | **Dashboard** | `/api/dashboard` | `GET /admin` |
 | **Customers** | `/api/admin/customers` | `GET ?page=&size=`, `GET /{id}`, `PUT /{id}/blacklist`, `PUT /{id}/unblacklist` |
 
@@ -155,10 +160,12 @@ trim-booking-api/
 │   │   ├── AuthController               #   Auth (login, register, password reset)
 │   │   ├── BookingController            #   Booking CRUD & status transitions
 │   │   ├── PaymentController            #   Stripe payment intents & webhooks
+│   │   ├── StripeConnectController      #   Stripe Connect onboarding for tenants
 │   │   ├── AvailabilityController       #   Available time slots
 │   │   ├── BarberController             #   Barber management
 │   │   ├── BarberAvailabilityController #   Weekly schedule management
 │   │   ├── BarberBreakController        #   Break management
+│   │   ├── BusinessController           #   Subdomain / business checks
 │   │   ├── ServiceController            #   Service CRUD
 │   │   ├── ServiceCategoryController    #   Category CRUD
 │   │   ├── CustomerController           #   Customer list & blacklisting
@@ -206,8 +213,11 @@ trim-booking-api/
 │   ├── java/gatling/                    # Gatling load test simulations
 │   └── resources/application-test.properties
 ├── scripts/
-│   ├── rls_setup.sql                    # RLS policy creation
-│   └── rls_role_setup.sql              # Restricted DB role creation
+│   ├── docker-init.sql                  # Auto-runs on first Docker Postgres start (role + grants)
+│   ├── rls_role_setup.sql               # Restricted DB role creation (manual Postgres setup)
+│   ├── apply-rls.sql                    # Current RLS policies (idempotent, includes bypass sentinel)
+│   ├── rls_setup.sql                    # Original RLS policies, kept for history; superseded by apply-rls.sql
+│   └── fix-rls-bypass.sql               # Migration: adds bypass sentinel to existing policies
 └── pom.xml
 ```
 
@@ -217,7 +227,7 @@ trim-booking-api/
 
 TRiM supports multiple barbershops on a single deployment. Tenancy is resolved per-request:
 
-1. The frontend extracts a **business slug** from the subdomain (e.g. `v7.localhost` → `v7`)
+1. The frontend extracts a **business slug** from the subdomain (e.g. `v7.trimbooking.ie` → `v7`)
 2. Every API request includes an `X-Business-Slug` header
 3. `TenantFilter` resolves the slug to a `business_id` and stores it in `TenantContext` (ThreadLocal)
 4. Repositories and services use the tenant context to scope queries
@@ -232,11 +242,21 @@ For stronger isolation, activate the `rls` profile. This:
 
 **Setup (one-time):**
 
+If you use the provided Docker Postgres image, `scripts/docker-init.sql` runs automatically on first container start and creates the `trim_app_user` role with the required grants, so you only need to apply the policies:
+
+```bash
+psql -d barbershop_db -f scripts/apply-rls.sql   # Enable RLS policies
+```
+
+For a manual Postgres install, create the role first:
+
 ```bash
 # As the PostgreSQL superuser / schema owner:
 psql -d barbershop_db -f scripts/rls_role_setup.sql   # Create trim_app_user role
-psql -d barbershop_db -f scripts/rls_setup.sql         # Enable RLS policies
+psql -d barbershop_db -f scripts/apply-rls.sql        # Enable RLS policies (idempotent, includes bypass sentinel)
 ```
+
+> Use `apply-rls.sql` (not the older `rls_setup.sql`), it includes the `app.current_business_id = '-1'` bypass sentinel required for internal operations such as Stripe webhook processing. Run `fix-rls-bypass.sql` if you need to fix an existing database that was set up with the older policies.
 
 Then run with:
 

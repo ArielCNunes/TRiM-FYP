@@ -36,13 +36,11 @@ cp .env.example .env
 
 ```env
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxx
-VITE_APP_DOMAIN=localhost
 ```
 
 | Variable | Purpose |
 |----------|---------|
 | `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key for the payment form |
-| `VITE_APP_DOMAIN` | Base domain used to detect dev vs production environment |
 
 ---
 
@@ -62,6 +60,7 @@ The app starts at **http://localhost:3000**.
 | `npm run dev` | Start Vite dev server with HMR (port 3000) |
 | `npm run build` | Type-check with `tsc` then build for production |
 | `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint over the source tree |
 
 ---
 
@@ -84,6 +83,7 @@ frontend/src/
 │   │   ├── categories/         #   Service category management
 │   │   ├── customers/          #   Customer list & blacklisting
 │   │   ├── dashboard/          #   Analytics dashboard (charts)
+│   │   ├── payments/           #   Stripe Connect onboarding & payout settings
 │   │   └── services/           #   Service management
 │   ├── auth/                   # Auth forms (login, signup, forgot/reset password)
 │   ├── barber/                 # Barber dashboard components
@@ -123,9 +123,11 @@ frontend/src/
 │   ├── Auth.tsx
 │   ├── ForgotPassword.tsx
 │   ├── ResetPassword.tsx
-│   └── RegisterBusiness.tsx
+│   ├── RegisterBusiness.tsx
+│   └── BusinessNotFound.tsx     # Fallback shown when the subdomain slug resolves to no tenant
 ├── routes/
-│   └── AppRoutes.tsx            # Route definitions
+│   ├── AppRoutes.tsx            # Route definitions
+│   └── ProtectedRoute.tsx       # Auth + role-based route guard
 ├── store/
 │   ├── store.ts                 # Redux store configuration
 │   └── hooks.ts                 # Typed useSelector / useDispatch
@@ -144,13 +146,15 @@ frontend/src/
 |------|------|--------|
 | `/` | Home | Public |
 | `/booking` | BookingFlow | Public (auth required to confirm) |
-| `/auth` | Auth (Login / Register) | Public |
-| `/my-bookings` | MyBookings | Customer |
-| `/barber` | BarberDashboard | Barber |
-| `/admin` | Admin | Admin |
+| `/auth` | Auth (Login / Register) | Public; redirects to `/register-business` if the hostname has no business subdomain |
+| `/my-bookings` | MyBookings | Any authenticated user (via `ProtectedRoute`) |
+| `/barber` | BarberDashboard | Barber (via `ProtectedRoute` with `roles={["BARBER"]}`) |
+| `/admin` | Admin | Admin (via `ProtectedRoute` with `roles={["ADMIN"]}`) |
 | `/forgot-password` | ForgotPassword | Public |
 | `/reset-password/:token` | ResetPassword | Public |
 | `/register-business` | RegisterBusiness | Public |
+
+Role-based access is enforced by `routes/ProtectedRoute.tsx`, which checks the authenticated user against the allowed `roles` prop and redirects unauthorised requests back to `/auth`.
 
 ---
 
@@ -160,9 +164,9 @@ The frontend resolves the current business (tenant) from the **subdomain**:
 
 | URL | Resolved Slug |
 |-----|---------------|
-| `v7.localhost:3000` | `v7` |
-| `topcuts.trim.com` | `topcuts` |
-| `localhost:3000?business=shop2` | `shop2` (query param fallback) |
+| `v7.trimbooking.ie` | `v7` |
+| `topcuts.trimbooking.ie` | `topcuts` |
+| `trimbooking.ie?business=shop2` | `shop2` (query param fallback) |
 
 The slug is sent as an `X-Business-Slug` header on every API request via the Axios request interceptor. This allows a single frontend deployment to serve multiple barbershops.
 

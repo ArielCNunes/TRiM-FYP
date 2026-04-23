@@ -1,6 +1,6 @@
 # TRiM - A Multi Tenant SaaS Application
 
-**Final Year Project** — BSc (Hons) Computing in Software Development  
+**Final Year Project**: BSc (Hons) Computing in Software Development  
 **Student:** Ariel Nunes (G00418763) | **Supervisor:** Andrew Beatty  
 **College:** ATU Galway | **Year:** 2025/2026
 
@@ -8,9 +8,9 @@
 
 ## Overview
 
-TRiM is a multi-tenant, full-stack booking platform for barbershops. Customers can browse services, book appointments, and pay deposits online. Barbers manage their own schedules, availability, and breaks. Admins oversee services, staff, customers, and business analytics through a dashboard.
+TRiM is a multi-tenant, business management tool/booking platform for barbershops. Customers can browse services, book appointments, and pay deposits online. Barbers manage their own schedules, availability, and breaks. Admins oversee services, staff, customers, and business analytics through a dashboard.
 
-The platform is designed as a **SaaS product**: multiple barbershops operate on a single deployment, each isolated by subdomain (e.g. `v7.trim.com`, `topcuts.trim.com`). Tenant data is secured using PostgreSQL **Row-Level Security (RLS)**.
+The platform is designed as a **SaaS product**: multiple barbershops operate on a single deployment, each isolated by subdomain (e.g. `v7.trimbooking.ie`, `topcuts.trimbooking.ie`). Tenant data is secured using PostgreSQL with **Row-Level Security (RLS)**.
 
 ---
 
@@ -28,6 +28,18 @@ The platform is designed as a **SaaS product**: multiple barbershops operate on 
 - Email (Gmail SMTP) and SMS (Twilio) booking confirmations and reminders
 - Subdomain-based multi-tenancy with Row-Level Security
 - Swagger/OpenAPI documentation
+
+---
+
+## Getting Started
+
+A live instance is deployed at **[http://business-1.trimbooking.ie](https://business-1.trimbooking.ie)** (each barbershop is served from its own subdomain of `trimbooking.ie`).
+
+To run the project locally:
+
+1. **Start PostgreSQL** (the backend setup assumes port `5433`; a Docker image is the easiest path).
+2. **Run the backend** Spring Boot API on port `8080`: follow [`backend/README.md`](backend/README.md) for environment variables, database setup, and profiles (`default`, `rls`, `seed`, `test`).
+3. **Run the frontend** Vite dev server on port `3000`: follow [`frontend/README.md`](frontend/README.md) for environment variables and available scripts.
 
 ---
 
@@ -49,31 +61,9 @@ The platform is designed as a **SaaS product**: multiple barbershops operate on 
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Browser (React SPA)                                            │
-│  subdomain → X-Business-Slug header                             │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │ REST / JSON
-┌──────────────────────────▼──────────────────────────────────────┐
-│  Spring Boot API  (port 8080)                                   │
-│  ┌────────────┐ ┌───────────┐ ┌────────────┐ ┌───────────────┐ │
-│  │ TenantFilter│ │ JWT Auth  │ │ Controllers│ │ Services      │ │
-│  └─────┬──────┘ └─────┬─────┘ └─────┬──────┘ └───────┬───────┘ │
-│        │ sets tenant   │ validates   │                │         │
-│        │ context       │ token       │                │         │
-│  ┌─────▼───────────────▼─────────────▼────────────────▼───────┐ │
-│  │                  Spring Data JPA                           │ │
-│  └────────────────────────┬───────────────────────────────────┘ │
-└───────────────────────────┼─────────────────────────────────────┘
-                            │
-┌───────────────────────────▼─────────────────────────────────────┐
-│  PostgreSQL                                                     │
-│  Row-Level Security policies filter rows by business_id         │
-└─────────────────────────────────────────────────────────────────┘
-```
+![TRiM system architecture](Documentation/architecture.png)
 
-Every request includes an `X-Business-Slug` header (derived from the subdomain). The `TenantFilter` resolves the slug to a `business_id` and sets it in `TenantContext`. When the RLS profile is active, a restricted database user and RLS policies enforce that queries only return data belonging to the current tenant.
+Requests from the React SPA hit Nginx, which serves the static frontend bundle and reverse-proxies `/api` calls to the Spring Boot backend on port 8080. Inside the API, the `TenantFilter` resolves the `X-Business-Slug` header (derived from the subdomain) to a `business_id` and stores it in `TenantContext`; the `JwtAuthFilter` then validates the bearer token before the request reaches a controller. The service layer adds `SET LOCAL app.current_business_id` on each transaction so PostgreSQL Row-Level Security policies scope every query to the current tenant. Payments are handled through Stripe Connect, and booking confirmations and reminders are dispatched via Twilio (SMS) and Gmail SMTP (email).
 
 ---
 
@@ -100,17 +90,11 @@ booking-system-fyp/
 │   │   └── utils/               #   Utility functions
 │   ├── package.json
 │   └── vite.config.ts
-└── docs/                        # Meeting logs & dissertation (LaTeX)
+└── Documentation/               # Dissertation PDF, screencast & screenshots
+    ├── Screenshots/             #   UI screenshots used in this README
+    ├── architecture.png         #   System architecture diagram
+    └── TRiM-Screencast.mov      #   Application demo video
 ```
-
----
-
-## API Documentation
-
-When the backend is running, interactive API documentation is available via Swagger UI:
-
-- **Swagger UI:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
-- **OpenAPI JSON:** [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
 
 ---
 
@@ -127,4 +111,34 @@ When the backend is running, interactive API documentation is available via Swag
 
 ## Screenshots
 
-*Coming soon.*
+### Public / Onboarding
+
+| Login & sign-up | Register a new business |
+|-----------------|-------------------------|
+| ![Login](Documentation/Screenshots/Screenshot%202026-04-23%20at%2011.58.45.png) | ![Register business](Documentation/Screenshots/Screenshot%202026-04-23%20at%2012.01.27.png) |
+
+### Customer
+
+| Home | Booking confirmation step | My Bookings |
+|------|---------------------------|-------------|
+| ![Customer home](Documentation/Screenshots/Screenshot%202026-04-23%20at%2012.00.21.png) | ![Confirm booking](Documentation/Screenshots/Screenshot%202026-04-23%20at%2012.00.42.png) | ![My bookings](Documentation/Screenshots/Screenshot%202026-04-23%20at%2012.00.25.png) |
+
+### Barber
+
+| Weekly working hours | Breaks |
+|----------------------|--------|
+| ![Barber availability](Documentation/Screenshots/Screenshot%202026-04-23%20at%2012.01.02.png) | ![Barber breaks](Documentation/Screenshots/Screenshot%202026-04-23%20at%2012.01.07.png) |
+
+### Admin
+
+| Analytics dashboard | Shop calendar |
+|---------------------|---------------|
+| ![Admin dashboard](Documentation/Screenshots/Screenshot%202026-04-23%20at%2011.59.12.png) | ![Shop calendar](Documentation/Screenshots/Screenshot%202026-04-23%20at%2011.59.07.png) |
+
+| Services management (dark mode) | Customers List |
+|---------------------------------|--------------------------|
+| ![Services](Documentation/Screenshots/Screenshot%202026-04-23%20at%2011.59.50.png) | ![Customers](Documentation/Screenshots/Screenshot%202026-04-23%20at%2011.59.41.png) |
+
+### Email Notification
+
+![Booking confirmation email](Documentation/Screenshots/Screenshot%202026-04-23%20at%2012.01.51.png)
