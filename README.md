@@ -33,7 +33,7 @@ The platform is designed as a **SaaS product**: multiple barbershops operate on 
 
 ## Getting Started
 
-A live instance is deployed at **[http://business-1.trimbooking.ie](https://business-1.trimbooking.ie)** (each barbershop is served from its own subdomain of `trimbooking.ie`).
+A live instance is deployed at **business-1.trimbooking.ie** (each barbershop is served from its own subdomain of `trimbooking.ie`).
 
 To run the project locally:
 
