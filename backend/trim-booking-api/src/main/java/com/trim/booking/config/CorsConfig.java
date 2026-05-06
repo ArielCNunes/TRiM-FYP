@@ -28,7 +28,9 @@ public class CorsConfig {
                 "http://" + baseDomain + ":" + frontendPort,
                 "http://*." + baseDomain + ":" + frontendPort,
                 "http://" + baseDomain,
-                "http://*." + baseDomain
+                "http://*." + baseDomain,
+                "https://" + baseDomain,
+                "https://*." + baseDomain
         ));
 
         configuration.setAllowedMethods(Arrays.asList(

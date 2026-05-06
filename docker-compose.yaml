@@ -3,6 +3,8 @@ services:
     image: postgres:16
     container_name: postgres_local
     restart: always
+    ports:
+      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_USER: ${DB_USERNAME:-root}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
@@ -22,8 +24,6 @@ services:
       SPRING_PROFILES_ACTIVE: rls
       TZ: Europe/Dublin
       JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Dublin"
-    ports:
-      - "8080:8080"
     depends_on:
       - postgres
 
@@ -33,6 +33,10 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt/live/trimbooking.ie:/etc/letsencrypt/live/trimbooking.ie:ro
+      - /etc/letsencrypt/archive/trimbooking.ie:/etc/letsencrypt/archive/trimbooking.ie:ro
     depends_on:
       - api
 
